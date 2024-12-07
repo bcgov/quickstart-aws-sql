@@ -1,5 +1,5 @@
 terraform {
-  source = "../..//infrastructure//backend"
+  source = "../../..//infrastructure//backend"
 }
 
 locals {
