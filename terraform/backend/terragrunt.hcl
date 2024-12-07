@@ -2,6 +2,8 @@ terraform {
   source = "../../..//infrastructure//backend"
 }
 
+
+
 locals {
   region                  = "ca-central-1"
 
@@ -28,6 +30,35 @@ terraform {
   }
 }
 EOF
+}
+resource "aws_s3_bucket" "statefile_bucket" {
+  bucket = "${local.statefile_bucket_name}"
+  acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+
+  tags = {
+    Name        = "Terraform state bucket"
+    Environment = "${local.target_env}"
+  }
+}
+
+resource "aws_dynamodb_table" "statefile_lock" {
+  name         = "${local.statelock_table_name}"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+
+  tags = {
+    Name        = "Terraform state lock table"
+    Environment = "${local.target_env}"
+  }
 }
 
 generate "tfvars" {
