@@ -7,7 +7,9 @@ concurrency:
   # Cancel in progress for PR open and close
   group: ${{ github.event.number }}
   cancel-in-progress: true
-
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
 jobs:
   # https://github.com/bcgov-nr/action-builder-ghcr
   #builds:
