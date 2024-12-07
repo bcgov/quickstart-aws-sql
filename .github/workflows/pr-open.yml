@@ -10,27 +10,28 @@ concurrency:
 
 jobs:
   # https://github.com/bcgov-nr/action-builder-ghcr
-  builds:
-    name: Builds
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        package: [backend, frontend, migrations]
-    timeout-minutes: 10
-    steps:
-      - uses: bcgov-nr/action-builder-ghcr@v2.3.0
-        with:
-          keep_versions: 50
-          package: ${{ matrix.package }}
-          tag: ${{ github.event.number }}
-          tag_fallback: latest
-          triggers: ('${{ matrix.package }}/')
+  #builds:
+  #  name: Builds
+  #  runs-on: ubuntu-24.04
+  ##  strategy:
+  #    matrix:
+  #      package: [backend, frontend, migrations]
+  #  timeout-minutes: 10
+  #  steps:
+  #    - uses: bcgov-nr/action-builder-ghcr@v2.3.0
+  #      with:
+  #        keep_versions: 50
+  #        package: ${{ matrix.package }}
+  #        tag: ${{ github.event.number }}
+  #        tag_fallback: latest
+  #        triggers: ('${{ matrix.package }}/')
 
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploys:
     name: Deploys
-    needs: [builds]
     uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: dev
+    secrets: inherit
+      
 
