@@ -45,6 +45,7 @@ jobs:
       working-directory: terraform/backend/${{ inputs.environment_name }}
       env:
           target_env: ${{ inputs.environment_name }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
       run: |
           # Run terraform
           terragrunt run-all apply --terragrunt-non-interactive
