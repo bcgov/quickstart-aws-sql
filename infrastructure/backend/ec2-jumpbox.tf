@@ -45,11 +45,11 @@ resource "aws_instance" "ec2_instance" {
   # Script to install postgresql.
   user_data = <<EOF
   #!/bin/bash
-  echo "Installing postgresql.x86_64" > init.log
-  sudo yum update -y >> init.log 2>&1 &
-  sudo yum install -y postgresql.x86_64 >> init.log 2>&1 &
-  echo "Postgres installation done" >> init.log
-
+  echo "Installing postgresql.x86_64 and libpq" > init.log
+  sudo yum update -y >> init.log 2>&1
+  sudo yum install -y postgresql.x86_64 >> init.log 2>&1
+  sudo yum install -y postgresql-libs >> init.log 2>&1
+  echo "Postgres and libpq installation done" >> init.log
   EOF
 
 }
