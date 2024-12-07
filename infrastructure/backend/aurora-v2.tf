@@ -3,7 +3,7 @@ data "aws_kms_alias" "rds_key" {
 }
 
 locals {
-    aws_security_group_data_sg_id = "${aws_security_group.data_sg.id}"
+    aws_security_group_data_sg_id = "${aws_security_group.custom_data_sg.id}"
 }
 
 resource "random_password" "db_master_password" {

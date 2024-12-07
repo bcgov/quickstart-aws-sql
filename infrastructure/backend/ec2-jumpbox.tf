@@ -18,9 +18,9 @@ resource "aws_instance" "ec2_instance" {
   ami                     = "${var.ec2_instance_ami}"
   instance_type           = "${var.ec2_instance_type}"
   subnet_id = data.aws_subnet.a_app.id
-  vpc_security_group_ids = ["${aws_security_group.app_sg.id}"]
+  vpc_security_group_ids = ["${aws_security_group.custom_app_sg.id}"]
 
-  depends_on = [aws_security_group.app_sg]
+  depends_on = [aws_security_group.custom_app_sg]
 
   iam_instance_profile = "${aws_iam_instance_profile.ec2_instance_profile.id}"
 
