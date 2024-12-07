@@ -37,8 +37,12 @@ jobs:
       uses: autero1/action-terragrunt@v3
       with:
           terragrunt-version: ${{ env.TG_VERSION }}
+    - name: Print Terraform directory
+      working-directory: terraform/backend/${{ inputs.environment_name }}
+      run: |
+        ls -la
     - name: Terragrunt Apply
-      working-directory: ${{ env.TG_SRC_PATH }}/${{ inputs.environment_name }}
+      working-directory: terraform/backend/${{ inputs.environment_name }}
       env:
           target_env: ${{ inputs.environment_name }}
       run: |
