@@ -90,7 +90,7 @@ module "aurora_postgresql_v2" {
 
   name              = var.db_cluster_name
   engine            = data.aws_rds_engine_version.postgresql.engine
-  engine_mode       = "serverless"
+  engine_mode       = "provisioned"
   engine_version    = data.aws_rds_engine_version.postgresql.version
   storage_encrypted = true
   database_name     = var.db_database_name
