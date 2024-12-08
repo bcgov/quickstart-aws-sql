@@ -50,8 +50,3 @@ variable "subnet_app_b" {
   default = "App_Dev_azb_net"
 }
 
-variable "app_env" {
-  description = "value of the app environment, same AWS environment can have multiple app environments"
-  type = string
-  
-}

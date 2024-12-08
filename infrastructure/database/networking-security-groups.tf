@@ -1,11 +1,11 @@
 resource "aws_security_group" "custom_app_sg" {
-    name = "custom_app_sg_${var.target_env}_${var.app_env}"
+    name = "custom_app_sg_${var.target_env}"
     description = "security group for application tier"
     vpc_id = data.aws_vpc.selected.id
     revoke_rules_on_delete = true
 
     tags = {
-        Name = "custom_app_sg_${var.target_env}_${var.app_env}"
+        Name = "custom_app_sg_${var.target_env}"
         managed-by = "terraform"
     }
 
@@ -19,12 +19,12 @@ resource "aws_vpc_security_group_egress_rule" "custom_app_sg_outbound" {
 }
 
 resource "aws_security_group" "custom_data_sg" {
-    name = "custom_data_sg_${var.target_env}_${var.app_env}"
+    name = "custom_data_sg_${var.target_env}"
     description = "custom security group for data tier."
     vpc_id = data.aws_vpc.selected.id
     revoke_rules_on_delete = true
     tags = {
-        Name = "custom_data_sg_${var.target_env}_${var.app_env}"
+        Name = "custom_data_sg_${var.target_env}"
         managed-by = "terraform"
     }
 }

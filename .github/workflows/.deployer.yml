@@ -25,7 +25,6 @@ on:
         type: string
         required: false
       app_env:
-        default: ${{github.event.number}}
         required: false
         type: string
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
