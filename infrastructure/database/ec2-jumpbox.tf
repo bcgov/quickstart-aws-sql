@@ -1,5 +1,5 @@
 locals {
-    ec2_instance_profile_name_prefix = "ec2_instance"
+    ec2_instance_profile_name_prefix = "ec2_i_pg"
 }
 
 variable "ec2_instance_ami" {

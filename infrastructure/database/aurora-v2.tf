@@ -51,7 +51,7 @@ resource "aws_rds_cluster_parameter_group" "db_postgresql" {
 
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
-  name = "db-master-creds-${var.target_env}"
+  name = "aurora-db-master-creds-${var.target_env}"
 
   tags = {
     managed-by = "terraform"
@@ -99,7 +99,7 @@ module "aurora_postgresql_v2" {
 
   serverlessv2_scaling_configuration = {
     min_capacity = 0.5
-    max_capacity = 1
+    max_capacity = 2
   }
 
   instance_class = "db.serverless"
