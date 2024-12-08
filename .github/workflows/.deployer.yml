@@ -19,6 +19,17 @@ on:
         required: true
         default: 'database'
         type: string
+      tag:
+        description: 'The tag of the containers to deploy'
+        default: 'latest'
+        type: string
+        required: false
+      app_env:
+        default: ${{github.event.number}}
+        required: false
+        type: string
+        description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+
         
 
     
@@ -53,6 +64,9 @@ jobs:
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
+          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
+          api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
+          app_env: ${{inputs.app_env}}
       run: |
           # Run terraform
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive

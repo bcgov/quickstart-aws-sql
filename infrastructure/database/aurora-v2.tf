@@ -12,19 +12,6 @@ resource "random_password" "db_master_password" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
-variable "db_master_username" {
-  description = "The username for the DB master user"
-  type        = string
-  default     = "sysadmin"
-  sensitive   = true
-}
-
-variable "db_database_name" {
-  description = "The name of the database"
-  type        = string
-  default     = "app"
-}
-
 resource "aws_db_subnet_group" "db_subnet_group" {
   description = "For Aurora cluster ${var.db_cluster_name}"
   name        = "${var.db_cluster_name}-subnet-group"
