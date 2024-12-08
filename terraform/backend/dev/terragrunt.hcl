@@ -9,6 +9,6 @@ generate "dev_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "dev"
-  db_cluster_name = "qsawsc-aurora-cluster"
+  db_cluster_name = "qsawsc-aurora-cluster-dev"
 EOF
 }

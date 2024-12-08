@@ -7,7 +7,7 @@ locals {
 }
 
 resource "random_password" "db_master_password" {
-  length           = 16
+  length           = 12
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
@@ -62,13 +62,9 @@ resource "aws_rds_cluster_parameter_group" "db_postgresql" {
   }
 }
 
-resource "random_pet" "master_creds_secret_name" {
-  prefix = "db-master-creds"
-  length = 2
-}
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
-  name = random_pet.master_creds_secret_name.id
+  name = "db-master-creds"
 
   tags = {
     managed-by = "terraform"
