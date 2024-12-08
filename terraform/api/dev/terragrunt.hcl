@@ -5,6 +5,7 @@ locals {
   app_env          = get_env("app_env")
   flyway_image              = get_env("flyway_image")
   api_image          = get_env("api_image")
+  target_env              = get_env("target_env")
   
 }
 
@@ -18,5 +19,6 @@ generate "dev_tfvars" {
   flyway_image=${local.flyway_image}
   api_image=${local.api_image}
   app_env=${local.app_env}
+  app_name="node-api-${local.target_env}-${local.app_env}"
 EOF
 }

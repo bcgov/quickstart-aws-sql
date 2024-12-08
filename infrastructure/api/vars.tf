@@ -52,7 +52,6 @@ variable "app_port" {
 variable "app_name" {
   description  = " The APP name"
   type        = string
-  default     = "node-api-${var.target_env}-${var.app_env}"
 }
 variable "common_tags" {
   description = "Common tags to be applied to resources"
