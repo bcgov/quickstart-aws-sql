@@ -13,7 +13,7 @@ locals {
   aws_license_plate          = get_env("aws_license_plate")
   statefile_bucket_name   = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}" 
   statefile_key           = "${local.target_env}/database/aurora-v2/terraform.tfstate"
-  statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}-${local.target_env}-database-aurora-v2" 
+  statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}" 
 }
 
 # Remote S3 state for Terraform.
