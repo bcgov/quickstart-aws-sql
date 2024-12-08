@@ -1,10 +1,10 @@
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "db-master-creds-${var.target_env}"
+  name = "aurora-db-master-creds-${var.target_env}"
 }
 
 
 data "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier = "qsawsc-aurora-cluster-${var.target_env}-${var.app_env}"
+  cluster_identifier = "qsawsc-aurora-cluster-${var.target_env}"
 }
 
 data "aws_secretsmanager_secret_version" "db_master_creds_version" {
