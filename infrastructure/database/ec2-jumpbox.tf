@@ -38,7 +38,7 @@ resource "aws_instance" "ec2_instance" {
   monitoring = true
 
   tags = {
-      Name = "ec2_host"
+      Name = "ec2_host_${var.target_env}"
       managed-by = "terraform"
   }
 
@@ -60,6 +60,6 @@ resource "aws_ec2_instance_state" "ec2_instance_state" {
 }
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "${local.ec2_instance_profile_name_prefix}_instance_profile"
+  name = "${local.ec2_instance_profile_name_prefix}_instance_profile_${var.target_env}"
   role = "EC2-Default-SSM-AD-Role" # default role given by ASEA platform, can't change.
 }
