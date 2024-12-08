@@ -30,6 +30,20 @@ variable "subnet_app_b" {
   type = string
   default = "App_Dev_azb_net"
 }
+
+# Networking Variables
+variable "subnet_data_a" {
+  description = "Value of the name tag for a subnet in the DATA security group"
+  type = string
+  default = "Data_Dev_aza_net"
+}
+
+variable "subnet_data_b" {
+  description = "Value of the name tag for a subnet in the DATA security group"
+  type = string
+  default = "Data_Dev_azb_net"
+}
+
 variable "app_port" {
   description = "The port of the API container"
   type        = number
