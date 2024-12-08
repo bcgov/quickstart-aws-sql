@@ -16,9 +16,9 @@ generate "dev_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "dev"
-  flyway_image=${local.flyway_image}
-  api_image=${local.api_image}
-  app_env=${local.app_env}
+  flyway_image="${local.flyway_image}"
+  api_image="${local.api_image}"
+  app_env="${local.app_env}"
   app_name="node-api-${local.target_env}-${local.app_env}"
 EOF
 }
