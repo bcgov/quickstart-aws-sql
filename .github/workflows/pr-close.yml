@@ -1,0 +1,13 @@
+name: PR Close
+
+on:
+  pull_request:
+    types: [closed]
+jobs:
+  cleanup-aws:
+    name: Cleanup AWS
+    uses: ./.github/workflows/.deployer.yml
+    with:
+      environment_name: dev
+      command: destroy
+    secrets: inherit

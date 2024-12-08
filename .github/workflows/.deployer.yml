@@ -9,6 +9,11 @@ on:
         required: true
         default: 'dev'
         type: string
+      command:
+        description: 'The terragrunt command to run'
+        required: true
+        default: 'apply'
+        type: string
         
 
     
@@ -48,4 +53,4 @@ jobs:
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
       run: |
           # Run terraform
-          terragrunt run-all apply --terragrunt-non-interactive
+          terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
