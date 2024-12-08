@@ -5,7 +5,7 @@ locals {
 variable "ec2_instance_ami" {
   description = "Instance image forEC2"
   type        = string
-  default     = "ami-04b23f719ebd1fc6c"
+  default     = "ami-046d18c147c36bef1"
 }
 
 variable "ec2_instance_type" {
