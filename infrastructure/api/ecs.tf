@@ -18,6 +18,7 @@ locals {
 
 output "db_master_creds_string" {
   value = local.db_master_creds
+  sensitive = true
 }
 output "database_endpoint" {
   value = data.aws_rds_cluster.rds_cluster.endpoint
