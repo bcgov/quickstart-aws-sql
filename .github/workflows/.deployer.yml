@@ -14,6 +14,11 @@ on:
         required: true
         default: 'apply'
         type: string
+      working_directory:
+        description: 'The working directory to run the command in'
+        required: true
+        default: 'database'
+        type: string
         
 
     
@@ -21,7 +26,7 @@ on:
 env:
     TG_VERSION: 0.55.2
     TF_VERSION: 1.5.3
-    TG_SRC_PATH: terraform/backend
+    TG_SRC_PATH: terraform/${{ inputs.working_directory }}
     AWS_REGION: ca-central-1
 jobs:
  deploy_database:
@@ -42,12 +47,8 @@ jobs:
       uses: autero1/action-terragrunt@v3
       with:
           terragrunt-version: ${{ env.TG_VERSION }}
-    - name: Print Terraform directory
-      working-directory: terraform/backend/${{ inputs.environment_name }}
-      run: |
-        ls -la
     - name: Terragrunt Apply
-      working-directory: terraform/backend/${{ inputs.environment_name }}
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}

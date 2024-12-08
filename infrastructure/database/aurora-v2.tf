@@ -64,7 +64,7 @@ resource "aws_rds_cluster_parameter_group" "db_postgresql" {
 
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
-  name = "db-master-creds"
+  name = "db-master-creds-${var.target_env}"
 
   tags = {
     managed-by = "terraform"

@@ -29,12 +29,22 @@ jobs:
   #        triggers: ('${{ matrix.package }}/')
 
   # https://github.com/bcgov/quickstart-openshift-helpers
-  deploys:
-    name: Deploys
+  deploy-db:
+    name: Deploys Database
     uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: dev
       command: apply
+      working_directory: database
+    secrets: inherit
+  deploy-api:
+    name: Deploys API
+    needs: [deploy-db]
+    uses: ./.github/workflows/.deployer.yml
+    with:
+      environment_name: dev
+      command: apply
+      working_directory: api
     secrets: inherit
       
 
