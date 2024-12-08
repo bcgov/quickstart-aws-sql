@@ -6,7 +6,7 @@ on:
 concurrency:
   # Cancel in progress for PR open and close
   group: ${{ github.event.number }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
