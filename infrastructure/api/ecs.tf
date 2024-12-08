@@ -9,7 +9,7 @@ data "aws_rds_cluster" "rds_cluster" {
 }
 
 output "db_master_creds" {
-  value = data.aws_secretsmanager_secret.db_master_creds.secret_string
+  value = data.aws_secretsmanager_secret.db_master_creds.arn
 }
 output "database_endpoint" {
   value = data.aws_rds_cluster.rds_cluster.endpoint
