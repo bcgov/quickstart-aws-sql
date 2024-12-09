@@ -46,10 +46,3 @@ resource "aws_vpc_security_group_ingress_rule" "api_inbound_2" {
   ip_protocol = "TCP"
   description = "Allow traffic to api from web tier on 80."
 }
-
-resource "aws_vpc_security_group_egress_rule" "api_outbound" {
-  security_group_id = data.aws_security_group.app.id
-  cidr_ipv4   = "0.0.0.0/0"
-  ip_protocol = "-1"
-  description = "Allow All Outbound Traffic"
-}
