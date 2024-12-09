@@ -149,7 +149,7 @@ resource "aws_ecs_service" "node_api_service" {
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.node_api_task.arn
   desired_count   = 1
-  launch_type     = "FARGATE"
+  health_check_grace_period_seconds = 60
 
  capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
