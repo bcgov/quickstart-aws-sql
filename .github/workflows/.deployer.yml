@@ -39,8 +39,8 @@ env:
     TG_SRC_PATH: terraform/${{ inputs.working_directory }}
     AWS_REGION: ca-central-1
 jobs:
- deploy:
-  name: Deploy
+ infra:
+  name: Terraform ${{inputs.command}}
   runs-on: ubuntu-24.04
   steps:
     - name: Checkout
@@ -58,7 +58,7 @@ jobs:
       uses: autero1/action-terragrunt@v3
       with:
           terragrunt-version: ${{ env.TG_VERSION }}
-    - name: Terragrunt Apply
+    - name: Terragrunt ${{inputs.command}}
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       env:
           target_env: ${{ inputs.environment_name }}

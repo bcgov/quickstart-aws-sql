@@ -1,7 +1,7 @@
 resource "aws_apigatewayv2_vpc_link" "app" {
   name               = var.app_name
-  subnet_ids         = data.aws_subnets.subnets_web.ids
-  security_group_ids = [aws_security_group.custom_web_sg.id]
+  subnet_ids         = module.network.aws_subnet_ids.web.ids
+  security_group_ids = [module.network.aws_security_groups.web.id]
 }
 
 resource "aws_apigatewayv2_api" "app" {

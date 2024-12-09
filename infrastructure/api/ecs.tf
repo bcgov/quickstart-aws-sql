@@ -1,19 +1,4 @@
-data "aws_security_group" "app" {
-  name = "custom_app_sg_${var.target_env}"
-}
-data "aws_subnets" "subnets_app" {
-  filter {
-    name   = "tag:Name"
-    values = [var.subnet_app_a, var.subnet_app_b]
-  }
-}
-data "aws_subnets" "subnets_web" {
-  filter {
-    name   = "tag:Name"
-    values = [var.subnet_web_a, var.subnet_web_b]
-  }
-  
-}
+
 data "aws_secretsmanager_secret" "db_master_creds" {
   name = "aurora-db-master-creds-${var.target_env}"
 }
@@ -35,6 +20,7 @@ locals {
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "ecs-cluster-${var.target_env}_${var.app_env}"
 }
+
 resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
   cluster_name = aws_ecs_cluster.ecs_cluster.name
 
@@ -168,8 +154,8 @@ resource "aws_ecs_service" "node_api_service" {
 
 
   network_configuration {
-    security_groups  = [data.aws_security_group.app.id]
-    subnets          = data.aws_subnets.subnets_app.ids
+    security_groups  = [module.network.aws_security_groups.app.id]
+    subnets          = module.network.aws_subnet_ids.app.ids
     assign_public_ip = false
   }
 
