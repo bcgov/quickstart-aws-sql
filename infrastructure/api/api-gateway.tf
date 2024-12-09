@@ -29,3 +29,27 @@ resource "aws_apigatewayv2_stage" "app" {
   name        = "$default"
   auto_deploy = true
 }
+resource "aws_vpc_security_group_ingress_rule" "api_inbound" {
+  security_group_id = data.aws_security_group.web.id
+  referenced_security_group_id = data.aws_security_group.app.id
+  from_port = 3000
+  to_port = 3000
+  ip_protocol = "TCP"
+  description = "Allow traffic to api from web tier on 3000."
+}
+
+resource "aws_vpc_security_group_ingress_rule" "api_inbound" {
+  security_group_id = data.aws_security_group.web.id
+  referenced_security_group_id = data.aws_security_group.app.id
+  from_port = 80
+  to_port = 3000
+  ip_protocol = "TCP"
+  description = "Allow traffic to api from web tier on 80."
+}
+
+resource "aws_vpc_security_group_egress_rule" "api_outbound" {
+  security_group_id = data.aws_security_group.app.id
+  cidr_ipv4   = "0.0.0.0/0"
+  ip_protocol = "-1"
+  description = "Allow All Outbound Traffic"
+}
