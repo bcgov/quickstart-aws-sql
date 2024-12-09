@@ -3,15 +3,6 @@ data "aws_kms_alias" "rds_key" {
 }
 data "aws_caller_identity" "current" {}
 
-# Gather VPC information from the network module
-
-module "network" {
-  source      = "git::https://github.com/BCDevOps/terraform-octk-aws-sea-network-info.git//?ref=master"
-  environment = var.target_env
-}
-
-
-
 resource "random_password" "db_master_password" {
   length           = 12
   special          = true
