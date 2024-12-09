@@ -124,7 +124,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           protocol      = "tcp"
           containerPort = var.app_port
-          hostPort      = var.app_port
+          hostPort      = 80
         }
       ]
       logConfiguration = {
