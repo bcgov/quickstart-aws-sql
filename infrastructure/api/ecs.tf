@@ -44,7 +44,8 @@ resource "aws_ecs_task_definition" "flyway_task" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.flyway_cpu
   memory                   = var.flyway_memory
-
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
     {
       name      = "flyway-${var.target_env}-${var.app_env}"
@@ -68,18 +69,12 @@ resource "aws_ecs_task_definition" "flyway_task" {
           value = "${var.db_schema}"
         }
       ]
-      portMappings = [
-        {
-          protocol      = "tcp"
-          containerPort = var.app_port
-          hostPort      = var.app_port
-        }
-      ]
+      
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/${var.app_name}"
+          awslogs-group         = "/ecs/flyway/${var.app_name}"
           awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
@@ -97,7 +92,8 @@ resource "aws_ecs_task_definition" "node_api_task" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.api_cpu
   memory                   = var.api_memory
-
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
     {
       name      = "node-api-task-${var.target_env}-${var.app_env}"
@@ -125,6 +121,24 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = "${var.db_schema}"
         }
       ]
+      portMappings = [
+        {
+          protocol      = "tcp"
+          containerPort = var.app_port
+          hostPort      = var.app_port
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-create-group  = "true"
+          awslogs-group         = "/ecs/node-api/${var.app_name}"
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+      mountPoints = []
+      volumesFrom = []
     }
   ])
 }
