@@ -69,7 +69,7 @@ variable "api_image" {
 variable "health_check_path" {
   description = "The path for the health check"
   type        = string
-  default     = "/"
+  default     = "/api/health"
   
 }
 variable "flyway_cpu" {
