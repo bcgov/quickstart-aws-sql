@@ -1,6 +1,10 @@
 locals {
   common_tags        = var.common_tags
 }
+module "network" {
+  source      = "git::https://github.com/BCDevOps/terraform-octk-aws-sea-network-info.git//?ref=master"
+  environment = var.target_env
+}
 resource "aws_alb" "app-alb" {
 
   name                             = var.app_name
