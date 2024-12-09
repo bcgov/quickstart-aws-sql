@@ -74,7 +74,7 @@ variable "health_check_path" {
 }
 variable "flyway_cpu" {
   type = number
-  default     = "512"
+  default     = "256"
 }
 variable "flyway_memory" {
   type = number
