@@ -64,7 +64,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
     {
       name      = "flyway-${var.target_env}-${var.app_env}"
       image     = "${var.flyway_image}"
-      essential = true
+      essential = false
       environment = [
         {
           name  = "FLYWAY_URL"
@@ -101,6 +101,12 @@ resource "aws_ecs_task_definition" "node_api_task" {
       name      = "node-api-task-${var.target_env}-${var.app_env}"
       image     = "${var.api_image}"
       essential = true
+      depends_on = [
+        {
+          containerName = "flyway-${var.target_env}-${var.app_env}"
+          condition     = "SUCCESS"
+        }
+      ]
       environment = [
         {
           name  = "POSTGRES_HOST"
