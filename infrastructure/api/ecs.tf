@@ -154,8 +154,8 @@ resource "aws_ecs_service" "node_api_service" {
 
 
   network_configuration {
-    security_groups  = [module.network.aws_security_groups.app.id]
-    subnets          = module.network.aws_subnet_ids.app.ids
+    security_groups  = [data.aws_security_group.app.id]
+    subnets          = data.aws_subnets.app.ids
     assign_public_ip = false
   }
 

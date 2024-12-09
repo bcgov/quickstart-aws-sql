@@ -12,7 +12,7 @@ resource "random_password" "db_master_password" {
 resource "aws_db_subnet_group" "db_subnet_group" {
   description = "For Aurora cluster ${var.db_cluster_name}"
   name        = "${var.db_cluster_name}-subnet-group"
-  subnet_ids  = [module.network.aws_subnet_ids.data.ids]
+  subnet_ids  = [ data.aws_subnets.data.ids ]
 
   tags = {
     managed-by = "terraform"
@@ -76,7 +76,7 @@ module "aurora_postgresql_v2" {
   database_name     = var.db_database_name
 
   vpc_id                 = data.aws_vpc.selected.id
-  vpc_security_group_ids = [module.network.aws_security_group.data.id]
+  vpc_security_group_ids = [data.aws_security_group.data.id]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
   master_username = var.db_master_username
