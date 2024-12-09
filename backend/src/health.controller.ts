@@ -1,8 +1,10 @@
 import { Controller, Get } from "@nestjs/common";
 import { HealthCheckService, HealthCheck, PrismaHealthIndicator } from "@nestjs/terminus";
 import { PrismaService } from "nestjs-prisma";
+import { Logger } from "@nestjs/common";
 @Controller("health")
 export class HealthController {
+  private logger = new Logger(HealthController.name);
   constructor(
     private health: HealthCheckService,
     private prisma: PrismaHealthIndicator,
@@ -13,7 +15,12 @@ export class HealthController {
   @HealthCheck()
   check() {
     return this.health.check([
-      () => this.prisma.pingCheck('prisma', this.prismaService),
+      () => {
+        const pingCheck = this.prisma.pingCheck('prisma', this.prismaService);
+        this.logger.log(`Prisma health check: ${pingCheck.status}`);
+        return pingCheck;
+        
+      },
     ]);
   }
 }
