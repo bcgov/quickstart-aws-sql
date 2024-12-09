@@ -128,7 +128,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
         ,
          {
           name  = "PORT"
-          value = "80"
+          value = var.app_port
         }
       ]
       portMappings = [
