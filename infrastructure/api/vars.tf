@@ -84,21 +84,14 @@ variable "health_check_path" {
   default     = "/api/health"
   
 }
-variable "flyway_cpu" {
-  type = number
-  default     = "512"
-}
-variable "flyway_memory" {
-  type = number
-  default     = "1024"
-}
+
 variable "api_cpu" {
   type = number
-  default     = "512"
+  default     = "256"
 }
 variable "api_memory" {
   type = number
-  default     = "1024"
+  default     = "512"
 }
 variable "aws_region" {
   type = string
