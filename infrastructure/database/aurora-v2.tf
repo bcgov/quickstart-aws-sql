@@ -75,7 +75,7 @@ module "aurora_postgresql_v2" {
   storage_encrypted = true
   database_name     = var.db_database_name
 
-  vpc_id                 = data.aws_vpc.selected.id
+  vpc_id                 = data.aws_vpc.main.id
   vpc_security_group_ids = [data.aws_security_group.data.id]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
