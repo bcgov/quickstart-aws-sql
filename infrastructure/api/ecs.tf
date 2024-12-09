@@ -47,12 +47,14 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
   }
 }
 
-resource "aws_ecs_task_definition" "flyway_task" {
-  family                   = "flyway-task-${var.target_env}"
+
+
+resource "aws_ecs_task_definition" "node_api_task" {
+  family                   = "node-api-task-${var.target_env}-${var.app_env}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = var.flyway_cpu
-  memory                   = var.flyway_memory
+  cpu                      = var.api_cpu
+  memory                   = var.api_memory
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
@@ -91,39 +93,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
       mountPoints = []
       volumesFrom = []
       
-    }
-  ])
-}
-
-resource "aws_ecs_service" "flyway_service" {
-  name            = "flyway-service-${var.target_env}-${var.app_env}"
-  cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.flyway_task.arn
-  desired_count   = 1
-
-  capacity_provider_strategy {
-    capacity_provider = "FARGATE_SPOT"
-    weight            = 100
-  }
-
-  network_configuration {
-    security_groups  = [data.aws_security_group.app.id]
-    subnets          = data.aws_subnets.subnets_app.ids
-    assign_public_ip = false
-  }
-
-  tags = local.common_tags
-}
-
-resource "aws_ecs_task_definition" "node_api_task" {
-  family                   = "node-api-task-${var.target_env}-${var.app_env}"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = var.api_cpu
-  memory                   = var.api_memory
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.app_container_role.arn
-  container_definitions = jsonencode([
+    },
     {
       name      = "node-api-task-${var.target_env}-${var.app_env}"
       image     = "${var.api_image}"

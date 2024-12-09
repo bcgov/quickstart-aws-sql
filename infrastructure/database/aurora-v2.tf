@@ -84,7 +84,8 @@ module "aurora_postgresql_v2" {
 
   master_username = var.db_master_username
   master_password = random_password.db_master_password.result
-
+  manage_master_user_password = false
+  
   
   create_security_group  = false
   create_db_subnet_group = false
