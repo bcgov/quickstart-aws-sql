@@ -1,6 +1,6 @@
 
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "aurora-db-master-creds-${var.target_env}"
+  name = "aurora-pg-db-master-creds-${var.target_env}"
 }
 
 
