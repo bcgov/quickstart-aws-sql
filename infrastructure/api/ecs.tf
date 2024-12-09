@@ -125,6 +125,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
           name  = "DB_SCHEMA"
           value = "${var.db_schema}"
         }
+        ,
+         {
+          name  = "PORT"
+          value = "80"
+        }
       ]
       portMappings = [
         {
