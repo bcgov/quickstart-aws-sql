@@ -12,7 +12,7 @@ resource "random_password" "db_master_password" {
 resource "aws_db_subnet_group" "db_subnet_group" {
   description = "For Aurora cluster ${var.db_cluster_name}"
   name        = "${var.db_cluster_name}-subnet-group"
-  subnet_ids  = [ data.aws_subnets.data.ids ]
+  subnet_ids  = [ for s in data.aws_subnet.data : s.id ]
 
   tags = {
     managed-by = "terraform"
