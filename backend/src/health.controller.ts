@@ -17,9 +17,8 @@ export class HealthController {
     return this.health.check([
       () => {
         const pingCheck = this.prisma.pingCheck('prisma', this.prismaService);
-        this.logger.log(`Prisma health check: ${pingCheck.status}`);
+        this.logger.log(`Prisma health check: ${pingCheck}`);
         return pingCheck;
-        
       },
     ]);
   }
