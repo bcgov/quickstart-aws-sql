@@ -37,7 +37,7 @@ jobs:
           tags: ${{ github.event.number }}-${{ github.run_number }}
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploy-db:
-    #needs: [builds]
+    needs: [builds]
     name: Deploys Database
     uses: ./.github/workflows/.deployer.yml
     with:
