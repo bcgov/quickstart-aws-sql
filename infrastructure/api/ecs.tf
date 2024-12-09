@@ -1,3 +1,7 @@
+data "aws_security_group" "app" {
+  name = "custom_app_sg_${var.target_env}"
+}
+
 data "aws_secretsmanager_secret" "db_master_creds" {
   name = "aurora-db-master-creds-${var.target_env}"
 }
@@ -90,7 +94,7 @@ resource "aws_ecs_service" "flyway_service" {
   name            = "flyway-service-${var.target_env}-${var.app_env}"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.flyway_task.arn
-  desired_count   = 0
+  desired_count   = 1
 
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
@@ -98,8 +102,8 @@ resource "aws_ecs_service" "flyway_service" {
   }
 
   network_configuration {
-    security_groups  = [module.network.aws_security_groups.app.id]
-    subnets          = module.network.aws_subnet_ids.app.ids
+    security_groups  = [data.aws_security_group.app.id]
+    subnets          = [var.subnet_app_a, var.subnet_app_b]
     assign_public_ip = false
   }
 
@@ -178,8 +182,8 @@ resource "aws_ecs_service" "node_api_service" {
 
 
   network_configuration {
-    security_groups  = [module.network.aws_security_groups.app.id]
-    subnets          = module.network.aws_subnet_ids.app.ids
+    security_groups  = [data.aws_security_group.app.id]
+    subnets          = [var.subnet_app_a, var.subnet_app_b]
     assign_public_ip = false
   }
 
