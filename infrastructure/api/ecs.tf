@@ -86,6 +86,26 @@ resource "aws_ecs_task_definition" "flyway_task" {
   ])
 }
 
+resource "aws_ecs_service" "flyway_service" {
+  name            = "flyway-service-${var.target_env}-${var.app_env}"
+  cluster         = aws_ecs_cluster.ecs_cluster.id
+  task_definition = aws_ecs_task_definition.flyway_task.arn
+  desired_count   = 0
+
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    weight            = 100
+  }
+
+  network_configuration {
+    security_groups  = [module.network.aws_security_groups.app.id]
+    subnets          = module.network.aws_subnet_ids.app.ids
+    assign_public_ip = false
+  }
+
+  tags = local.common_tags
+}
+
 resource "aws_ecs_task_definition" "node_api_task" {
   family                   = "node-api-task-${var.target_env}-${var.app_env}"
   network_mode             = "awsvpc"
