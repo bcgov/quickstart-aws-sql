@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS USERS
 (
     ID    numeric      not null
         constraint "USER_PK"
-            primary key DEFAULT nextval('USERS."USER_SEQ"'),
+            primary key DEFAULT nextval('${flyway:defaultSchema}."USER_SEQ"'),
     NAME  varchar(200) not null,
     EMAIL varchar(200) not null
 );
