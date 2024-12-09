@@ -1,11 +1,21 @@
 data "aws_security_group" "app" {
   name = "custom_app_sg_${var.target_env}"
 }
+data "aws_security_group" "web" {
+  name = "Web_sg"
+}
 data "aws_subnets" "subnets_app" {
   filter {
     name   = "tag:Name"
     values = [var.subnet_app_a, var.subnet_app_b]
   }
+}
+data "aws_subnets" "subnets_web" {
+  filter {
+    name   = "tag:Name"
+    values = [var.subnet_web_a, var.subnet_web_b]
+  }
+  
 }
 data "aws_secretsmanager_secret" "db_master_creds" {
   name = "aurora-db-master-creds-${var.target_env}"

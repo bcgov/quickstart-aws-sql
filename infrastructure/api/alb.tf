@@ -1,16 +1,12 @@
 locals {
   common_tags        = var.common_tags
 }
-module "network" {
-  source      = "git::https://github.com/BCDevOps/terraform-octk-aws-sea-network-info.git//?ref=master"
-  environment = var.target_env
-}
 resource "aws_alb" "app-alb" {
 
   name                             = var.app_name
   internal                         = true
-  subnets                          = module.network.aws_subnet_ids.web.ids
-  security_groups                  = [module.network.aws_security_groups.web.id]
+  subnets                          = data.aws_subnets.subnets_web.ids
+  security_groups                  = [data.aws_security_group.web.id]
   enable_cross_zone_load_balancing = true
   tags                             = local.common_tags
 
@@ -33,7 +29,7 @@ resource "aws_alb_target_group" "app" {
   name                 = "${var.app_name}-tg"
   port                 = var.app_port
   protocol             = "HTTP"
-  vpc_id               = module.network.aws_vpc.id
+  vpc_id               = data.aws_vpc.selected.id
   target_type          = "ip"
   deregistration_delay = 30
 

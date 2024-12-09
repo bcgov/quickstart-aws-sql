@@ -30,6 +30,18 @@ variable "subnet_app_b" {
   type = string
   default = "App_Dev_azb_net"
 }
+variable "subnet_web_a" {
+  description = "Value of the name tag for a subnet in the APP security group"
+  type = string
+  default = "Web_Dev_aza_net"
+}
+
+variable "subnet_web_b" {
+  description = "Value of the name tag for a subnet in the APP security group"
+  type = string
+  default = "Web_Dev_azb_net"
+}
+
 
 # Networking Variables
 variable "subnet_data_a" {
