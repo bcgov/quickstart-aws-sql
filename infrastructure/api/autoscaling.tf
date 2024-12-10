@@ -1,6 +1,6 @@
 resource "aws_appautoscaling_target" "api_target" {
   service_namespace  = "ecs"
-  resource_id        = "service/${aws_ecs_service.node_api_service.name}"
+  resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.node_api_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   min_capacity       = var.min_capacity
   max_capacity       = var.max_capacity
@@ -10,7 +10,7 @@ resource "aws_appautoscaling_target" "api_target" {
 resource "aws_appautoscaling_policy" "api_up" {
 name            = "node-api-scale-up-${var.target_env}-${var.app_env}"
   service_namespace  = "ecs"
-  resource_id        = "service/${aws_ecs_service.node_api_service.name}"
+  resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.node_api_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
 
   step_scaling_policy_configuration {
@@ -30,7 +30,7 @@ name            = "node-api-scale-up-${var.target_env}-${var.app_env}"
 resource "aws_appautoscaling_policy" "api_down" {
 name            = "node-api-scale-down-${var.target_env}-${var.app_env}"
   service_namespace  = "ecs"
-  resource_id        = "service/${aws_ecs_service.node_api_service.name}"
+  resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.node_api_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
 
   step_scaling_policy_configuration {
