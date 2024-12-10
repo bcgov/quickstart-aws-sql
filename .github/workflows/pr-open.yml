@@ -91,7 +91,7 @@ jobs:
       - name: Build And Update UI (CF)
         working-directory: frontend
         env:
-          VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}
+          VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
           S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
           CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
         run: |
