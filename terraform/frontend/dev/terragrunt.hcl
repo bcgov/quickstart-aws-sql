@@ -15,5 +15,6 @@ generate "dev_tfvars" {
   contents          = <<-EOF
   target_env = "dev"
   app_env="${local.app_env}"
+  app_name="frontend-${local.target_env}-${local.app_env}"
 EOF
 }

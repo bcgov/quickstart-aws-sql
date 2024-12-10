@@ -23,7 +23,7 @@ resource "aws_s3_bucket_policy" "site_policy" {
           "AWS" : "${aws_cloudfront_origin_access_identity.oai.iam_arn}"
         },
         Action   = "s3:GetObject",
-        Resource = "arn:aws:s3:::${aws_s3_bucket.site.bucket}/*"
+        Resource = "arn:aws:s3:::${aws_s3_bucket.frontend.bucket}/*"
       }
     ]
   })
