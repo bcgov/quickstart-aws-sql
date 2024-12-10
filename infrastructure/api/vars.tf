@@ -97,3 +97,11 @@ variable "aws_region" {
   type = string
   default = "ca-central-1"
 }
+variable "min_capacity" {
+  type = number
+  default = 2
+}
+variable "max_capacity" {
+  type = number
+  default = 10
+}
