@@ -99,9 +99,9 @@ variable "aws_region" {
 }
 variable "min_capacity" {
   type = number
-  default = 2
+  default = 1
 }
 variable "max_capacity" {
   type = number
-  default = 10
+  default = 3
 }

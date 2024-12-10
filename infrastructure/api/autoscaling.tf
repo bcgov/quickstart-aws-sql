@@ -54,9 +54,9 @@ resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_low" {
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
-  period              = "60"
+  period              = "30"
   statistic           = "Maximum"
-  threshold           = "10"
+  threshold           = "25"
 
   dimensions = {
     ClusterName = aws_ecs_cluster.ecs_cluster.name
@@ -72,12 +72,12 @@ resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_low" {
 resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_high" {
   alarm_name          = "node_api_cpu_utilization_high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
+  evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
   period              = "60"
   statistic           = "Maximum"
-  threshold           = "80"
+  threshold           = "90"
 
   dimensions = {
     ClusterName = aws_ecs_cluster.ecs_cluster.name
