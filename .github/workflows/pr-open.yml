@@ -72,6 +72,9 @@ jobs:
   build-ui:
     name: Builds UI
     needs: [deploy-api, deploy-cloudfront]
+    defaults:
+      run:
+        working-directory: frontend
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
