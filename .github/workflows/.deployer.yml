@@ -31,6 +31,12 @@ on:
     outputs:
       API_GW_URL: 
         value: ${{ jobs.infra.outputs.API_GW_URL }}
+      S3_BUCKET_ARN:
+        value: ${{ jobs.infra.outputs.S3_BUCKET_ARN }}
+      CF_DOMAIN:
+        value: ${{ jobs.infra.outputs.CF_DOMAIN }}
+      CF_DISTRIBUTION_ID:
+        value: ${{ jobs.infra.outputs.CF_DISTRIBUTION_ID }}
     
 
     
@@ -46,6 +52,9 @@ jobs:
   runs-on: ubuntu-24.04
   outputs:
     API_GW_URL: ${{ steps.tg-outputs.outputs.API_GW_URL }}
+    S3_BUCKET_ARN: ${{ steps.tg-outputs-frontend.outputs.S3_BUCKET_ARN }}
+    CF_DOMAIN: ${{ steps.tg-outputs-frontend.outputs.CF_DOMAIN }}
+    CF_DISTRIBUTION_ID: ${{ steps.tg-outputs-frontend.outputs.CF_DISTRIBUTION_ID }}
   steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -89,3 +98,21 @@ jobs:
           cat outputs.json
           
           echo "API_GW_URL=$(jq -r .apigw_url.value outputs.json)" >> $GITHUB_OUTPUT
+    - name: Terragrunt ${{ inputs.working_directory }} Outputs
+      if: ${{ inputs.working_directory == 'frontend' }}
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
+      id: tg-outputs-frontend
+      env:
+          target_env: ${{ inputs.environment_name }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
+          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
+          api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
+          app_env: ${{inputs.app_env}}
+      run: |
+          terragrunt output -json > outputs.json
+          #print the output
+          cat outputs.json
+          
+          echo "S3_BUCKET_ARN=$(jq -r .s3_bucket_arn.value outputs.json)" >> $GITHUB_OUTPUT
+          echo "CF_DOMAIN=$(jq -r .cloudfront.value.domain_name outputs.json)" >> $GITHUB_OUTPUT
+          echo "CF_DISTRIBUTION_ID=$(jq -r .cloudfront.value.distribution_id outputs.json)" >> $GITHUB_OUTPUT
