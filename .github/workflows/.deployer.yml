@@ -75,6 +75,12 @@ jobs:
       if: ${{ inputs.working_directory == 'api' }}
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       id: terragrunt-outputs
+      env:
+          target_env: ${{ inputs.environment_name }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
+          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
+          api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
+          app_env: ${{inputs.app_env}}
       run: |
           terragrunt output -json > outputs.json
           echo "API_GW_URL=$(jq -r .apigw_url.value outputs.json)" >> $GITHUB_OUTPUT
