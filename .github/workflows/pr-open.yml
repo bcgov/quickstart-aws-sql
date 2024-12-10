@@ -56,5 +56,14 @@ jobs:
       tag: ${{ github.event.number }}-${{ github.run_number }}
       app_env: ${{github.event.number}}
     secrets: inherit
-      
+  build-ui:
+    name: Builds UI
+    needs: [deploy-api]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build UI
+        run: |
+          echo "API URL is ${{ needs.deploy-api.outputs.API_GW_URL }}" 
 

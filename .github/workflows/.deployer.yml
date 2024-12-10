@@ -28,8 +28,10 @@ on:
         required: false
         type: string
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
-
-        
+    outputs:
+      API_GW_URL: 
+        value: ${{ jobs.infra.result.terragrunt-outputs.outputs.API_GW_URL }}
+    
 
     
       
@@ -69,3 +71,9 @@ jobs:
       run: |
           # Run terraform
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
+    - name: Terragrunt ${{ inputs.working_directory }} Outputs
+      if: ${{ inputs.working_directory == 'api' }}
+      id: terragrunt-outputs
+      run: |
+          terragrunt output -json > outputs.json
+          echo "API_GW_URL=$(jq -r .apigw_url.value outputs.json)" >> $GITHUB_OUTPUT
