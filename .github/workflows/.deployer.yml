@@ -73,6 +73,7 @@ jobs:
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
     - name: Terragrunt ${{ inputs.working_directory }} Outputs
       if: ${{ inputs.working_directory == 'api' }}
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       id: terragrunt-outputs
       run: |
           terragrunt output -json > outputs.json
