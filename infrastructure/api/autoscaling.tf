@@ -49,7 +49,7 @@ name            = "node-api-scale-down-${var.target_env}-${var.app_env}"
 
 # CloudWatch alarm that triggers the autoscaling down policy
 resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_low" {
-  alarm_name          = "wfnews_client_cpu_utilization_low"
+  alarm_name          = "node_api_cpu_utilization_low"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
@@ -69,15 +69,15 @@ resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_low" {
 }
 
 # CloudWatch alarm that triggers the autoscaling up policy
-resource "aws_cloudwatch_metric_alarm" "wfnews_client_service_cpu_high" {
-  alarm_name          = "wfnews_client_cpu_utilization_high"
+resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_high" {
+  alarm_name          = "node_api_cpu_utilization_high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
   period              = "60"
   statistic           = "Maximum"
-  threshold           = "50"
+  threshold           = "80"
 
   dimensions = {
     ClusterName = aws_ecs_cluster.ecs_cluster.name
