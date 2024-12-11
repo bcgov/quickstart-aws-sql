@@ -26,6 +26,6 @@ resource "aws_apigatewayv2_route" "app" {
 
 resource "aws_apigatewayv2_stage" "app" {
   api_id      = aws_apigatewayv2_api.app.id
-  name        = "$default"
+  name        = "${var.app_name}-stage"
   auto_deploy = true
 }

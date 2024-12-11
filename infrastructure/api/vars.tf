@@ -62,7 +62,7 @@ variable "app_port" {
   default     = 3000
 }
 variable "app_name" {
-  description  = " The APP name"
+  description  = " The APP name with environment (app_env)"
   type        = string
 }
 variable "common_tags" {
