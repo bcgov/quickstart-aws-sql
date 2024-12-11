@@ -1,6 +1,9 @@
 locals {
   common_tags        = var.common_tags
 }
+data "aws_acm_certificate" "cert" {
+  id = "${var.acm_cert_id}"
+}
 resource "aws_alb" "app-alb" {
 
   name                             = var.app_name
@@ -17,14 +20,16 @@ resource "aws_alb" "app-alb" {
 }
 resource "aws_alb_listener" "internal" {
   load_balancer_arn = aws_alb.app-alb.arn
-  port              = "80"
-  protocol          = "HTTP"
+  ssl_policy        = "${var.ssl_policy}"
+  port              = "443"
+  protocol          = "HTTPS"
+
+  certificate_arn = data.aws_acm_certificate.cert.arn
 
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.app.arn
   }
-
 }
 resource "aws_alb_target_group" "app" {
   name                 = "${var.app_name}-tg"
