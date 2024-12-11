@@ -20,6 +20,7 @@ jobs:
       environment_name: dev
       command: destroy
       working_directory: database
+      
     secrets: inherit
   cleanup-aws-api:
       name: Cleanup AWS API
@@ -28,4 +29,15 @@ jobs:
         environment_name: dev
         command: destroy
         working_directory: api
+        app_env: ${{github.event.number}}
+      secrets: inherit
+  cleanup-aws-cf:
+      name: Cleanup AWS CF
+      uses: ./.github/workflows/.deployer.yml
+      with:
+        environment_name: dev
+        command: destroy
+        working_directory: frontend
+        tag: ${{ github.event.number }}-${{ github.run_number }}
+        app_env: ${{github.event.number}}
       secrets: inherit
