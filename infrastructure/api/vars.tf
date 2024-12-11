@@ -105,15 +105,3 @@ variable "max_capacity" {
   type = number
   default = 3
 }
-variable "ssl_policy" {
-  type = string
-  default = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-}
-variable "acm_cert_id" {
-  type = string
-  default = "d2639dd2-d4bf-45e4-9c9e-1016135d0f5f"
-}
-variable "domain_name" {
-  type = string
-  default = "*.example.ca"
-}
