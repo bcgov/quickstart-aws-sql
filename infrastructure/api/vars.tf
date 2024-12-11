@@ -113,3 +113,7 @@ variable "acm_cert_id" {
   type = string
   default = "d2639dd2-d4bf-45e4-9c9e-1016135d0f5f"
 }
+variable "domain_name" {
+  type = string
+  default = "*.example.ca"
+}

@@ -3,6 +3,7 @@ locals {
 }
 data "aws_acm_certificate" "cert" {
   id = "${var.acm_cert_id}"
+  domain = "${var.domain_name}"
 }
 resource "aws_alb" "app-alb" {
 
