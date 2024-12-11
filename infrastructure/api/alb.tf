@@ -2,8 +2,13 @@ locals {
   common_tags        = var.common_tags
 }
 data "aws_acm_certificate" "cert" {
-  id = "${var.acm_cert_id}"
   domain = "${var.domain_name}"
+  tags = [
+    {
+      key                 = "Name"
+      value               = "DevSelf-SignedCert"
+    },
+  ]
 }
 resource "aws_alb" "app-alb" {
 
