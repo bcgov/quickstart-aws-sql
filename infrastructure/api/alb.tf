@@ -3,12 +3,9 @@ locals {
 }
 data "aws_acm_certificate" "cert" {
   domain = "${var.domain_name}"
-  tags = [
-    {
-      key                 = "Name"
-      value               = "DevSelf-SignedCert"
-    },
-  ]
+  tags = {
+    Name = "DevSelf-SignedCert"
+  }
 }
 resource "aws_alb" "app-alb" {
 
