@@ -49,6 +49,8 @@ resource "aws_ecs_task_definition" "node_api_task" {
     {
       name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
+      cpu       = 1024
+      memory    = 2048
       essential = false
       environment = [
         {
