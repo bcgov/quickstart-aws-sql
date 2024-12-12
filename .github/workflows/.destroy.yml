@@ -1,0 +1,43 @@
+name: .Terraform Destroyer
+
+on:
+  workflow_call:
+    inputs:
+      ### Required
+      environment_name:
+        description: 'The name of the environment to destroy resources from dev or test or prod(BE CAREFUL HERE)'
+        required: true
+        default: 'dev'
+        type: string
+      app_env:
+        required: false
+        type: string
+        description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+jobs:
+  cleanup-aws-database:
+    name: Cleanup AWS Database
+    uses: ./.github/workflows/.deployer.yml
+    with:
+      environment_name: ${{ inputs.environment_name}}
+      command: destroy
+      working_directory: database
+      
+    secrets: inherit
+  cleanup-aws-api:
+      name: Cleanup AWS API
+      uses: ./.github/workflows/.deployer.yml
+      with:
+        environment_name: ${{ inputs.environment_name}}
+        command: destroy
+        working_directory: api
+        app_env: ${{ inputs.app_env}}
+      secrets: inherit
+  cleanup-aws-cf:
+      name: Cleanup AWS CF
+      uses: ./.github/workflows/.deployer.yml
+      with:
+        environment_name: ${{ inputs.environment_name}}
+        command: destroy
+        working_directory: frontend
+        app_env: ${{ inputs.app_env}}
+      secrets: inherit
