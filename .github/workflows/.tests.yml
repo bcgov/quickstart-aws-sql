@@ -22,8 +22,6 @@ jobs:
           BACKEND_IMAGE: ghcr.io/${{ github.repository }}/backend:${{ inputs.tag }}
           FLYWAY_IMAGE: ghcr.io/${{ github.repository }}/migrations:${{ inputs.tag }}
           FRONTEND_IMAGE: ghcr.io/${{ github.repository }}/frontend:${{ inputs.tag }}
-          FRONTEND_ENTRYPOINT: ' '
-          BACKEND_ENTRYPOINT: ' '
         run: docker compose up -d --wait
         continue-on-error: true
       - uses: actions/setup-node@v4
@@ -35,6 +33,7 @@ jobs:
       - name: Fix permissions
         run: sudo chown -R $USER:$USER frontend
       - name: Install dependencies
+        working-directory: frontend
         run: |
           npm ci
           npx playwright install --with-deps
