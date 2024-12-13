@@ -74,6 +74,7 @@ services:
       BACKEND_URL: http://backend:3001
       PORT: 3000
       NODE_ENV: development
+      LOG_LEVEL: debug
     image: ${FRONTEND_IMAGE:-frontend}
     ports: ["3000:3000"]
     healthcheck:
