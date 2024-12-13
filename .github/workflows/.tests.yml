@@ -26,7 +26,18 @@ jobs:
           BACKEND_ENTRYPOINT: ' '
         run: docker compose up -d --wait
         continue-on-error: true
-
+      - uses: actions/setup-node@v4
+        name: Setup Node
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Fix permissions
+        run: sudo chown -R $USER:$USER frontend
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
       - name: Run Tests
         working-directory: frontend
         env:

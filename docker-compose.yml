@@ -54,12 +54,11 @@ services:
     depends_on:
       migrations:
         condition: service_completed_successfully
-    entrypoint: ${BACKEND_ENTRYPOINT:-sh -c "npm i && npm run start:dev"}
     environment:
       <<: *postgres-vars
       NODE_ENV: development
       PORT: 3001
-    image: ${BACKEND_IMAGE:-node:22}
+    image: ${BACKEND_IMAGE:-backend}
     build:
       context: ./backend
     ports: ["3001:3001"]
@@ -69,12 +68,13 @@ services:
 
   frontend:
     container_name: frontend
-    entrypoint: ${FRONTEND_ENTRYPOINT:-sh -c "npm ci && npm run dev"}
+    build:
+      context: ./frontend
     environment:
       BACKEND_URL: http://backend:3001
       PORT: 3000
       NODE_ENV: development
-    image: ${FRONTEND_IMAGE:-node:22}
+    image: ${FRONTEND_IMAGE:-frontend}
     ports: ["3000:3000"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
