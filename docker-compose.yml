@@ -62,7 +62,7 @@ services:
     image: node:22
     ports: ["3001:3001"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api"]
     working_dir: "/app"
     volumes: ["./backend:/app", "/app/node_modules"]
 
@@ -82,4 +82,3 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-

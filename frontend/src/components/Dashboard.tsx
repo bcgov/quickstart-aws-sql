@@ -8,7 +8,8 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import  {DataGrid} from "@mui/x-data-grid";
+import   {GridToolbar}  from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import type { AxiosResponse } from "~/axios";
 
