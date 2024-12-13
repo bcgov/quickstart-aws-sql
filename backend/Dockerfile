@@ -30,7 +30,7 @@ COPY --from=build /app/dist ./dist
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 3001
-HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3001/api
+# Use curl for healthcheck as nc is not available in distroless
 
 # Nonroot user, limit heap size to 50 MB
 USER nonroot

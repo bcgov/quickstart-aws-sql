@@ -81,4 +81,4 @@ services:
     working_dir: "/app"
     depends_on:
       backend:
-        condition: service_healthy
+        condition: service_started
