@@ -27,6 +27,10 @@ on:
         required: false
         type: string
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+      aws_region:
+        description: 'The AWS region to deploy to'
+        required: true
+        type: string
       AWS_DEPLOY_ROLE_ARN:
         description: 'The ARN of the role to assume to deploy to AWS'
         required: true
@@ -44,43 +48,64 @@ on:
         value: ${{ jobs.deploy-cloudfront.outputs.CF_DOMAIN }}
       CF_DISTRIBUTION_ID:
         value: ${{ jobs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
-env:
-    AWS_REGION: ca-central-1
 jobs:
 
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploy-db:
     name: Deploys Database
-    uses: ./.github/workflows/.deployer.yml
-    with:
-      environment_name: ${{ inputs.environment_name}}
-      command: apply
-      working_directory: database
-      app_env: ${{ inputs.environment_name}} # Database 
-      AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
-      AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: ./.github/workflows/.deployer.yml
+        with:
+          environment_name: ${{ inputs.environment_name}}
+          command: apply
+          working_directory: database
+          app_env: ${{ inputs.environment_name}} # Database 
+          AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
+          AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
   deploy-api:
     name: Deploys API
     needs: [deploy-db]
-    uses: ./.github/workflows/.deployer.yml
-    with:
-      environment_name: ${{ inputs.environment_name}}
-      command: apply
-      working_directory: api
-      tag: ${{ inputs.tag }}
-      app_env: ${{ inputs.app_env}}
-      AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
-      AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
+    outputs:
+      API_GW_URL: ${{ steps.deploy.outputs.API_GW_URL }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        id: deploy
+        uses: ./.github/workflows/.deployer.yml
+        with:
+          environment_name: ${{ inputs.environment_name}}
+          command: apply
+          working_directory: api
+          tag: ${{ inputs.tag }}
+          app_env: ${{ inputs.app_env}}
+          AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
+          AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
   deploy-cloudfront:
     name: Deploys Cloudfront
-    uses: ./.github/workflows/.deployer.yml
-    with:
-      environment_name: ${{ inputs.environment_name}} 
-      command: apply
-      working_directory: frontend
-      app_env: ${{ inputs.app_env}}
-      AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
-      AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
+    runs-on: ubuntu-24.04
+    outputs:
+      S3_BUCKET_ARN: ${{ steps.deploy.outputs.S3_BUCKET_ARN }}
+      CF_DOMAIN: ${{ steps.deploy.outputs.CF_DOMAIN }}
+      CF_DISTRIBUTION_ID: ${{ steps.deploy.outputs.CF_DISTRIBUTION_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        id: deploy
+        uses: ./.github/workflows/.deployer.yml
+        with:
+          environment_name: ${{ inputs.environment_name}} 
+          command: apply
+          working_directory: frontend
+          app_env: ${{ inputs.app_env}}
+          AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
+          AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
   build-ui:
     name: Builds UI
     needs: [deploy-api, deploy-cloudfront]
@@ -99,7 +124,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
             role-to-assume: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
-            aws-region: ${{ env.AWS_REGION }}
+            aws-region: ${{ inputs.aws_region }}
       - name: Build And Update UI (CF)
         working-directory: frontend
         env:
