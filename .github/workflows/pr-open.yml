@@ -41,5 +41,7 @@ jobs:
     name: Tests
     needs: builds
     uses: ./.github/workflows/.tests.yml
+    with:
+      tag: ${{ github.event.number }}
     
   
