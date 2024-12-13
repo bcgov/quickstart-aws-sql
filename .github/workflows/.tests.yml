@@ -2,6 +2,11 @@ name: .Tests
 
 on:
  workflow_call: 
+  inputs: 
+    tag: 
+      description: 'The tag of the containers to run tests on'
+      required: true
+      type: string
 
 permissions:
   contents: write # This is required for actions/checkout
@@ -13,6 +18,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run Docker compose
+        env:
+          BACKEND_IMAGE: ghcr.io/${{ github.repository }}/backend:${{ inputs.tag }}
+          FLYWAY_IMAGE: ghcr.io/${{ github.repository }}/migrations:${{ inputs.tag }}
+          FRONTEND_IMAGE: ghcr.io/${{ github.repository }}/frontend:${{ inputs.tag }}
         run: docker compose up -d --wait
         continue-on-error: true
       - uses: actions/setup-node@v4
