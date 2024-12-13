@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run Docker compose
-        run: docker-compose up -d --wait
+        run: docker compose up -d --wait
       - uses: actions/setup-node@v4
         name: Setup Node
         with:
