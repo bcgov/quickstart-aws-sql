@@ -3,6 +3,8 @@ name: .Tests
 on:
  workflow_call: 
 
+permissions:
+  contents: write # This is required for actions/checkout
 jobs:
   e2e:
     name: E2E Tests
