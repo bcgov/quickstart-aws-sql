@@ -58,10 +58,11 @@ services:
     environment:
       <<: *postgres-vars
       NODE_ENV: development
+      PORT: 3001
     image: node:22
-    ports: ["3001:3000"]
+    ports: ["3001:3001"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api"]
     working_dir: "/app"
     volumes: ["./backend:/app", "/app/node_modules"]
 
@@ -69,7 +70,7 @@ services:
     container_name: frontend
     entrypoint: sh -c "npm ci && npm run dev"
     environment:
-      BACKEND_URL: http://backend:3000
+      BACKEND_URL: http://backend:3001
       PORT: 3000
       NODE_ENV: development
     image: node:22
@@ -78,23 +79,6 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
     working_dir: "/app"
-    depends_on:
-      backend:
-        condition: service_healthy
-
-  caddy:
-    container_name: caddy
-    profiles: ["caddy"]
-    build: ./frontend
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-      BACKEND_URL: http://backend:3000
-      LOG_LEVEL: info
-    ports: ["3005:3000"]
-    volumes: ["./frontend/Caddyfile:/etc/caddy/Caddyfile"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
     depends_on:
       backend:
         condition: service_healthy
