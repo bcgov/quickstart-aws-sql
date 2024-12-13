@@ -34,6 +34,8 @@ jobs:
     environment: dev
     runs-on: ubuntu-24.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Deploy Dev
         uses: ./.github/workflows/.deploy-env.yml
         with:
@@ -48,7 +50,9 @@ jobs:
     environment: dev # this is the Github secrets environment name
     runs-on: ubuntu-24.04
     steps:
-      - name: Deploy Dev
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy Test
         uses: ./.github/workflows/.deploy-env.yml
         with:
           environment_name: dev # this is the AWS environment name 
