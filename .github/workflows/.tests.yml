@@ -7,9 +7,6 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,11 +20,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
+        working-directory: frontend
         run: |
           npm ci
           npx playwright install --with-deps
 
       - name: Run Tests
+        working-directory: frontend
         env:
           E2E_BASE_URL: http://localhost:3000
           CI: 'true'
