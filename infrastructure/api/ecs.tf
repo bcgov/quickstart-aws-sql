@@ -97,7 +97,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
       depends_on = [
         {
           containerName = "${var.app_name}-flyway"
-          condition     = "COMPLETE" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
+          condition     = "SUCCESS" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
         }
       ]
       environment = [
