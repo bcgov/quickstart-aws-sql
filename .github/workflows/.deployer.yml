@@ -28,14 +28,6 @@ on:
         required: false
         type: string
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
-      AWS_DEPLOY_ROLE_ARN:
-        description: 'The ARN of the role to assume to deploy to AWS'
-        required: true
-        type: string
-      AWS_LICENSE_PLATE:
-        description: 'The license plate of the car to deploy to AWS, it is without the `-env`'
-        type: string
-        required: true
     outputs:
       API_GW_URL: 
         value: ${{ jobs.infra.outputs.API_GW_URL }}
@@ -70,7 +62,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-          role-to-assume: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           role-session-name: ${{ inputs.environment_name }}-deployment
           aws-region: ${{ env.AWS_REGION }}
     - uses: hashicorp/setup-terraform@v3
@@ -84,7 +76,7 @@ jobs:
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       env:
           target_env: ${{ inputs.environment_name }}
-          aws_license_plate: ${{ inputs.AWS_LICENSE_PLATE }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}
@@ -97,7 +89,7 @@ jobs:
       id: tg-outputs
       env:
           target_env: ${{ inputs.environment_name }}
-          aws_license_plate: ${{ inputs.AWS_LICENSE_PLATE }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}
@@ -113,7 +105,7 @@ jobs:
       id: tg-outputs-frontend
       env:
           target_env: ${{ inputs.environment_name }}
-          aws_license_plate: ${{ inputs.AWS_LICENSE_PLATE }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}

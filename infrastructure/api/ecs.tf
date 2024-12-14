@@ -1,13 +1,13 @@
 locals {
   container_name = "${var.app_name}"
+  rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev 
 }
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "aurora-pg-db-master-creds-${var.target_env}_${var.app_env}"
+  name = "aurora-pg-db-master-creds-${var.target_env}_${local.rds_app_env}"
 }
 
-
 data "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier = "qsawsc-aurora-cluster-${var.app_env}" 
+  cluster_identifier = "qsawsc-aurora-cluster-${local.rds_app_env}" 
 }
 
 data "aws_secretsmanager_secret_version" "db_master_creds_version" {
@@ -66,6 +66,14 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "FLYWAY_DEFAULT_SCHEMA"
           value = "${var.db_schema}"
+        },
+        {
+          name  = "FLYWAY_CONNECT_RETRIES"
+          value = "2"
+        },
+        {
+          name  = "FLYWAY_BASELINE_ON_MIGRATE"
+          value = "true"
         }
       ]
       
@@ -86,10 +94,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
-      depends_on = [
+      #https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency
+      dependsOn = [
         {
           containerName = "${var.app_name}-flyway"
-          condition     = "SUCCESS"
+          condition     = "SUCCESS" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
         }
       ]
       environment = [
