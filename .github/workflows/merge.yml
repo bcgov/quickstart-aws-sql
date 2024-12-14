@@ -31,33 +31,13 @@ jobs:
   deploy-dev:
     name: Deploy Dev
     needs: [vars]
-    environment: dev
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Deploy Dev
-        uses: ./.github/workflows/.deploy-env.yml
-        with:
-          environment_name: dev
-          app_env: dev
-          tag: ${{ needs.vars.outputs.pr }}
-          AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          AWS_LICENSE_PLATE: ${{ secrets.AWS_LICENSE_PLATE }}
-  deploy-test:
-    name: Deploy Test
-    needs: [vars]
-    environment: dev # this is the Github secrets environment name
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Deploy Test
-        uses: ./.github/workflows/.deploy-env.yml
-        with:
-          environment_name: dev # this is the AWS environment name 
-          app_env: test # as multuple environments are deployed to the same AWS environment we separate them by app_env as tags.
-          tag: ${{ needs.vars.outputs.pr }}
-          AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          AWS_LICENSE_PLATE: ${{ secrets.AWS_LICENSE_PLATE }}
+    uses: ./.github/workflows/.deploy.yml
+    secrets:
+      AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+      AWS_LICENSE_PLATE: ${{ secrets.AWS_LICENSE_PLATE }}
+    with:
+      environment_name: dev
+      app_env: dev
+      tag: ${{ needs.vars.outputs.pr }}
+
    

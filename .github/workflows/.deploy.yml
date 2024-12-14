@@ -8,16 +8,6 @@ on:
         required: true
         default: 'dev'
         type: string
-      command:
-        description: 'The terragrunt command to run'
-        required: true
-        default: 'apply'
-        type: string
-      working_directory:
-        description: 'The working directory to run the command in'
-        required: true
-        default: 'database'
-        type: string
       tag:
         description: 'The tag of the containers to deploy'
         default: 'latest'
@@ -48,6 +38,13 @@ on:
         value: ${{ jobs.deploy-cloudfront.outputs.CF_DOMAIN }}
       CF_DISTRIBUTION_ID:
         value: ${{ jobs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
+    secrets:
+      AWS_DEPLOY_ROLE_ARN: 
+        description: 'The ARN of the role to assume to deploy to AWS'
+        required: true
+      AWS_LICENSE_PLATE: 
+        description: 'The license plate of the car to deploy to AWS, it is without the `-env`'
+        required: true
 jobs:
 
   # https://github.com/bcgov/quickstart-openshift-helpers
