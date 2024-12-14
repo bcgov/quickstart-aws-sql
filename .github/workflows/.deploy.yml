@@ -25,12 +25,7 @@ on:
     outputs:
       API_GW_URL: 
         value: ${{ jobs.deploy-api.outputs.API_GW_URL }}
-      S3_BUCKET_ARN:
-        value: ${{ jobs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
-      CF_DOMAIN:
-        value: ${{ jobs.deploy-cloudfront.outputs.CF_DOMAIN }}
-      CF_DISTRIBUTION_ID:
-        value: ${{ jobs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
+
     secrets:
       AWS_DEPLOY_ROLE_ARN: 
         description: 'The ARN of the role to assume to deploy to AWS'
@@ -39,89 +34,39 @@ on:
         description: 'The license plate of the car to deploy to AWS, it is without the `-env`'
         required: true
 jobs:
-
+  vars:
+    name: Set Variables
+    outputs:
+      aws_arn: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+      aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: checkout
+        id: checkout
+        uses: actions/checkout@v4
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploy-db:
     name: Deploys Database
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Deploy
-        uses: ./.github/workflows/.deployer.yml
-        with:
-          environment_name: ${{ inputs.environment_name}}
-          command: apply
-          working_directory: database
-          app_env: ${{ inputs.environment_name}} # Database 
-          AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
-          AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
+    needs: [vars]
+    uses: ./.github/workflows/.deployer.yml
+    with:
+      environment_name: ${{ inputs.environment_name}}
+      command: apply
+      working_directory: database
+      app_env: ${{ inputs.environment_name}} # Database 
+      AWS_DEPLOY_ROLE_ARN: ${{ needs.vars.outputs.aws_arn }}
+      AWS_LICENSE_PLATE: ${{ needs.vars.outputs.aws_license_plate }}
   deploy-api:
     name: Deploys API
-    needs: [deploy-db]
-    outputs:
-      API_GW_URL: ${{ steps.deploy.outputs.API_GW_URL }}
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Deploy
-        id: deploy
-        uses: ./.github/workflows/.deployer.yml
-        with:
-          environment_name: ${{ inputs.environment_name}}
-          command: apply
-          working_directory: api
-          tag: ${{ inputs.tag }}
-          app_env: ${{ inputs.app_env}}
-          AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
-          AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
-  deploy-cloudfront:
-    name: Deploys Cloudfront
-    runs-on: ubuntu-24.04
-    outputs:
-      S3_BUCKET_ARN: ${{ steps.deploy.outputs.S3_BUCKET_ARN }}
-      CF_DOMAIN: ${{ steps.deploy.outputs.CF_DOMAIN }}
-      CF_DISTRIBUTION_ID: ${{ steps.deploy.outputs.CF_DISTRIBUTION_ID }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Deploy
-        id: deploy
-        uses: ./.github/workflows/.deployer.yml
-        with:
-          environment_name: ${{ inputs.environment_name}} 
-          command: apply
-          working_directory: frontend
-          app_env: ${{ inputs.app_env}}
-          AWS_DEPLOY_ROLE_ARN: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
-          AWS_LICENSE_PLATE: ${{ inputs.AWS_LICENSE_PLATE }}
-  build-ui:
-    name: Builds UI
-    needs: [deploy-api, deploy-cloudfront]
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            role-to-assume: ${{ inputs.AWS_DEPLOY_ROLE_ARN }}
-            aws-region: ${{ inputs.aws_region }}
-      - name: Build And Update UI (CF)
-        working-directory: frontend
-        env:
-          VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
-          S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
-          CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
-        run: |
-          npm run deploy
-          aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
-          aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
+    needs: [vars, deploy-db]
+    uses: ./.github/workflows/.deployer.yml
+    with:
+      environment_name: ${{ inputs.environment_name}}
+      command: apply
+      working_directory: api
+      tag: ${{ inputs.tag }}
+      app_env: ${{ inputs.app_env}}
+      AWS_DEPLOY_ROLE_ARN: ${{ needs.vars.outputs.aws_arn }}
+      AWS_LICENSE_PLATE: ${{ needs.vars.outputs.aws_license_plate }}
+  
