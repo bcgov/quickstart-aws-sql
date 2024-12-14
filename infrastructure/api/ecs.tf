@@ -101,7 +101,6 @@ resource "aws_ecs_task_definition" "node_api_task" {
           condition     = "SUCCESS" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
         }
       ]
-      entryPoint = ["sh"]
       environment = [
         {
           name  = "POSTGRES_HOST"
