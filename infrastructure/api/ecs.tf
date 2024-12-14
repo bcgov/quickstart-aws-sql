@@ -49,8 +49,6 @@ resource "aws_ecs_task_definition" "node_api_task" {
     {
       name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
-      cpu                      = var.api_cpu
-      memory                   = var.api_memory
       essential = false
       environment = [
         {
@@ -96,8 +94,6 @@ resource "aws_ecs_task_definition" "node_api_task" {
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
-      cpu                      = var.api_cpu
-      memory                   = var.api_memory
       depends_on = [
         {
           containerName = "${var.app_name}-flyway"

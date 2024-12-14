@@ -39,6 +39,7 @@ jobs:
           tags: ${{ github.event.number }}-${{ github.run_number }}
   plan-db:
     name: Deploys Database
+    needs: [builds]
     uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: dev
