@@ -19,7 +19,8 @@ on:
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
       aws_region:
         description: 'The AWS region to deploy to'
-        required: true
+        required: false
+        default: 'ca-central-1'
         type: string
       AWS_DEPLOY_ROLE_ARN:
         description: 'The ARN of the role to assume to deploy to AWS'
