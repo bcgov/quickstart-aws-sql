@@ -96,7 +96,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
       essential = true
       depends_on = [
         {
-          containerName = "${var.app_name}-flyway"
+          container_name = "${var.app_name}-flyway"
           condition     = "SUCCESS" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
         }
       ]
