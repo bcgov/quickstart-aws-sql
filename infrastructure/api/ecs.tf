@@ -94,9 +94,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
-      depends_on = [
+      #https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency
+      dependsOn = [
         {
-          container_name = "${var.app_name}-flyway"
+          containerName = "${var.app_name}-flyway"
           condition     = "SUCCESS" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
         }
       ]
