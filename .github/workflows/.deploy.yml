@@ -22,14 +22,6 @@ on:
         required: false
         default: 'ca-central-1'
         type: string
-      AWS_DEPLOY_ROLE_ARN:
-        description: 'The ARN of the role to assume to deploy to AWS'
-        required: true
-        type: string
-      AWS_LICENSE_PLATE:
-        description: 'The license plate of the car to deploy to AWS, it is without the `-env`'
-        type: string
-        required: true
     outputs:
       API_GW_URL: 
         value: ${{ jobs.deploy-api.outputs.API_GW_URL }}
