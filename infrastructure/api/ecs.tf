@@ -49,6 +49,8 @@ resource "aws_ecs_task_definition" "node_api_task" {
     {
       name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
+      cpu                      = var.api_cpu
+      memory                   = var.api_memory
       essential = false
       environment = [
         {
@@ -66,6 +68,14 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "FLYWAY_DEFAULT_SCHEMA"
           value = "${var.db_schema}"
+        },
+        {
+          name  = "FLYWAY_CONNECT_RETRIES"
+          value = "2"
+        },
+        {
+          name  = "FLYWAY_BASELINE_ON_MIGRATE"
+          value = "true"
         }
       ]
       
@@ -86,10 +96,12 @@ resource "aws_ecs_task_definition" "node_api_task" {
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
+      cpu                      = var.api_cpu
+      memory                   = var.api_memory
       depends_on = [
         {
           containerName = "${var.app_name}-flyway"
-          condition     = "SUCCESS"
+          condition     = "COMPLETE" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
         }
       ]
       environment = [
