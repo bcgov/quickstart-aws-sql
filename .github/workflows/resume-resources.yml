@@ -1,10 +1,12 @@
-name: Pause AWS Resources
+name: Resume AWS Resources
 
 on:
   schedule:
     - cron: "0 15 * * 1-5" # Runs every weekday (Monday to Friday) at 7AM PST
   workflow_dispatch:
-
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
 jobs:
   resume-resources-dev:
     runs-on: ubuntu-24.04
