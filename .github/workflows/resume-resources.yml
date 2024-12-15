@@ -1,0 +1,30 @@
+name: Pause AWS Resources
+
+on:
+  schedule:
+    - cron: "0 15 * * 1-5" # Runs every weekday (Monday to Friday) at 7AM PST
+  workflow_dispatch:
+
+jobs:
+  resume-resources-dev:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: gha-pause-resources
+          aws-region: ca-central-1
+      - name: Resume AWS Resources
+        shell: bash
+        run: |
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier qsawsc-aurora-cluster-dev --query 'DBClusters[0].Status' --output text)
+          if [ "$DB_CLUSTER_STATUS" = "stopped" ]; then
+            aws rds start-db-cluster --db-cluster-identifier qsawsc-aurora-cluster-dev --no-cli-pager --output json
+          else
+            echo "DB cluster is not in an stopped state. Current state: $DB_CLUSTER_STATUS"
+          fi
+          aws ecs update-service --cluster ecs-cluster-node-api-dev --service node-api-dev-service --desired-count 1 --no-cli-pager --output json
+          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-node-api-dev/node-api-dev-service --scalable-dimension ecs:service:DesiredCount --suspended-state DynamicScalingInSuspended=false,DynamicScalingOutSuspended=false --no-cli-pager --output json
