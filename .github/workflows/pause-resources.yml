@@ -22,7 +22,7 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
-          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-node-api-dev/node-api-dev-service --scalable-dimension ecs:service:DesiredCount --suspended-state DynamicScalingInSuspended=true,DynamicScalingOutSuspended=true --no-cli-pager --output json
+          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-node-api-dev/node-api-dev-service --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
           aws ecs update-service --cluster ecs-cluster-node-api-dev --service node-api-dev-service --desired-count 0 --no-cli-pager --output json
           DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier qsawsc-aurora-cluster-dev --query 'DBClusters[0].Status' --output text)
           if [ "$DB_CLUSTER_STATUS" = "available" ]; then
