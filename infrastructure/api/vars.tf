@@ -106,10 +106,6 @@ variable "max_capacity" {
   default = 3
 }
 ## ECR Variables
-variable "aws_region" {
-  description = "The AWS region things are created in"
-  default     = "ca-central-1"
-}
 
 variable "repository_names" {
   description = "Name for the container repository to be provisioned."
