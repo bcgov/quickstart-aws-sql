@@ -154,11 +154,15 @@ resource "aws_ecs_service" "node_api_service" {
   desired_count   = 1
   health_check_grace_period_seconds = 60
 
- capacity_provider_strategy {
+  capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
-    weight            = 100
+    weight            = 80
   }
-
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE"
+    weight            = 20
+    base              = 1
+  }
 
   network_configuration {
     security_groups  = [data.aws_security_group.app.id]
