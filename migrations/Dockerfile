@@ -1,4 +1,4 @@
-FROM flyway/flyway:11
+FROM flyway/flyway:11-alpine
 
 # Copy migrations
 COPY ./sql /flyway/sql
