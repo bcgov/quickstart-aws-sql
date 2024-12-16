@@ -108,10 +108,10 @@ variable "max_capacity" {
 ## ECR Variables
 
 variable "repository_names" {
-  description = "Name for the container repository to be provisioned."
   type        = list(string)
+  default = [ "bcgov/quickstart-aws-containers" ]
+  
 }
-
 variable "image_tag_mutability" {
   description = "Tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE."
   default     = "MUTABLE"
@@ -126,6 +126,7 @@ variable "image_scanning_enabled" {
 variable "read_principals" {
   description = "Defines which external principals are allowed to read from the ECR repository"
   type        = list(any)
+  default     = []
 }
 
 variable "write_principals" {
