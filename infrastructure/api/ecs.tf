@@ -70,6 +70,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "FLYWAY_CONNECT_RETRIES"
           value = "2"
+        },
+        {
+          name  = "FLYWAY_GROUP"
+          value = "true"
         }
       ]
       
