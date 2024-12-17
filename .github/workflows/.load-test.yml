@@ -26,4 +26,4 @@ jobs:
       - uses: grafana/run-k6-action@v1
         with:
           path: ./tests/load/${{ matrix.name }}-test.js
-          flags: --vus 10 --duration 30s
+          flags: --vus 100 --duration 60s
