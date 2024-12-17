@@ -49,7 +49,7 @@ env:
 jobs:
  infra:
   environment: ${{ inputs.environment_name }}
-  name: Terraform ${{inputs.command}}
+  name: Terraform ${{inputs.command}} ${{inputs.working_directory}} ${{inputs.environment_name}}
   runs-on: ubuntu-24.04
   outputs:
     API_GW_URL: ${{ steps.tg-outputs.outputs.API_GW_URL }}
