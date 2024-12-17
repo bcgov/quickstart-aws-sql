@@ -89,3 +89,10 @@ jobs:
           aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
           aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
    
+  load-test:
+    needs: [deploy-api, build-ui, deploy-cloudfront]
+    name: Load Test
+    uses: ./.github/workflows/.load-test.yml
+    with:
+      BACKEND_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
+      FRONTEND_URL: https://${{ needs.deploy-cloudfront.outputs.CF_DOMAIN }}
