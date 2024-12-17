@@ -14,8 +14,8 @@ jobs:
   load-tests:
     name: Load
     env:
-      BACKEND_URL: ${{github.event.inputs.BACKEND_URL}}
-      FRONTEND_URL: ${{github.event.inputs.FRONTEND_URL}}
+      BACKEND_URL: ${{inputs.BACKEND_URL}}
+      FRONTEND_URL: ${{inputs.FRONTEND_URL}}
     runs-on: ubuntu-24.04
     strategy:
       matrix:
