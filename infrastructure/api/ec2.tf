@@ -33,7 +33,7 @@ resource "aws_instance" "jumphost" {
   vpc_security_group_ids = [data.aws_security_group.app.id, aws_security_group.jumphost.id]
   ebs_optimized = false
   ebs_block_device {
-    device_name = "/dev/xvda"
+    device_name = "${var.app_env}/dev/xvda"
     encrypted = true
     volume_size = 8
   }
