@@ -4,7 +4,7 @@ locals {
 
 # CloudFront WAF ACL
 resource "aws_wafv2_web_acl" "waf_cloudfront" {
-    count = "${var.waf_enabled ? 1 : 0}"
+    count = var.waf_enabled ? 1 : 0
     name        = "${local.waf_cloudfront_resource_name}"
     description = "CloudFront WAF Rules"
     scope       = "CLOUDFRONT"
