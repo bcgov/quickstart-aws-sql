@@ -16,8 +16,3 @@ variable "aws_region" {
   type = string
   default = "ca-central-1"
 }
-variable "waf_enabled" {
-  description = "Enable WAF for CloudFront"
-  type        = bool
-  default     = false
-}
