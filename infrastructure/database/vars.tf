@@ -31,4 +31,9 @@ variable "backup_retention_period" {
   type        = number
   default     = 7
 }
+variable "ha_enabled" {
+  description = "Whether to enable high availability mode of Aurora RDS cluster by adding a replica."
+  type        = bool
+  default     = true
+}
 
