@@ -67,7 +67,7 @@ jobs:
       app_env: ephermal-${{ github.event.number }}
     secrets: inherit
  
-  tests-e2e:
+  tests:
     name: Tests
     needs: builds
     uses: ./.github/workflows/.tests.yml
