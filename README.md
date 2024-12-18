@@ -19,7 +19,8 @@
 │   ├── frontend/              # Cloudfront with WAF
 │   ├── database/              # Aurora RDS database
 ├── backend/                   # Node Nest express backend API code
-├── frontend/                  # Vite + React SPA         
+├── frontend/                  # Vite + React SPA
+├── migrations/                # Flyway Migrations scripts to run database schema migrations
 ├── docker-compose.yml         # Docker compose file
 ├── README.md                  # Project documentation
 └── package.json               # Node.js monorepo for eslint and prettier
@@ -36,3 +37,24 @@
 - **docker-compose.yml**: Docker compose file for local development.
 - **README.md**: Project documentation.
 - **package.json**: Node.js monorepo configuration for eslint and prettier.
+
+# Runnin Locally
+## Running Locally with Docker Compose
+
+To run the entire stack locally using the `docker-compose.yml` file in the root directory, follow these steps:
+
+1. Ensure Docker (or Podman) is installed and running on your machine.
+2. Navigate to the root directory of the project:
+    ```sh
+    cd /c:/projects/NRS/quickstart-aws-containers
+    ```
+3. Build and start the containers:
+    ```sh
+    docker-compose up --build
+    ```
+4. The backend API should now be running at `http://localhost:3001` and the frontend at `http://localhost:3000`.
+
+To stop the containers, press `Ctrl+C` in the terminal where `docker-compose` is running, or run:
+```sh
+docker-compose down
+```

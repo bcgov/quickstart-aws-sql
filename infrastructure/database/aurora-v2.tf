@@ -103,6 +103,7 @@ module "aurora_postgresql_v2" {
   instance_class = "db.serverless"
   instances = {
     one = {}
+    two = var.ha_enabled ? {}:null
   }
 
   tags = {
