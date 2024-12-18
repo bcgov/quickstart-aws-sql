@@ -26,5 +26,9 @@ variable "db_database_name" {
   type        = string
   default     = "app"
 }
-
+variable "backup_retention_period" {
+  description = "The number of days to retain automated backups"
+  type        = number
+  default     = 7
+}
 
