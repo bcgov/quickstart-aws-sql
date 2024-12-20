@@ -58,3 +58,6 @@ To stop the containers, press `Ctrl+C` in the terminal where `docker-compose` is
 ```sh
 docker-compose down
 ```
+
+# Deploying to AWS
+1. Please follow the wiki link for AWS deployment [setup](https://github.com/bcgov/quickstart-aws-containers/wiki/Deploy-To-AWS-Using-Terraform)
