@@ -98,11 +98,15 @@ resource "aws_ecs_task_definition" "flyway_task" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-    aws ecs run-task \
+    task_arn=$(aws ecs run-task \
       --task-definition ${var.app_name}-flyway-task \
       --cluster ${aws_ecs_cluster.ecs_cluster.id} \
       --count 1 \
-      --network-configuration awsvpcConfiguration={securityGroups=[${data.aws_security_group.app.id}],subnets=${data.aws_subnets.app.ids[0]},assignPublicIp=DISABLED}
+      --network-configuration awsvpcConfiguration={securityGroups=[${data.aws_security_group.app.id}],subnets=${data.aws_subnets.app.ids[0]},assignPublicIp=DISABLED} \
+      --query 'tasks[0].taskArn' \
+      --output text)
+
+    aws ecs wait tasks-stopped --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn
 EOF
   }
 }
