@@ -106,15 +106,15 @@ resource "aws_ecs_task_definition" "flyway_task" {
       --query 'tasks[0].taskArn' \
       --output text)
 
-    echo "Flyway task started with ARN: $task_arn"
+    echo "Flyway task started with ARN: $task_arn at $(date)."
     
     echo "Waiting for Flyway task to complete..."
     aws ecs wait tasks-stopped --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn
     
-    echo "Flyway task completed."
+    echo "Flyway task completed, at $(date)."
     
     task_status=$(aws ecs describe-tasks --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn --query 'tasks[0].lastStatus' --output text)
-    echo "Flyway task status: $task_status"
+    echo "Flyway task status: $task_status at $(date)."
 EOF
   }
 }
