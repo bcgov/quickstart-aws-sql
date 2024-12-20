@@ -35,21 +35,23 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
   }
 }
 
+resource "terraform_data" "trigger_flyway" {
+  input = "${timestamp()}"
+}
 
-
-resource "aws_ecs_task_definition" "node_api_task" {
-  family                   = "${var.app_name}-task"
+resource "aws_ecs_task_definition" "flyway_task" {
+  family                   = "${var.app_name}-flyway-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = var.api_cpu
-  memory                   = var.api_memory
+  cpu                      = "512"
+  memory                   = "1024"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
     {
       name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
-      essential = false
+      essential   = true
       environment = [
         {
           name  = "FLYWAY_URL"
@@ -89,18 +91,39 @@ resource "aws_ecs_task_definition" "node_api_task" {
       mountPoints = []
       volumesFrom = []
       
-    },
+    }
+  ])
+  lifecycle {
+    replace_triggered_by = [terraform_data.trigger_flyway]
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+    task_arn=$(aws ecs run-task \
+      --task-definition ${var.app_name}-flyway-task \
+      --cluster ${aws_ecs_cluster.ecs_cluster.id} \
+      --count 1 \
+      --network-configuration awsvpcConfiguration={securityGroups=[${data.aws_security_group.app.id}],subnets=${data.aws_subnets.app.ids[0]},assignPublicIp=DISABLED} \
+      --query 'tasks[0].taskArn' \
+      --output text)
+
+    aws ecs wait tasks-stopped --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn
+EOF
+  }
+}
+
+resource "aws_ecs_task_definition" "node_api_task" {
+  family                   = "${var.app_name}-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = var.api_cpu
+  memory                   = var.api_memory
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.app_container_role.arn
+  container_definitions = jsonencode([
     {
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
-      #https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency
-      dependsOn = [
-        {
-          containerName = "${var.app_name}-flyway"
-          condition     = "SUCCESS" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
-        }
-      ]
       environment = [
         {
           name  = "POSTGRES_HOST"
