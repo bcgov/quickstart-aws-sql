@@ -32,6 +32,6 @@ COPY --from=build /app/dist ./dist
 EXPOSE 3001
 # Use curl for healthcheck as nc is not available in distroless
 
-# Nonroot user, limit heap size to 50 MB
+# Nonroot user, limit heap size to 250 MB, in aws lowest tier is 512 MB Memory, so 250 MB of heap space is safe.
 USER nonroot
-CMD ["--max-old-space-size=50", "/app/dist/main"]
+CMD ["--max-old-space-size=250", "/app/dist/main"]

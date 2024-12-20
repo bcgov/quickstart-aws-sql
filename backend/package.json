@@ -17,7 +17,7 @@
     "make-badges": "istanbul-badges-readme --logo=vitest --exitCode=1",
     "make-badges:ci": "npm run make-badges -- --ci",
     "test": "vitest --dir src",
-    "test:cov": "vitest run --coverage",
+    "test:cov": "prisma generate && vitest run --coverage",
     "test:e2e": "vitest --dir test"
   },
   "dependencies": {
@@ -30,7 +30,7 @@
     "@nestjs/swagger": "^8.0.2",
     "@nestjs/terminus": "^10.2.3",
     "@nestjs/testing": "^10.4.7",
-    "@prisma/client": "^5.7.0",
+    "@prisma/client": "^5.22.0",
     "dotenv": "^16.0.1",
     "express-prom-bundle": "^8.0.0",
     "helmet": "^8.0.0",

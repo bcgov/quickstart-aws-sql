@@ -105,3 +105,38 @@ variable "max_capacity" {
   type = number
   default = 3
 }
+## ECR Variables
+
+variable "repository_names" {
+  type        = list(string)
+  default = [ "bcgov/quickstart-aws-containers" ]
+  
+}
+variable "image_tag_mutability" {
+  description = "Tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE."
+  default     = "MUTABLE"
+}
+
+variable "image_scanning_enabled" {
+  description = "Enable container image scanning for security issues."
+  type        = bool
+  default     = true
+}
+
+variable "read_principals" {
+  description = "Defines which external principals are allowed to read from the ECR repository"
+  type        = list(any)
+  default     = []
+}
+
+variable "write_principals" {
+  description = "Defines which external principals are allowed to write to the ECR repository"
+  type        = list(any)
+  default     = []
+}
+
+variable "tags" {
+  description = "A set of of one or more tags to provide some metadata for the provisioned resources."
+  type        = map(string)
+  default     = {}
+}
