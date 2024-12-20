@@ -1,0 +1,29 @@
+name: Load tests
+on:
+  workflow_call:
+    inputs:
+      BACKEND_URL:
+        description: 'The URL of the backend to test'
+        required: true
+        type: string
+      FRONTEND_URL:
+        description: 'The URL of the frontend to test'
+        required: true
+        type: string
+jobs:
+  load-tests:
+    name: Load
+    env:
+      BACKEND_URL: ${{inputs.BACKEND_URL}}
+      FRONTEND_URL: ${{inputs.FRONTEND_URL}}
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        name: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1
+      - uses: grafana/run-k6-action@v1
+        with:
+          path: ./tests/load/${{ matrix.name }}-test.js
+          flags: --vus 10 --duration 30s

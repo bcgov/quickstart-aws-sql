@@ -26,5 +26,14 @@ variable "db_database_name" {
   type        = string
   default     = "app"
 }
-
+variable "backup_retention_period" {
+  description = "The number of days to retain automated backups"
+  type        = number
+  default     = 7
+}
+variable "ha_enabled" {
+  description = "Whether to enable high availability mode of Aurora RDS cluster by adding a replica."
+  type        = bool
+  default     = true
+}
 

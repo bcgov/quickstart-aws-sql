@@ -130,6 +130,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = data.aws_rds_cluster.rds_cluster.endpoint
         },
         {
+          name  = "POSTGRES_READ_ONLY_HOST"
+          value = data.aws_rds_cluster.rds_cluster.reader_endpoint
+        },
+        {
           name  = "POSTGRES_USER"
           value = local.db_master_creds.username
         },
