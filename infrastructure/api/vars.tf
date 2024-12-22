@@ -103,7 +103,22 @@ variable "min_capacity" {
 }
 variable "max_capacity" {
   type = number
-  default = 3
+  default = 5
+  description = <<EOT
+    The maximum number of tasks to run, please consider,
+    connection pooling and other factors when setting this value, 
+    also depends on aurora v2 scaling params
+    follow this link, 
+    https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.setting-capacity.html#aurora-serverless-v2.parameter-groups
+    The max_connections value for Aurora Serverless v2DB instances is based on the memory size
+    derived from the maximum ACUs. 
+    However, when you specify a minimum capacity of 0 or 0.5 ACUs on PostgreSQL-compatible DB instances,
+    the maximum value of max_connections is capped at 2,000.
+
+    In most cases, 0.5 min and 1 max ACU does the work, which means scaling can be upto 189 max connections,
+    API contianer has 5 connections per task, so 189/5 = 37 tasks.
+    if going beyond 37 tasks, consider increasing the max acu from 1 to 2.
+  EOT
 }
 ## ECR Variables
 

@@ -20,7 +20,7 @@ resource "aws_appautoscaling_policy" "api_up" {
 
     step_adjustment {
       metric_interval_lower_bound = 0
-      scaling_adjustment          = 1
+      scaling_adjustment          = 2 # Increase by 2, aggressive scaling
     }
   }
 

@@ -40,7 +40,8 @@ function getMiddlewares() {
         prismaOptions:{
           log: ["error", "warn"],
           errorFormat: "pretty",
-          datasourceUrl: `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=5`,
+          //https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/databases-connections/connection-pool#connection-pool-timeout
+          datasourceUrl: `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=5&pool_timeout=60`,
         },
         middlewares: getMiddlewares(),
       },
