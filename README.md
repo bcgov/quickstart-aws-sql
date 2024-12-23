@@ -62,41 +62,4 @@ docker-compose down
 # Deploying to AWS
 1. Please follow the wiki link for AWS deployment [setup](https://github.com/bcgov/quickstart-aws-containers/wiki/Deploy-To-AWS-Using-Terraform)
 
-## Pull Request Workflow
-```mermaid
-graph LR
-  A[Pull Request] --> B{Check Permissions}
-  B --> C{Checkout Code}
-  B --> D{Build Images}
-    D --> E{backend}
-    D --> F{migrations}
-    D --> G{frontend}
-  C --> H{Plan Database}
-  H -- Needs Database Plan --> I{Plan API}
-  I --> J{Plan Cloudfront}
-  D --> K{Tests}
-  H,I,J,K --> L{PR Results}
-  L --> M{Failure}
-  L --> N{Success}
-```
-## Merge to main Workflow
-```mermaid
-graph LR
-  A[Push to Main] --> B{Check Event}
-  B --> C{Use PR number from Workflow Dispatch}
-  B --> D{Get PR number from Merge}
-  C --> E{Set Variables}
-  D --> E
-  E --> F{Deploy Database}
-  F --> G{Deploy API}
-  G --> H{Build UI}
-  F --> I{Deploy Cloudfront}
-  H --> J{Checkout Code}
-  H --> K{Setup Node.js}
-  H --> L{Configure AWS Credentials}
-  J --> M{Build and Update UI}
-  K --> M
-  L --> M
-  M --> N{Sync to S3}
-  M --> O{Invalidate Cloudfront Cache}
-```
+## [Pull Request Workflow](./.github/graphics/pr-open.jpg)
