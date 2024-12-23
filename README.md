@@ -1,6 +1,10 @@
-# quickstart-aws-containers
-⚠️ This is very much in WIP phase. Though the code and workflows can be used to deploy to AWS⚠️
-
+[![Merge](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/merge.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/merge.yml)
+[![PR](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-open.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-open.yml)
+[![PR Validate](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-validate.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-validate.yml)
+[![CodeQL](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql)
+[![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
+[![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
+# Quickstart for AWS using Aurora Serverless v2 (Postgis) , ECS Fargate and CloudFront ⚠️DRAFT⚠️
 ## Prerequisites
 
 - BCGOV AWS account with appropriate permissions
@@ -38,7 +42,7 @@
 - **README.md**: Project documentation.
 - **package.json**: Node.js monorepo configuration for eslint and prettier.
 
-# Runnin Locally
+# Running Locally
 ## Running Locally with Docker Compose
 
 To run the entire stack locally using the `docker-compose.yml` file in the root directory, follow these steps:
@@ -46,7 +50,7 @@ To run the entire stack locally using the `docker-compose.yml` file in the root 
 1. Ensure Docker (or Podman) is installed and running on your machine.
 2. Navigate to the root directory of the project:
     ```sh
-    cd /c:/projects/NRS/quickstart-aws-containers
+    cd <checkedout_repo_dir>
     ```
 3. Build and start the containers:
     ```sh
@@ -58,6 +62,33 @@ To stop the containers, press `Ctrl+C` in the terminal where `docker-compose` is
 ```sh
 docker-compose down
 ```
+## Running Locally without Docker (Complex)
+Prerequisites:
+
+    1. Install JDK 17 and above.
+    2. Install Node.js 22 and above.
+    3. Install Postgres 16.4 with Postgis extension.
+    4. Download flyway.jar file
+Once all the softwares are installed follow below steps.
+
+1. Run Postgres DB (better as a service on OS).
+2. Run flyway migrations (this needs to be run everytime changes to migrations folder happen)
+```sh
+java -jar flyway.jar -url=jdbc:postgresql://$posgtres_host:5432/$postgres_db -user=$POSTGRES_USER -password=$POSTGRES_PASSWORD -baselineOnMigrate=true -schemas=$FLYWAY_DEFAULT_SCHEMA migrate
+```
+3. Run backend from root of folder.
+```sh
+cd backend
+npm run start:dev or npm run start:debug
+```
+4. Run Frontend from root of folder.
+```sh
+cd frontend
+npm run dev
+```
 
 # Deploying to AWS
 1. Please follow the wiki link for AWS deployment [setup](https://github.com/bcgov/quickstart-aws-containers/wiki/Deploy-To-AWS-Using-Terraform)
+
+## Pull Request Workflow
+![Pull Request Workflow](./.github/graphics/pr-open.jpg)
