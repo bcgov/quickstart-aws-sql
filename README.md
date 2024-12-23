@@ -62,6 +62,30 @@ To stop the containers, press `Ctrl+C` in the terminal where `docker-compose` is
 ```sh
 docker-compose down
 ```
+## Running Locally without Docker (Complex)
+Prerequisites:
+
+    1. Install JDK 17 and above.
+    2. Install Node.js 22 and above.
+    3. Install Postgres 16.4 with Postgis extension.
+    4. Download flyway.jar file
+Once all the softwares are installed follow below steps.
+
+1. Run Postgres DB (better as a service on OS).
+2. Run flyway migrations (this needs to be run everytime changes to migrations folder happen)
+```sh
+java -jar flyway.jar -url=jdbc:postgresql://$posgtres_host:5432/$postgres_db -user=$POSTGRES_USER -password=$POSTGRES_PASSWORD -baselineOnMigrate=true -schemas=$FLYWAY_DEFAULT_SCHEMA migrate
+```
+3. Run backend from root of folder.
+```sh
+cd backend
+npm run start:dev or npm run start:debug
+```
+4. Run Frontend from root of folder.
+```sh
+cd frontend
+npm run dev
+```
 
 # Deploying to AWS
 1. Please follow the wiki link for AWS deployment [setup](https://github.com/bcgov/quickstart-aws-containers/wiki/Deploy-To-AWS-Using-Terraform)
