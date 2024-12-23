@@ -1,6 +1,10 @@
-# quickstart-aws-containers
-⚠️ This is very much in WIP phase. Though the code and workflows can be used to deploy to AWS⚠️
-
+[![Merge](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/merge.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/merge.yml)
+[![PR](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-open.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-open.yml)
+[![PR Validate](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-validate.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-validate.yml)
+[![CodeQL](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql)
+[![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
+[![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
+# Quickstart for AWS using Aurora RDS and ECS Fargate ⚠️DRAFT⚠️
 ## Prerequisites
 
 - BCGOV AWS account with appropriate permissions
@@ -62,4 +66,5 @@ docker-compose down
 # Deploying to AWS
 1. Please follow the wiki link for AWS deployment [setup](https://github.com/bcgov/quickstart-aws-containers/wiki/Deploy-To-AWS-Using-Terraform)
 
-## [Pull Request Workflow](./.github/graphics/pr-open.jpg)
+## Pull Request Workflow
+![Pull Request Workflow](./.github/graphics/pr-open.jpg)
