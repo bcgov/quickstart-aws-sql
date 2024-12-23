@@ -115,6 +115,11 @@ resource "aws_ecs_task_definition" "flyway_task" {
     
     task_status=$(aws ecs describe-tasks --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn --query 'tasks[0].lastStatus' --output text)
     echo "Flyway task status: $task_status at $(date)."
+    
+    log_stream_name=$(aws ecs describe-tasks --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn --query 'tasks[0].containers[0].logStreamName' --output text)
+    echo "Fetching logs for Flyway task from log stream: $log_stream_name"
+    
+    aws logs get-log-events --log-group-name "/ecs/${var.app_name}/flyway" --log-stream-name $log_stream_name --limit 100 --query 'events[*].message' --output text
 EOF
   }
 }
