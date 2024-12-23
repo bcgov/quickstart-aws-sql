@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql)
 [![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
 [![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
-# Quickstart for AWS using Aurora RDS and ECS Fargate ⚠️DRAFT⚠️
+# Quickstart for AWS using Aurora Serverless v2 (Postgis) , ECS Fargate and CloudFront ⚠️DRAFT⚠️
 ## Prerequisites
 
 - BCGOV AWS account with appropriate permissions
