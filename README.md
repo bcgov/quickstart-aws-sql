@@ -72,28 +72,31 @@ graph LR
     D --> F{migrations}
     D --> G{frontend}
   C --> H{Plan Database}
-  H --> I{Plan API} [Needs Database Plan]
-  I --> J{Plan Cloudfront} [Needs API Plan]
-  D --> K{Tests} [Needs Built Images]
+  H -- Needs Database Plan --> I{Plan API}
+  I --> J{Plan Cloudfront}
+  D --> K{Tests}
   H,I,J,K --> L{PR Results}
-  L --> M{Failure} [At least one job failed]
+  L --> M{Failure}
   L --> N{Success}
 ```
 ## Merge to main Workflow
 ```mermaid
 graph LR
   A[Push to Main] --> B{Check Event}
-  B --> C{Use PR number from Workflow Dispatch} [workflow_dispatch]
-  B --> D{Get PR number from Merge} [push to main]
-  C,D --> E{Set Variables}
-  E --> F{Deploy Database} [Needs: Set Variables]
-  F --> G{Deploy API} [Needs: Deploy Database, Set Variables]
-    G --> H{Build UI} [Needs: Deploy API, Deploy Cloudfront]
-  F --> I{Deploy Cloudfront} [Needs: Set Variables]
+  B --> C{Use PR number from Workflow Dispatch}
+  B --> D{Get PR number from Merge}
+  C --> E{Set Variables}
+  D --> E
+  E --> F{Deploy Database}
+  F --> G{Deploy API}
+  G --> H{Build UI}
+  F --> I{Deploy Cloudfront}
   H --> J{Checkout Code}
   H --> K{Setup Node.js}
   H --> L{Configure AWS Credentials}
-  J,K,L --> M{Build and Update UI}
-    M --> N{Sync to S3}
-    M --> O{Invalidate Cloudfront Cache}
+  J --> M{Build and Update UI}
+  K --> M
+  L --> M
+  M --> N{Sync to S3}
+  M --> O{Invalidate Cloudfront Cache}
 ```
