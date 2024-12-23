@@ -2,7 +2,7 @@ name: Pause AWS Resources
 
 on:
   schedule:
-    - cron: "0 2 * * 1-5" # Runs every day at 6PM PST, Monday to Friday
+    - cron: "0 2 * * 2-6" # Runs every day at 6PM PST, Monday to Friday
   workflow_dispatch:
 permissions:
   id-token: write # This is required for requesting the JWT

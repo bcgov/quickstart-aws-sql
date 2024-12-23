@@ -1,11 +1,12 @@
 CREATE SCHEMA IF NOT EXISTS ${flyway:defaultSchema};
 SET SEARCH_PATH TO ${flyway:defaultSchema};
+CREATE EXTENSION IF NOT EXISTS "postgis";
 CREATE SEQUENCE IF NOT EXISTS "USER_SEQ"
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 100;
+    CACHE 1;
 
 CREATE TABLE IF NOT EXISTS USERS
 (
@@ -21,4 +22,3 @@ VALUES ('John', 'John.ipsum@test.com'),
        ('Jack', 'Jack.ipsum@test.com'),
        ('Jill', 'Jill.ipsum@test.com'),
        ('Joe', 'Joe.ipsum@test.com');
-
