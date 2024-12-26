@@ -15,5 +15,6 @@ generate "dev_tfvars" {
   db_cluster_name = "qsawsc-aurora-cluster-${local.app_env}"
   app_env="${local.app_env}"
   backup_retention_period=1
+  ha_enabled=false
 EOF
 }
