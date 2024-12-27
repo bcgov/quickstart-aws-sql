@@ -103,15 +103,18 @@ module "aurora_postgresql_v2" {
   instance_class = "db.serverless"
   instances = {
     one = {}
-    two = var.ha_enabled ? {}:null
+    two = var.ha_enabled ? {} : null
   }
-
+  
   tags = {
     managed-by = "terraform"
   }
 
   enabled_cloudwatch_logs_exports = ["postgresql"]
   backup_retention_period = "${var.backup_retention_period}"
+}
+output "ha_enabled" {
+  value = var.ha_enabled
 }
 
 
