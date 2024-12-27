@@ -14,11 +14,6 @@ on:
         required: true
         default: 'apply'
         type: string
-      working_directory:
-        description: 'The working directory to run the command in'
-        required: true
-        default: 'database'
-        type: string
       tag:
         description: 'The tag of the containers to deploy'
         default: 'latest'
