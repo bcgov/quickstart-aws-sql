@@ -40,4 +40,13 @@ jobs:
       app_env: dev
     secrets: inherit
   
-   
+  deploy_stack_test:
+    name: Deploy Stack
+    needs: [vars]
+    uses: ./.github/workflows/.deploy_stack.yml
+    with:
+      environment_name: test
+      command: apply
+      tag: ${{ needs.vars.outputs.pr }}
+      app_env: test
+    secrets: inherit
