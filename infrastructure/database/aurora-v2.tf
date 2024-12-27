@@ -101,10 +101,10 @@ module "aurora_postgresql_v2" {
   }
 
   instance_class = "db.serverless"
-  instances = {
+  instances = var.ha_enabled ? {
     one = {}
-    two = var.ha_enabled ? {} : null
-  }
+    two = {}
+  }: {one = {}}
   
   tags = {
     managed-by = "terraform"
