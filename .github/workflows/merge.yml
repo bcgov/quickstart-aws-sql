@@ -30,7 +30,7 @@ jobs:
         uses: bcgov-nr/action-get-pr@v0.0.1
   
   deploy_stack_dev:
-    name: Deploy Stack
+    name: Deploy Stack Dev
     needs: [vars]
     uses: ./.github/workflows/.deploy_stack.yml
     with:
@@ -41,7 +41,7 @@ jobs:
     secrets: inherit
   
   deploy_stack_test:
-    name: Deploy Stack
+    name: Deploy Stack Test
     needs: [vars]
     uses: ./.github/workflows/.deploy_stack.yml
     with:
