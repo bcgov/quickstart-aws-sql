@@ -66,7 +66,8 @@ jobs:
       working_directory: frontend
     secrets: inherit
   build-ui:
-    name: Builds UI
+    name: Build And upload UI to s3 ${{ inputs.environment_name }}
+    environment: ${{ inputs.environment_name }}
     needs: [deploy-api, deploy-cloudfront]
     runs-on: ubuntu-24.04
     steps:
