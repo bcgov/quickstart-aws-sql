@@ -1,0 +1,52 @@
+name: .Stack Prefix
+on:
+  workflow_call:
+    outputs:
+      STACK_PREFIX: 
+        description: 'The Stack Prefix'
+        value: ${{ jobs.prefix.outputs.STACK_PREFIX }}
+jobs:
+  prefix:
+    name: Generate Stack Prefix
+    runs-on: ubuntu-latest
+    outputs:
+      STACK_PREFIX: ${{ steps.stack-prefix.outputs.STACK_PREFIX }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate Stack Prefix
+        id: stack-prefix
+        shell: bash
+        run: |
+          # Get repository name
+          REPO_NAME="${{ github.repository.name }}"
+
+          # If repo name is less than 20 characters, use it directly
+          if [[ ${#REPO_NAME} -lt 20 ]]; then
+            STACK_PREFIX="${REPO_NAME}"
+          else
+            # Split by hyphen or underscore and get first letter of each word
+            PREFIX=$(echo "$REPO_NAME" | 
+                    awk -v RS='[-_]' '{printf "%s", tolower(substr($0,1,1))}' | 
+                    tr -d '\n')
+
+            # Ensure at least 4 characters without repetition
+            while [[ ${#PREFIX} -lt 4 ]]; do
+              # Concatenate with the next letter in the sequence (avoiding randomness)
+              SUFFIX="${PREFIX: -1}"  # Get the last character of the current PREFIX
+              INDEX=$(( $(echo "$PREFIX" | grep -o "$SUFFIX" | wc -l) + 1 ))  # Get the index of the next character
+              NEXT_CHAR=$(echo "$PREFIX" | cut -c $INDEX)  # Get the next character
+              PREFIX="${PREFIX}${NEXT_CHAR}"
+            done
+
+            # Truncate if prefix exceeds 10 characters
+            if [[ ${#PREFIX} -gt 10 ]]; then
+              PREFIX="${PREFIX:0:10}"
+            fi
+
+            STACK_PREFIX="${PREFIX}"
+          fi
+
+          # Set output
+          echo "STACK_PREFIX=$STACK_PREFIX" >> $GITHUB_OUTPUT
+          echo "Generated prefix: $STACK_PREFIX"

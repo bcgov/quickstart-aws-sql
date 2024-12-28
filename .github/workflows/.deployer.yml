@@ -72,6 +72,9 @@ jobs:
       uses: autero1/action-terragrunt@v3
       with:
           terragrunt-version: ${{ env.TG_VERSION }}
+    - name: Stack Prefix
+      id: stack-prefix
+      uses: ./.github/workflows/.stack-prefix.yml
     - name: Terragrunt ${{inputs.command}}
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       env:
@@ -80,6 +83,7 @@ jobs:
           flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}
+          stack_prefix: ${{ steps.stack-prefix.outputs.STACK_PREFIX }}
       run: |
           # Run terraform
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive

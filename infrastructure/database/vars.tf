@@ -36,4 +36,3 @@ variable "ha_enabled" {
   type        = bool
   default     = true
 }
-
