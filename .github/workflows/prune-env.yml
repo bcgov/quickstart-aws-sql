@@ -1,0 +1,45 @@
+name: Destroy Stack
+on:
+ workflow_dispatch:
+  inputs:
+    environment_name:
+      description: 'The name of the environment to destroy resources from dev or test or prod(BE CAREFUL HERE)'
+      required: true
+      default: 'dev'
+      type: string
+    app_env:
+      required: true
+      type: string
+      description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
+  packages: write
+jobs:
+  cleanup-aws-database:
+    name: Cleanup AWS Database
+    uses: ./.github/workflows/.deployer.yml
+    secrets: inherit
+    with:
+      environment_name: ${{ github.event.inputs.environment_name }}
+      command: destroy
+      working_directory: database
+      app_env: ${{ github.event.inputs.app_env }}
+  cleanup-aws-api:
+      name: Cleanup AWS API
+      uses: ./.github/workflows/.deployer.yml
+      secrets: inherit
+      with:
+        environment_name: ${{ github.event.inputs.environment_name }}
+        command: destroy
+        working_directory: api
+        app_env: ${{ github.event.inputs.app_env }}
+  cleanup-aws-cf:
+      name: Cleanup AWS CF
+      uses: ./.github/workflows/.deployer.yml
+      secrets: inherit
+      with:
+        environment_name: ${{ github.event.inputs.environment_name }}
+        command: destroy
+        working_directory: frontend
+        app_env: ${{ github.event.inputs.app_env }}
