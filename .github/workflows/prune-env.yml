@@ -11,10 +11,13 @@ on:
       required: true
       type: string
       description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+<<<<<<< HEAD
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
   packages: write
+=======
+>>>>>>> a324caa80fb342404fe6ebe49d737c29a58e4c4d
 jobs:
   cleanup-aws-database:
     name: Cleanup AWS Database
@@ -24,7 +27,12 @@ jobs:
       environment_name: ${{ github.event.inputs.environment_name }}
       command: destroy
       working_directory: database
+<<<<<<< HEAD
       app_env: ${{ github.event.inputs.app_env }}
+=======
+      AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+      AWS_LICENSE_PLATE: ${{ secrets.AWS_LICENSE_PLATE }}
+>>>>>>> a324caa80fb342404fe6ebe49d737c29a58e4c4d
   cleanup-aws-api:
       name: Cleanup AWS API
       uses: ./.github/workflows/.deployer.yml
@@ -34,6 +42,11 @@ jobs:
         command: destroy
         working_directory: api
         app_env: ${{ github.event.inputs.app_env }}
+<<<<<<< HEAD
+=======
+        AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+        AWS_LICENSE_PLATE: ${{ secrets.AWS_LICENSE_PLATE }}
+>>>>>>> a324caa80fb342404fe6ebe49d737c29a58e4c4d
   cleanup-aws-cf:
       name: Cleanup AWS CF
       uses: ./.github/workflows/.deployer.yml
@@ -43,3 +56,8 @@ jobs:
         command: destroy
         working_directory: frontend
         app_env: ${{ github.event.inputs.app_env }}
+<<<<<<< HEAD
+=======
+        AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+        AWS_LICENSE_PLATE: ${{ secrets.AWS_LICENSE_PLATE }}
+>>>>>>> a324caa80fb342404fe6ebe49d737c29a58e4c4d
