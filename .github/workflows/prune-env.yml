@@ -11,6 +11,10 @@ on:
       required: true
       type: string
       description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
+  packages: write
 jobs:
   cleanup-aws-database:
     name: Cleanup AWS Database
