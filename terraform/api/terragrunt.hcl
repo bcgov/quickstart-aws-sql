@@ -46,7 +46,7 @@ generate "tfvars" {
   disable_signature = true
   contents          = <<-EOF
   app_name="${local.stack_prefix}-node-api-${local.app_env}"
-
+  db_cluster_name = "${local.stack_prefix}-aurora-${local.app_env}"
 EOF
 }
 

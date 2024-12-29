@@ -3,11 +3,11 @@ locals {
   rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev 
 }
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "aurora-pg-db-master-creds-${var.target_env}_${local.rds_app_env}"
+  name = "${var.db_cluster_name}"
 }
 
 data "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier = "qsawsc-aurora-cluster-${local.rds_app_env}" 
+  cluster_identifier = "${var.db_cluster_name}" 
 }
 
 data "aws_secretsmanager_secret_version" "db_master_creds_version" {
