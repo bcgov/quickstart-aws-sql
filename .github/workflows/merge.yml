@@ -39,7 +39,12 @@ jobs:
       tag: ${{ needs.vars.outputs.pr }}
       app_env: dev
     secrets: inherit
-  
+  e2e:
+    name: E2E Tests
+    needs: [deploy_stack_dev]
+    uses: ./.github/workflows/.e2e.yml
+    with:
+      frontend_url: https://${{ needs.deploy_stack_dev.outputs.CF_DOMAIN }}
   deploy_stack_test:
     name: Deploy Stack Test
     needs: [vars]
