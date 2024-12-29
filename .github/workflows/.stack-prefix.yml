@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           # Get repository name
-          REPO_NAME="${{ github.repository.name }}"
+          REPO_NAME="${{ github.event.repository.name }}"
 
           # If repo name is less than 20 characters, use it directly
           if [[ ${#REPO_NAME} -lt 20 ]]; then
