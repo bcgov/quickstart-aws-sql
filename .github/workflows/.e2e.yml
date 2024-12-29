@@ -2,7 +2,7 @@ name: .E2E
 on:
   workflow_call:
     inputs:
-      FRONTEND_URL:
+      frontend_url:
         description: 'The URL of the frontend to test'
         required: true
         type: string
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run Docker compose
-        if: ${{ inputs.FRONTEND_URL == 'http://localhost:3000' }}
+        if: ${{ inputs.frontend_url == 'http://localhost:3000' }}
         env:
           BACKEND_IMAGE: ghcr.io/${{ github.repository }}/backend:${{ inputs.tag }}
           FLYWAY_IMAGE: ghcr.io/${{ github.repository }}/migrations:${{ inputs.tag }}
@@ -27,7 +27,7 @@ jobs:
         run: docker compose up -d --wait
         continue-on-error: true
       - name: Docker Compose Logs
-        if:  ${{ runner.debug == '1' &&  inputs.FRONTEND_URL == 'http://localhost:3000' }}
+        if:  ${{ runner.debug == '1' &&  inputs.frontend_url == 'http://localhost:3000' }}
         run: docker compose logs
       - name: Cache Playwright Browsers
         uses: actions/cache@v4
@@ -57,7 +57,7 @@ jobs:
       - name: Run Tests
         working-directory: frontend
         env:
-          E2E_BASE_URL: http://localhost:3000
+          E2E_BASE_URL: ${{ inputs.frontend_url }}
           CI: 'true'
         run: |
           npx playwright test --project="chromium" --reporter=blob
