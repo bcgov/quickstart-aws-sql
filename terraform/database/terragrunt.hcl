@@ -15,6 +15,7 @@ locals {
   statefile_bucket_name   = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}" 
   statefile_key           = "${local.stack_prefix}/${local.app_env}/database/aurora-v2/terraform.tfstate"
   statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}" 
+  rds_app_env = (contains(["dev", "test", "prod"], "${local.app_env}") ? "${local.app_env}" : "dev") # if app_env is not dev, test, or prod, default to dev 
 }
 
 # Remote S3 state for Terraform.
@@ -40,8 +41,7 @@ generate "tfvars" {
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
-    db_cluster_name = "${local.stack_prefix}-aurora-${local.app_env}"
-    app_env="${local.app_env}"
+    db_cluster_name = "${local.stack_prefix}-aurora-${local.rds_app_env}"
 EOF
 }
 
