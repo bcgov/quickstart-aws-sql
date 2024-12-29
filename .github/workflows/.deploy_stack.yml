@@ -35,18 +35,23 @@ on:
 env:
     AWS_REGION: ca-central-1
 jobs:
+  stack-prefix:
+    name: Stack Prefix
+    uses: ./.github/workflows/.stack-prefix.yml
   deploy-db:
     name: Deploys Database
+    needs: [stack-prefix]
     uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
       working_directory: database
       app_env: ${{ inputs.app_env }}
+      stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
     secrets: inherit
   deploy-api:
     name: Deploys API
-    needs: [deploy-db]
+    needs: [deploy-db, stack-prefix]
     uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: ${{ inputs.environment_name }}
@@ -54,9 +59,11 @@ jobs:
       tag: ${{ inputs.tag }}
       app_env: ${{ inputs.app_env }}
       working_directory: api
+      stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
     secrets: inherit
   deploy-cloudfront:
     name: Deploys Cloudfront
+    needs: [stack-prefix]
     uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: ${{ inputs.environment_name }}
@@ -64,6 +71,7 @@ jobs:
       tag: ${{ inputs.tag }}
       app_env: ${{ inputs.app_env }}
       working_directory: frontend
+      stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
     secrets: inherit
   build-ui:
     name: Build And upload UI to s3 ${{ inputs.environment_name }}
