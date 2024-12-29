@@ -76,6 +76,7 @@ jobs:
   build-ui:
     name: Build And upload UI to s3 ${{ inputs.environment_name }}
     environment: ${{ inputs.environment_name }}
+    if: ${{ inputs.command == 'apply' }}
     needs: [deploy-api, deploy-cloudfront]
     runs-on: ubuntu-24.04
     steps:
