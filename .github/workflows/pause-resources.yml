@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
-          aws ecs update-service --cluster ecs-cluster-node-${{ needs.stack-prefix.outputs.stack_prefix }}-api-dev --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --desired-count 0 --no-cli-pager --output json
+          aws ecs update-service --cluster ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --desired-count 0 --no-cli-pager --output json
           DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text)
           if [ "$DB_CLUSTER_STATUS" = "available" ]; then
             aws rds stop-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --no-cli-pager --output json
@@ -53,7 +53,7 @@ jobs:
         shell: bash
         run: |
           aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
-          aws ecs update-service --cluster ecs-cluster-node-${{ needs.stack-prefix.outputs.stack_prefix }}-api-test --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --desired-count 0 --no-cli-pager --output json
+          aws ecs update-service --cluster ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --desired-count 0 --no-cli-pager --output json
           DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text)
           if [ "$DB_CLUSTER_STATUS" = "available" ]; then
             aws rds stop-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --no-cli-pager --output json
