@@ -18,7 +18,7 @@ locals {
   statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
   flyway_image              = get_env("flyway_image")
   api_image          = get_env("api_image")
-
+  rds_app_env = (contains(["dev", "test", "prod"], "${local.app_env}") ? "${local.app_env}" : "dev") # if app_env is not dev, test, or prod, default to dev 
   
 }
 
@@ -46,7 +46,7 @@ generate "tfvars" {
   disable_signature = true
   contents          = <<-EOF
   app_name="${local.stack_prefix}-node-api-${local.app_env}"
-  db_cluster_name = "${local.stack_prefix}-aurora-${local.app_env}"
+  db_cluster_name = "${local.stack_prefix}-aurora-${local.rds_app_env}"
 EOF
 }
 

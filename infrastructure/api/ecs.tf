@@ -1,6 +1,6 @@
 locals {
   container_name = "${var.app_name}"
-  rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev 
+  
 }
 data "aws_secretsmanager_secret" "db_master_creds" {
   name = "${var.db_cluster_name}"
