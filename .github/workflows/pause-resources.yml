@@ -8,7 +8,12 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
 jobs:
+  stack-prefix:
+    name: Stack Prefix
+    uses: ./.github/workflows/.stack-prefix.yml
   pause-resources-dev:
+    name: Pause Resources Dev
+    needs: [stack-prefix]
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -22,11 +27,36 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
-          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-node-api-dev/node-api-dev-service --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
-          aws ecs update-service --cluster ecs-cluster-node-api-dev --service node-api-dev-service --desired-count 0 --no-cli-pager --output json
-          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier qsawsc-aurora-cluster-dev --query 'DBClusters[0].Status' --output text)
+          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
+          aws ecs update-service --cluster ecs-cluster-node-${{ needs.stack-prefix.outputs.stack_prefix }}-api-dev --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --desired-count 0 --no-cli-pager --output json
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text)
           if [ "$DB_CLUSTER_STATUS" = "available" ]; then
-            aws rds stop-db-cluster --db-cluster-identifier qsawsc-aurora-cluster-dev --no-cli-pager --output json
+            aws rds stop-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --no-cli-pager --output json
           else
             echo "DB cluster is not in an available state. Current state: $DB_CLUSTER_STATUS"
           fi
+  pause-resources-test:
+    name: Pause Resources Test
+    environment: test
+    needs: [stack-prefix]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: gha-pause-resources
+          aws-region: ca-central-1
+      - name: Pause AWS Resources
+        shell: bash
+        run: |
+          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
+          aws ecs update-service --cluster ecs-cluster-node-${{ needs.stack-prefix.outputs.stack_prefix }}-api-test --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --desired-count 0 --no-cli-pager --output json
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text)
+          if [ "$DB_CLUSTER_STATUS" = "available" ]; then
+            aws rds stop-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --no-cli-pager --output json
+          else
+            echo "DB cluster is not in an available state. Current state: $DB_CLUSTER_STATUS"
+          fi        
