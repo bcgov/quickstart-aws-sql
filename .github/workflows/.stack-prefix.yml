@@ -7,8 +7,8 @@ on:
         value: ${{ jobs.prefix.outputs.STACK_PREFIX }}
 jobs:
   prefix:
-    name: Generate Stack Prefix
-    runs-on: ubuntu-latest
+    name: Stack Prefix
+    runs-on: ubuntu-24.04
     outputs:
       STACK_PREFIX: ${{ steps.stack-prefix.outputs.STACK_PREFIX }}
     steps:
