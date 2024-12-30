@@ -28,6 +28,10 @@ on:
         required: false
         type: string
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+      stack_prefix:
+        required: true
+        type: string
+        description: 'The stack prefix to use for the resources'
     outputs:
       API_GW_URL: 
         value: ${{ jobs.infra.outputs.API_GW_URL }}
@@ -80,6 +84,7 @@ jobs:
           flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}
+          stack_prefix: ${{ inputs.stack_prefix }}
       run: |
           # Run terraform
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
@@ -93,6 +98,7 @@ jobs:
           flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}
+          stack_prefix: ${{ inputs.stack_prefix }}
       run: |
           terragrunt output -json > outputs.json
           #print the output
@@ -109,6 +115,7 @@ jobs:
           flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}
+          stack_prefix: ${{ inputs.stack_prefix }}
       run: |
           terragrunt output -json > outputs.json
           #print the output

@@ -155,3 +155,7 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+variable "db_cluster_name"{
+  description = "Name of the database cluster"
+  type        = string
+}

@@ -48,7 +48,7 @@ resource "aws_rds_cluster_parameter_group" "db_postgresql" {
 
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
-  name = "aurora-pg-db-master-creds-${var.target_env}_${var.app_env}"
+  name = "${var.db_cluster_name}"
 
   tags = {
     managed-by = "terraform"
@@ -101,17 +101,20 @@ module "aurora_postgresql_v2" {
   }
 
   instance_class = "db.serverless"
-  instances = {
+  instances = var.ha_enabled ? {
     one = {}
-    two = var.ha_enabled ? {}:null
-  }
-
+    two = {}
+  }: {one = {}}
+  
   tags = {
     managed-by = "terraform"
   }
 
   enabled_cloudwatch_logs_exports = ["postgresql"]
   backup_retention_period = "${var.backup_retention_period}"
+}
+output "ha_enabled" {
+  value = var.ha_enabled
 }
 
 

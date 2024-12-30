@@ -1,0 +1,63 @@
+name: .E2E
+on:
+  workflow_call:
+    inputs:
+      frontend_url:
+        description: 'The URL of the frontend to test'
+        required: true
+        type: string
+      tag:
+        description: 'The tag of the containers to test'
+        default: 'latest'
+        type: string
+        required: false
+jobs:
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run Docker compose
+        if: ${{ inputs.frontend_url == 'http://localhost:3000' }}
+        env:
+          BACKEND_IMAGE: ghcr.io/${{ github.repository }}/backend:${{ inputs.tag }}
+          FLYWAY_IMAGE: ghcr.io/${{ github.repository }}/migrations:${{ inputs.tag }}
+          FRONTEND_IMAGE: ghcr.io/${{ github.repository }}/frontend:${{ inputs.tag }}
+        run: docker compose up -d --wait
+        continue-on-error: true
+      - name: Docker Compose Logs
+        if:  ${{ runner.debug == '1' &&  inputs.frontend_url == 'http://localhost:3000' }}
+        run: docker compose logs
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+      - uses: actions/setup-node@v4
+        name: Setup Node
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Fix permissions
+        run: sudo chown -R $USER:$USER frontend
+      - name: Install dependencies
+        working-directory: frontend
+        run: |
+          npm ci
+      - run: npx @playwright/test install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: ./frontend
+      - run: npx @playwright/test install-deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: ./frontend
+      - name: Run Tests
+        working-directory: frontend
+        env:
+          E2E_BASE_URL: ${{ inputs.frontend_url }}
+          CI: 'true'
+        run: |
+          npx playwright test --project="chromium" --reporter=blob
