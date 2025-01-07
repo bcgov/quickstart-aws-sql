@@ -27,7 +27,7 @@ jobs:
         run: docker compose up -d --wait
         continue-on-error: true
       - name: Docker Compose Logs
-        if:  ${{ runner.debug == '1' &&  inputs.frontend_url == 'http://localhost:3000' }}
+        if:  ${{ inputs.frontend_url == 'http://localhost:3000' }}
         run: docker compose logs
       - name: Cache Playwright Browsers
         uses: actions/cache@v4
