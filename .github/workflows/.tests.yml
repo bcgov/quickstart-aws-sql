@@ -41,6 +41,7 @@ jobs:
         with:
           commands: |
             npm ci
+            npm run build
             npm run test:cov
           dir: ${{ matrix.dir }}
           node_version: "22"
