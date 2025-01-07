@@ -62,5 +62,6 @@ export default ({ mode }) => {
       },
     },
   },
+  define
 })
 }

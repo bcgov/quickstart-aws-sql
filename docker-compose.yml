@@ -71,8 +71,8 @@ services:
     build:
       context: ./frontend
     environment:
-      BACKEND_URL: http://backend:3001
-      PORT: 3000
+      VITE_BACKEND_URL: http://backend:3001
+      VITE_PORT: 3000
       NODE_ENV: development
       LOG_LEVEL: debug
     image: ${FRONTEND_IMAGE:-frontend}
