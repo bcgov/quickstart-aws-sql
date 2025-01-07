@@ -92,3 +92,6 @@ npm run dev
 
 ## Pull Request Workflow
 ![Pull Request Workflow](./.github/graphics/pr-open.jpg)
+
+## Merge Workflow
+![Merge](./.github/graphics/merge.jpg)
