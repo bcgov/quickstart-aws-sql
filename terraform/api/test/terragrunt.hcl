@@ -15,7 +15,7 @@ generate "dev_tfvars" {
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
-  target_env = "dev"
+  target_env = "test"
   flyway_image="${local.flyway_image}"
   api_image="${local.api_image}"
   app_env="${local.app_env}"

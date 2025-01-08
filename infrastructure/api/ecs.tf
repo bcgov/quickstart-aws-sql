@@ -1,13 +1,13 @@
 locals {
   container_name = "${var.app_name}"
-  rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev 
+  
 }
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "aurora-pg-db-master-creds-${var.target_env}_${local.rds_app_env}"
+  name = "${var.db_cluster_name}"
 }
 
 data "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier = "qsawsc-aurora-cluster-${local.rds_app_env}" 
+  cluster_identifier = "${var.db_cluster_name}" 
 }
 
 data "aws_secretsmanager_secret_version" "db_master_creds_version" {
@@ -35,21 +35,23 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
   }
 }
 
+resource "terraform_data" "trigger_flyway" {
+  input = "${timestamp()}"
+}
 
-
-resource "aws_ecs_task_definition" "node_api_task" {
-  family                   = "${var.app_name}-task"
+resource "aws_ecs_task_definition" "flyway_task" {
+  family                   = "${var.app_name}-flyway-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = var.api_cpu
-  memory                   = var.api_memory
+  cpu                      = "512"
+  memory                   = "1024"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
     {
       name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
-      essential = false
+      essential   = true
       environment = [
         {
           name  = "FLYWAY_URL"
@@ -89,18 +91,63 @@ resource "aws_ecs_task_definition" "node_api_task" {
       mountPoints = []
       volumesFrom = []
       
-    },
+    }
+  ])
+  lifecycle {
+    replace_triggered_by = [terraform_data.trigger_flyway]
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+    task_arn=$(aws ecs run-task \
+      --task-definition ${var.app_name}-flyway-task \
+      --cluster ${aws_ecs_cluster.ecs_cluster.id} \
+      --count 1 \
+      --network-configuration awsvpcConfiguration={securityGroups=[${data.aws_security_group.app.id}],subnets=${data.aws_subnets.app.ids[0]},assignPublicIp=DISABLED} \
+      --query 'tasks[0].taskArn' \
+      --output text)
+
+    echo "Flyway task started with ARN: $task_arn at $(date)."
+    
+    echo "Waiting for Flyway task to complete..."
+    aws ecs wait tasks-stopped --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn
+    
+    echo "Flyway task completed, at $(date)."
+    
+    task_status=$(aws ecs describe-tasks --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn --query 'tasks[0].lastStatus' --output text)
+    echo "Flyway task status: $task_status at $(date)."
+    log_stream_name=$(aws logs describe-log-streams \
+      --log-group-name "/ecs/${var.app_name}/flyway" \
+      --order-by "LastEventTime" \
+      --descending \
+      --limit 1 \
+      --query 'logStreams[0].logStreamName' \
+      --output text)
+
+    echo "Fetching logs from log stream: $log_stream_name"
+
+    aws logs get-log-events \
+      --log-group-name "/ecs/${var.app_name}/flyway" \
+      --log-stream-name $log_stream_name \
+      --limit 1000 \
+      --no-cli-pager
+
+EOF
+  }
+}
+
+resource "aws_ecs_task_definition" "node_api_task" {
+  family                   = "${var.app_name}-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = var.api_cpu
+  memory                   = var.api_memory
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.app_container_role.arn
+  container_definitions = jsonencode([
     {
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
-      #https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency
-      dependsOn = [
-        {
-          containerName = "${var.app_name}-flyway"
-          condition     = "SUCCESS" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
-        }
-      ]
       environment = [
         {
           name  = "POSTGRES_HOST"
@@ -123,7 +170,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = var.db_name
         },
          {
-          name  = "DB_SCHEMA"
+          name  = "POSTGRES_SCHEMA"
           value = "${var.db_schema}"
         }
         ,

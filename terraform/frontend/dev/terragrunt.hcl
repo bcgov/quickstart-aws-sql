@@ -14,7 +14,5 @@ generate "dev_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "dev"
-  app_env="${local.app_env}"
-  app_name="frontend-${local.app_env}"
 EOF
 }

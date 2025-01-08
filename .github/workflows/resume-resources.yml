@@ -1,14 +1,19 @@
 name: Resume AWS Resources
 
 on:
-  schedule:
-    - cron: "0 15 * * 1-5" # Runs every weekday (Monday to Friday) at 7AM PST
+  #schedule:
+  #  - cron: "0 15 * * 1-5" # Runs every weekday (Monday to Friday) at 7AM PST
   workflow_dispatch:
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
 jobs:
+  stack-prefix:
+    name: Stack Prefix
+    uses: ./.github/workflows/.stack-prefix.yml
   resume-resources-dev:
+    name: Resume Resources Dev
+    needs: [stack-prefix]
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -17,16 +22,74 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          role-session-name: gha-pause-resources
+          role-session-name: gha-resume-resources
           aws-region: ca-central-1
       - name: Resume AWS Resources
         shell: bash
         run: |
-          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier qsawsc-aurora-cluster-dev --query 'DBClusters[0].Status' --output text)
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text)
           if [ "$DB_CLUSTER_STATUS" = "stopped" ]; then
-            aws rds start-db-cluster --db-cluster-identifier qsawsc-aurora-cluster-dev --no-cli-pager --output json
+            aws rds start-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --no-cli-pager --output json
+            # wait for the cluster to be available
+            attempt=1
+            max_attempts=20
+            until [[ $(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text) == "available" ]] || [[ $attempt -gt $max_attempts ]]
+            do
+              echo "Waiting for DB cluster to be available... Attempt $attempt of $max_attempts"
+              sleep 60
+              ((attempt++))
+            done
+
+            if [[ $attempt -gt $max_attempts ]]; then
+              echo "Timeout waiting for DB cluster to become available"
+              exit 1
+            fi
+            echo "DB cluster is now available"
+
           else
-            echo "DB cluster is not in an stopped state. Current state: $DB_CLUSTER_STATUS"
+            echo "DB cluster is not in a stopped state. Current state: $DB_CLUSTER_STATUS"
           fi
-          aws ecs update-service --cluster ecs-cluster-node-api-dev --service node-api-dev-service --desired-count 1 --no-cli-pager --output json
-          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-node-api-dev/node-api-dev-service --scalable-dimension ecs:service:DesiredCount --min-capacity 1 --max-capacity 3 --no-cli-pager --output json
+          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --scalable-dimension ecs:service:DesiredCount --min-capacity 1 --max-capacity 2 --no-cli-pager --output json
+          aws ecs update-service --cluster ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --desired-count 1 --no-cli-pager --output json
+          
+  resume-resources-test:
+    name: Resume Resources Test
+    environment: test
+    needs: [stack-prefix]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: gha-resume-resources
+          aws-region: ca-central-1
+      - name: Resume AWS Resources
+        shell: bash
+        run: |
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text)
+          if [ "$DB_CLUSTER_STATUS" = "stopped" ]; then
+            aws rds start-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --no-cli-pager --output json
+            # wait for the cluster to be available
+            attempt=1
+            max_attempts=20
+            until [[ $(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text) == "available" ]] || [[ $attempt -gt $max_attempts ]]
+            do
+              echo "Waiting for DB cluster to be available... Attempt $attempt of $max_attempts"
+              sleep 60
+              ((attempt++))
+            done
+
+            if [[ $attempt -gt $max_attempts ]]; then
+              echo "Timeout waiting for DB cluster to become available"
+              exit 1
+            fi
+            echo "DB cluster is now available"
+          else
+            echo "DB cluster is not in a stopped state. Current state: $DB_CLUSTER_STATUS"
+          fi
+          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --scalable-dimension ecs:service:DesiredCount --min-capacity 1 --max-capacity 2 --no-cli-pager --output json
+          aws ecs update-service --cluster ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --desired-count 1 --no-cli-pager --output json
+          
