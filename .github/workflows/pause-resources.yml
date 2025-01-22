@@ -27,8 +27,19 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
-          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
-          aws ecs update-service --cluster ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service --desired-count 0 --no-cli-pager --output json
+          CLUSTER_NAME="ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev"
+          SERVICE_NAME="${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service"
+          CLUSTER_EXISTS=$(aws ecs describe-clusters --clusters $CLUSTER_NAME --query 'clusters[0].status' --output text)
+          if [ "$CLUSTER_EXISTS" = "ACTIVE" ]; then
+          SERVICE_EXISTS=$(aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --query 'services[0].status' --output text)
+          if [ "$SERVICE_EXISTS" = "ACTIVE" ]; then
+            aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/$CLUSTER_NAME/$SERVICE_NAME --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
+          else
+            echo "ECS service $SERVICE_NAME does not exist in cluster $CLUSTER_NAME."
+          fi
+          else
+          echo "ECS cluster $CLUSTER_NAME does not exist."
+          fi
           DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text)
           if [ "$DB_CLUSTER_STATUS" = "available" ]; then
             aws rds stop-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --no-cli-pager --output json
@@ -52,8 +63,19 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
-          aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
-          aws ecs update-service --cluster ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service --desired-count 0 --no-cli-pager --output json
+          CLUSTER_NAME="ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test"
+          SERVICE_NAME="${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service"
+          CLUSTER_EXISTS=$(aws ecs describe-clusters --clusters $CLUSTER_NAME --query 'clusters[0].status' --output text)
+          if [ "$CLUSTER_EXISTS" = "ACTIVE" ]; then
+          SERVICE_EXISTS=$(aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --query 'services[0].status' --output text)
+          if [ "$SERVICE_EXISTS" = "ACTIVE" ]; then
+            aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/$CLUSTER_NAME/$SERVICE_NAME --scalable-dimension ecs:service:DesiredCount --min-capacity 0 --max-capacity 0 --no-cli-pager --output json
+          else
+            echo "ECS service $SERVICE_NAME does not exist in cluster $CLUSTER_NAME."
+          fi
+          else
+          echo "ECS cluster $CLUSTER_NAME does not exist."
+          fi
           DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text)
           if [ "$DB_CLUSTER_STATUS" = "available" ]; then
             aws rds stop-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --no-cli-pager --output json
