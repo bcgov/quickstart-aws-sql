@@ -1,8 +1,8 @@
 name: Resume AWS Resources
 
 on:
-  #schedule:
-  #  - cron: "0 15 * * 1-5" # Runs every weekday (Monday to Friday) at 7AM PST
+  schedule:
+    - cron: "0 15 * * 1-5" # Runs every weekday (Monday to Friday) at 7AM PST
   workflow_dispatch:
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -27,7 +27,12 @@ jobs:
       - name: Resume AWS Resources
         shell: bash
         run: |
-          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text)
+          # check if resources exist first
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text 2>/dev/null)
+          if [ $? -ne 0 ]; then
+            echo "DB cluster does not exist. Skipping resume operation."
+            exit 0
+          fi
           if [ "$DB_CLUSTER_STATUS" = "stopped" ]; then
             aws rds start-db-cluster --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --no-cli-pager --output json
             # wait for the cluster to be available
