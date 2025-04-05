@@ -27,6 +27,11 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text 2>/dev/null || echo "false")
+          if [ "$DB_CLUSTER_STATUS" = "false" ]; then
+            echo "skipping pause operation, DB cluster does not exist"
+            exit 0
+          fi
           CLUSTER_NAME="ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev"
           SERVICE_NAME="${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-dev-service"
           CLUSTER_EXISTS=$(aws ecs describe-clusters --clusters $CLUSTER_NAME --query 'clusters[0].status' --output text)
@@ -63,6 +68,11 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text 2>/dev/null || echo "false")
+          if [ "$DB_CLUSTER_STATUS" = "false" ]; then
+            echo "skipping pause operation, DB cluster does not exist"
+            exit 0
+          fi
           CLUSTER_NAME="ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test"
           SERVICE_NAME="${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-service"
           CLUSTER_EXISTS=$(aws ecs describe-clusters --clusters $CLUSTER_NAME --query 'clusters[0].status' --output text)
