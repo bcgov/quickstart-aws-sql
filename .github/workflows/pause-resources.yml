@@ -27,7 +27,7 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
-          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text || "false")
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text 2>/dev/null || echo "false")
           if [ "$DB_CLUSTER_STATUS" = "false" ]; then
             echo "skipping pause operation, DB cluster does not exist"
             exit 0
@@ -68,7 +68,7 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
-          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text || "false") 
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text 2>/dev/null || echo "false")
           if [ "$DB_CLUSTER_STATUS" = "false" ]; then
             echo "skipping pause operation, DB cluster does not exist"
             exit 0
