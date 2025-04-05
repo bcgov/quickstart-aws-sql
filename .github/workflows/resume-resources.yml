@@ -28,9 +28,9 @@ jobs:
         shell: bash
         run: |
           # check if resources exist first
-          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text 2>/dev/null)
-          if [ $? -ne 0 ]; then
-            echo "DB cluster does not exist. Skipping resume operation."
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-dev --query 'DBClusters[0].Status' --output text || "false")
+          if [ "$DB_CLUSTER_STATUS" = "false" ]; then
+            echo "skipping pause operation, DB cluster does not exist"
             exit 0
           fi
           if [ "$DB_CLUSTER_STATUS" = "stopped" ]; then
@@ -75,9 +75,9 @@ jobs:
         shell: bash
         run: |
           # check if resources exist first
-          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text 2>/dev/null)
-          if [ $? -ne 0 ]; then
-            echo "DB cluster does not exist. Skipping resume operation."
+          DB_CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier ${{ needs.stack-prefix.outputs.stack_prefix }}-aurora-test --query 'DBClusters[0].Status' --output text || "false")
+          if [ "$DB_CLUSTER_STATUS" = "false" ]; then
+            echo "skipping pause operation, DB cluster does not exist"
             exit 0
           fi
           if [ "$DB_CLUSTER_STATUS" = "stopped" ]; then
