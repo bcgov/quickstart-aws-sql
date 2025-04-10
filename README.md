@@ -95,3 +95,7 @@ npm run dev
 
 ## Merge Workflow
 ![Merge](./.github/graphics/merge.jpg)
+
+
+## Architecture
+![Architecture](./.diagrams/arch.drawio.svg)
