@@ -20,7 +20,7 @@ export default ({ mode }) => {
       react(),
     ],
     server: {
-      port: parseInt(process.env.VITE_PORT),
+      port: parseInt(process.env.VITE_PORT, 10),
       fs: {
         // Allow serving files from one level up to the project root
         allow: ['..'],
