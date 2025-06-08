@@ -53,7 +53,7 @@ env:
 jobs:
  infra:
   environment: ${{ inputs.environment_name }}
-  name: Terraform ${{inputs.command}} ${{inputs.working_directory}} ${{inputs.environment_name}}
+  name: Terraform ${{inputs.command}} ${{inputs.working_directory}} ${{inputs.app_env}}
   runs-on: ubuntu-24.04
   outputs:
     API_GW_URL: ${{ steps.tg-outputs.outputs.API_GW_URL }}
@@ -77,7 +77,7 @@ jobs:
       with:
           terragrunt-version: ${{ env.TG_VERSION }}
     - name: Terragrunt ${{inputs.command}}
-      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.app_env }}
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
@@ -90,7 +90,7 @@ jobs:
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
     - name: Terragrunt API Outputs
       if: ${{ inputs.working_directory == 'api'  && inputs.command == 'apply' }}
-      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.app_env }}
       id: tg-outputs
       env:
           target_env: ${{ inputs.environment_name }}
@@ -107,7 +107,7 @@ jobs:
           echo "API_GW_URL=$(jq -r .apigw_url.value outputs.json)" >> $GITHUB_OUTPUT
     - name: Terragrunt Frontend Outputs
       if: ${{ inputs.working_directory == 'frontend' && inputs.command == 'apply' }}
-      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.app_env }}
       id: tg-outputs-frontend
       env:
           target_env: ${{ inputs.environment_name }}
