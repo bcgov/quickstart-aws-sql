@@ -4,43 +4,94 @@
 [![CodeQL](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql)
 [![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
 [![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
-# Quickstart for AWS using Aurora Serverless v2 (Postgis) , ECS Fargate and CloudFront
+# Quickstart for AWS using Aurora Serverless v2, ECS Fargate, and CloudFront
+
+This template repository provides a ready-to-deploy containerized application stack for AWS, developed by BC Government. It includes a complete application architecture with:
+
+- **Aurora Serverless v2** PostgreSQL database with PostGIS extension
+- **ECS Fargate** for containerized backend services
+- **CloudFront** for frontend content delivery with WAF protection
+- **NestJS** TypeScript backend API
+- **React** with Vite for the frontend application
+- **Terragrunt/Terraform** for infrastructure-as-code deployment
+- **GitHub Actions** for CI/CD pipeline automation
+
+Use this repository as a starting point to quickly deploy a modern, scalable web application on AWS infrastructure.
+
 ## Prerequisites
 
 - BCGOV AWS account with appropriate permissions
-- AWS CLI installed and configured (If interaction with AWS account is preferred)
-- Docker/Podman installed (To run database and flyway migrations or whole stack)
-- Node.js and npm installed (If not using docker compose for whole stack, to run backend and frontend)
+- AWS CLI installed and configured (for direct AWS account interaction)
+- Docker/Podman installed (for local development with containers)
+- Node.js 22+ and npm installed (for local development without containers)
+- Terraform CLI and Terragrunt (for infrastructure deployment)
 
 
 # Folder Structure
 ```
 /quickstart-aws-containers
-├── .github/                   # GitHub workflows and actions
-├── terraform/                 # Terragrunt configuration files
-├── infrastructure/            # Terraform code for each component
-│   ├── api/                   # API(ECS) related terraform code(backend)
-│   ├── frontend/              # Cloudfront with WAF
-│   ├── database/              # Aurora RDS database
-├── backend/                   # Node Nest express backend API code
+├── .github/                   # GitHub workflows and actions for CI/CD
+│   └── workflows/             # GitHub Actions workflow definitions
+├── terraform/                 # Terragrunt configuration files for environment management
+│   ├── api/                   # API environment-specific configurations (dev, test)
+│   ├── database/              # Database environment-specific configurations (dev, test)
+│   └── frontend/              # Frontend environment-specific configurations (dev, test)
+├── infrastructure/            # Terraform code for each AWS infrastructure component
+│   ├── api/                   # ECS Fargate API configuration (ALB, API Gateway, autoscaling)
+│   ├── frontend/              # CloudFront with WAF configuration
+│   └── database/              # Aurora Serverless v2 PostgreSQL configuration
+├── backend/                   # NestJS backend API code
+│   ├── src/                   # Source code with controllers, services, and modules
+│   ├── prisma/                # Prisma ORM schema and migrations
+│   └── Dockerfile             # Container definition for backend service
 ├── frontend/                  # Vite + React SPA
-├── migrations/                # Flyway Migrations scripts to run database schema migrations
-├── docker-compose.yml         # Docker compose file
+│   ├── src/                   # React components, routes, and services
+│   ├── e2e/                   # End-to-end tests using Playwright
+│   └── Dockerfile             # Container definition for frontend service
+├── migrations/                # Flyway migrations for database schema management
+│   └── sql/                   # SQL migration scripts
+├── tests/                     # Test suites beyond component-level tests
+│   ├── integration/           # Integration tests across services
+│   └── load/                  # Load testing scripts for performance testing
+├── docker-compose.yml         # Local development environment definition
 ├── README.md                  # Project documentation
-└── package.json               # Node.js monorepo for eslint and prettier
+└── package.json               # Node.js monorepo for shared configurations
 ```
 
-- **.github/**: Contains GitHub workflows and actions for CI/CD.
-- **terraform/**: Contains Terragrunt configuration files.
-- **infrastructure/**: Contains Terraform code for each component.
-    - **api/**: Contains Terraform code for the backend API (ECS).
-    - **frontend/**: Contains Terraform code for Cloudfront with WAF.
-    - **database/**: Contains Terraform code for Aurora RDS database.
-- **backend/**: Contains Node Nest express backend API code.
-- **frontend/**: Contains Vite + React SPA code.
-- **docker-compose.yml**: Docker compose file for local development.
-- **README.md**: Project documentation.
-- **package.json**: Node.js monorepo configuration for eslint and prettier.
+## Repository Structure Explained
+
+- **.github/**: Contains GitHub workflow definitions and actions for the CI/CD pipeline.
+  - **workflows/**: GitHub Actions workflow files that handle automated testing, deployment, and resource management.
+
+- **terraform/**: Contains Terragrunt configuration files that orchestrate the infrastructure deployment.
+  - Environment-specific folders (`dev`, `test`) contain configurations for different deployment stages.
+  - Uses the infrastructure modules defined in the infrastructure directory.
+
+- **infrastructure/**: Contains Terraform modules for each AWS component.
+  - **api/**: Defines ECS Fargate cluster, Application Load Balancer, API Gateway, autoscaling policies, IAM roles, and networking.
+  - **frontend/**: Sets up CloudFront distribution with WAF rules for content delivery.
+  - **database/**: Configures Aurora Serverless v2 PostgreSQL database with networking.
+
+- **backend/**: NestJS backend application with TypeScript.
+  - **src/**: Application code organized by feature modules.
+  - **prisma/**: Database ORM schema definitions and connection handling.
+  - Includes testing infrastructure and containerization setup.
+
+- **frontend/**: React-based single-page application built with Vite.
+  - **src/**: React components and application logic.
+  - **e2e/**: End-to-end tests with Playwright for UI validation.
+  - Includes deployment configuration for AWS.
+
+- **migrations/**: Flyway database migration scripts and configuration.
+  - **sql/**: SQL scripts for schema evolution that Flyway executes in order.
+
+- **tests/**: Cross-component test suites to validate the application at a higher level.
+  - **integration/**: Tests validating interactions between services.
+  - **load/**: Performance testing scripts to ensure scalability.
+
+- **docker-compose.yml**: Defines the local development environment with all services.
+
+- **package.json**: Monorepo configuration for shared tooling like ESLint and Prettier.
 
 # Running Locally
 ## Running Locally with Docker Compose
@@ -88,14 +139,95 @@ npm run dev
 ```
 
 # Deploying to AWS
-1. Please follow the wiki link for AWS deployment [setup](https://github.com/bcgov/quickstart-aws-containers/wiki/Deploy-To-AWS-Using-Terraform)
+
+This repository uses a Terraform/Terragrunt approach for deploying to AWS, with automated workflows through GitHub Actions.
+
+## Deployment Options
+
+### Option 1: GitHub Actions CI/CD Pipeline (Recommended)
+
+The repository includes pre-configured GitHub Actions workflows that handle:
+- Building and testing changes on pull requests
+- Deploying to AWS environments on merge to specific branches
+- Resource management (pausing/resuming)
+
+To use the CI/CD pipeline:
+
+1. Fork or clone this repository
+2. Configure the required GitHub secrets (see below)
+3. Push changes to trigger the appropriate workflows
+
+Required GitHub secrets:
+- `AWS_ROLE_TO_ASSUME` - IAM role ARN with deployment permissions
+- `SONAR_TOKEN_BACKEND` - For SonarCloud analysis of backend code
+- `SONAR_TOKEN_FRONTEND` - For SonarCloud analysis of frontend code
+
+### Option 2: Manual Terraform Deployment
+
+1. Configure your AWS credentials locally
+2. Navigate to the terraform directory
+3. Run Terragrunt commands for the desired environment
+
+```sh
+cd terraform/api/dev
+terragrunt init
+terragrunt plan
+terragrunt apply
+```
+
+For detailed deployment instructions, refer to the [AWS deployment setup guide](https://github.com/bcgov/quickstart-aws-containers/wiki/Deploy-To-AWS-Using-Terraform).
+
+# CI/CD Workflows
+
+This repository includes sophisticated GitHub Actions workflows for continuous integration and deployment.
 
 ## Pull Request Workflow
 ![Pull Request Workflow](./.github/graphics/pr-open.jpg)
 
+When a pull request is opened:
+1. Code is tested and validated
+2. Security scans are performed
+3. A review environment can be created automatically
+4. End-to-end tests verify functionality
+
 ## Merge Workflow
 ![Merge](./.github/graphics/merge.jpg)
 
+When code is merged to the main branch:
+1. Containers are built and tagged
+2. Tests are run against the built containers
+3. Infrastructure is updated or created
+4. New application versions are deployed
 
 ## Architecture
 ![Architecture](./.diagrams/arch.drawio.svg)
+
+# Customizing the Template
+
+To adapt this template for your own project:
+
+1. **Repository Setup**
+   - Clone this repository
+   - Update project names in package.json files
+   - Set up required GitHub secrets
+
+2. **Infrastructure Customization**
+   - Modify `terraform` and `infrastructure` directories to adjust resource configurations
+   - Update environment-specific variables for your needs
+
+3. **Application Customization**
+   - Customize the NestJS backend in the `backend` directory
+   - Adapt the React frontend in the `frontend` directory
+   - Update database schema and migrations in `migrations/sql`
+
+4. **CI/CD Pipeline Adjustments**
+   - Modify GitHub workflows in `.github/workflows` as needed
+   - Update deployment configuration to match your AWS account structure
+
+5. **Testing**
+   - Adapt existing tests to match your application logic
+   - Add new tests as needed for your specific requirements
+
+# Contributing
+
+Contributions to this quickstart template are welcome! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) file for details on how to contribute.
