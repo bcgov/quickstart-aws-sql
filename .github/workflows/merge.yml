@@ -50,7 +50,7 @@ jobs:
     needs: [vars, e2e]
     uses: ./.github/workflows/.deploy_stack.yml
     with:
-      environment_name: test
+      environment_name: dev # since we are using the same namespace env for dev and test
       command: apply
       tag: ${{ needs.vars.outputs.pr }}
       app_env: test
