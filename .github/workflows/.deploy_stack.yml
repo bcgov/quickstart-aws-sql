@@ -34,6 +34,9 @@ on:
         value: ${{ jobs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
 env:
     AWS_REGION: ca-central-1
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
 jobs:
   stack-prefix:
     name: Stack Prefix

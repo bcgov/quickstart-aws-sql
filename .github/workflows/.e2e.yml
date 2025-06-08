@@ -11,6 +11,8 @@ on:
         default: 'latest'
         type: string
         required: false
+permissions:
+  contents: write # This is required for actions/checkout
 jobs:
   e2e-tests:
     name: E2E Tests
