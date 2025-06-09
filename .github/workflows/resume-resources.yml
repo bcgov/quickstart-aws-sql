@@ -147,5 +147,5 @@ jobs:
             echo "DB cluster is not in a stopped state. Current state: $DB_CLUSTER_STATUS"
           fi
           aws application-autoscaling register-scalable-target --service-namespace ecs --resource-id service/ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-prod/${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-prod-service --scalable-dimension ecs:service:DesiredCount --min-capacity 1 --max-capacity 2 --no-cli-pager --output json
-          aws ecs update-service --cluster ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-prod --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-test-prod --desired-count 1 --no-cli-pager --output json
+          aws ecs update-service --cluster ecs-cluster-${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-prod --service ${{ needs.stack-prefix.outputs.stack_prefix }}-node-api-prod-service --desired-count 1 --no-cli-pager --output json
           
