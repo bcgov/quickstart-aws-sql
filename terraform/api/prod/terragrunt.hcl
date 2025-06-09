@@ -10,12 +10,12 @@ locals {
 }
 
 # Include the common terragrunt configuration for all modules
-generate "test_tfvars" {
-  path              = "test.auto.tfvars"
+generate "prod_tfvars" {
+  path              = "prod.auto.tfvars"
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
-  target_env = "test"
+  target_env = "prod"
   flyway_image="${local.flyway_image}"
   api_image="${local.api_image}"
   app_env="${local.app_env}"

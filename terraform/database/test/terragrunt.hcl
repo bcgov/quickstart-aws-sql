@@ -6,8 +6,8 @@ locals {
 }
 
 # Include the common terragrunt configuration for all modules
-generate "dev_tfvars" {
-  path              = "dev.auto.tfvars"
+generate "test_tfvars" {
+  path              = "test.auto.tfvars"
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
