@@ -32,6 +32,7 @@ jobs:
     name: Resume Resources # This job resumes resources for the merged PR which is needed if the resources were paused.
     needs: [vars]
     uses: ./.github/workflows/resume-resources.yml
+    secrets: inherit
   deploy_stack_dev:
     name: Deploy Stack Dev
     needs: [resume-resources, vars]
