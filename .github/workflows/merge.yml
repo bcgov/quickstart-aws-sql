@@ -46,13 +46,16 @@ jobs:
   retag-images-dev:
     name: Retag Images Dev
     needs: [deploy_stack_dev, vars]
-    uses: shrink/actions-docker-registry-tag@f04afd0559f66b288586792eb150f45136a927fa # v4
-    with:
-      registry: ghcr.io
-      repository: ${{ github.repository }}
-      target:  ${{ needs.vars.outputs.pr }}
-      tags: |
-        dev
+    runs-on: ubuntu-24.04
+    steps:
+      - name: retag
+        uses: shrink/actions-docker-registry-tag@f04afd0559f66b288586792eb150f45136a927fa # v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}
+          target:  ${{ needs.vars.outputs.pr }}
+          tags: |
+            dev
 
   e2e:
     name: E2E Tests
@@ -73,13 +76,16 @@ jobs:
   retag-images-test:
     name: Retag Images Test
     needs: [deploy_stack_test, vars]
-    uses: shrink/actions-docker-registry-tag@f04afd0559f66b288586792eb150f45136a927fa # v4
-    with:
-      registry: ghcr.io
-      repository: ${{ github.repository }}
-      target:  ${{ needs.vars.outputs.pr }}
-      tags: |
-        test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: retag
+        uses: shrink/actions-docker-registry-tag@f04afd0559f66b288586792eb150f45136a927fa # v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}
+          target:  ${{ needs.vars.outputs.pr }}
+          tags: |
+            test
   pause-resources:
     name: Pause Resources # This job pauses resources for the merged PR which is needed if the resources were not paused, this is to save money, remove it after cloning.
     needs: [deploy_stack_test]
