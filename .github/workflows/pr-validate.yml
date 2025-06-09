@@ -7,11 +7,13 @@ on:
 concurrency:
   group: ${{ github.workflow }}-edit-${{ github.event.number }}
   cancel-in-progress: true
-
+permissions: {}
 jobs:
   validate:
     name: Validate PR
     if: (! github.event.pull_request.draft)
+    permissions:
+      pull-requests: write
     uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@0b8121a528aaa05ef8def2f79be9081691dfe98a # v0.9.0
 
   results:

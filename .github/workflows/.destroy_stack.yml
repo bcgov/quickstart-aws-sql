@@ -25,6 +25,9 @@ on:
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
 env:
     AWS_REGION: ca-central-1
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
 jobs:
   stack-prefix:
     name: Stack Prefix

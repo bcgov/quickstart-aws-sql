@@ -8,11 +8,11 @@ on:
       required: true
       type: string
 
-permissions:
+permissions: 
   contents: write # This is required for actions/checkout
 jobs:
-  tests:
-    name: Tests
+  backend-tests:
+    name: Backend Tests
     if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -28,31 +28,50 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-    strategy:
-      matrix:
-        dir: [backend, frontend]
-        include:
-          - dir: backend
-            token: SONAR_TOKEN_BACKEND
-          - dir: frontend
-            token: SONAR_TOKEN_FRONTEND
     steps:
       - uses: bcgov-nr/action-test-and-analyse@e2ba34132662c1638dbde806064eb7004b3761c3 # v1.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACKEND }}
         with:
           commands: |
             npm ci
             npm run test:cov
-          dir: ${{ matrix.dir }}
+          dir: backend
           node_version: "22"
           sonar_args: >
             -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts
             -Dsonar.organization=bcgov-sonarcloud
-            -Dsonar.projectKey=quickstart-aws-containers_${{ matrix.dir }}
+            -Dsonar.projectKey=quickstart-aws-containers_backend
             -Dsonar.sources=src
             -Dsonar.tests.inclusions=**/*spec.ts
             -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
-          sonar_token: ${{ secrets[matrix.token] }}
-          triggers: ('${{ matrix.dir }}/')
+          sonar_token: ${{ env.SONAR_TOKEN }}
+          triggers: ('backend/')
+  
+  frontend-tests:
+    name: Frontend Tests
+    if: (! github.event.pull_request.draft)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: bcgov/action-test-and-analyse@e2ba34132662c1638dbde806064eb7004b3761c3 # v1.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONTEND }}
+        with:
+          commands: |
+            npm ci
+            npm run test:cov
+          dir: frontend
+          node_version: "22"
+          sonar_args: >
+            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts
+            -Dsonar.organization=bcgov-sonarcloud
+            -Dsonar.projectKey=quickstart-openshift_frontend
+            -Dsonar.sources=src
+            -Dsonar.tests.inclusions=**/*spec.ts
+            -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
+          sonar_token: ${{ env.SONAR_TOKEN }}
+          triggers: ('frontend/')
   trivy:
     name: Trivy Security Scan
     if: ${{ ! github.event.pull_request.draft }}
