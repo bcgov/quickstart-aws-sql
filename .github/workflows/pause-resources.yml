@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: "0 2 * * 2-6" # Runs every day at 6PM PST, Monday to Friday
   workflow_dispatch:
+  workflow_call:
+
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout

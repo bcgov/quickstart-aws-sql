@@ -59,3 +59,8 @@ jobs:
       tag: ${{ needs.vars.outputs.pr }}
       app_env: test
     secrets: inherit
+  pause-resources:
+    name: Pause Resources # This job pauses resources for the merged PR which is needed if the resources were not paused, this is to save money, remove it after cloning.
+    needs: [deploy_stack_test]
+    uses: ./.github/workflows/pause-resources.yml
+    secrets: inherit
