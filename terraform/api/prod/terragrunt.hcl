@@ -15,7 +15,7 @@ generate "prod_tfvars" {
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
-  target_env = "test"
+  target_env = "prod"
   flyway_image="${local.flyway_image}"
   api_image="${local.api_image}"
   app_env="${local.app_env}"
