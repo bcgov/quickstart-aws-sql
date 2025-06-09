@@ -1,0 +1,76 @@
+name: PROD
+on:
+  workflow_dispatch:
+
+permissions:
+    id-token: write # This is required for requesting the JWT
+    contents: write # This is required for actions/checkout
+    packages: write
+jobs:
+  vars:
+    name: Vars
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.changelog.outputs.tag }}
+      version: ${{ steps.changelog.outputs.version }}
+      clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conventional Changelog Update
+        uses: TriPSs/conventional-changelog-action@v6
+        id: changelog
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          output-file: "CHANGELOG.md"
+          skip-version-file: "true"
+          skip-commit: "true"
+          git-push: "true"
+  retag-images:
+    name: Retag Images
+    needs: [vars]
+    uses: shrink/actions-docker-registry-tag@f04afd0559f66b288586792eb150f45136a927fa # v4
+    with:
+      registry: ghcr.io
+      repository: ${{ github.repository }}
+      target:  test # this is the tag of the containers to deploy
+      tags: |
+        prod
+        ${{ needs.vars.outputs.version}}
+  resume-resources:
+    name: Resume Resources # This job resumes resources for the merged PR which is needed if the resources were paused.
+    needs: [vars]
+    uses: ./.github/workflows/resume-resources.yml
+    secrets: inherit
+  deploy:
+    name: Deploy Stack
+    needs: [vars, resume-resources, retag-images]
+    uses: ./.github/workflows/.deploy_stack.yml
+    secrets: inherit
+    with:
+      environment_name: dev # since we only have one namespace dev, update this to PROD
+      command: apply
+      tag: ${{ needs.vars.outputs.version}} # this is the tag of the containers to deploy
+      app_env: prod
+  release:
+    name: Github Release
+    runs-on: ubuntu-24.04
+    needs: [vars, deploy]
+    if: ${{ needs.vars.outputs.tag != '' }}
+    steps:
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: ${{ needs.vars.outputs.tag != ''}}
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          token: ${{ github.token }}
+          tag_name: ${{ needs.vars.outputs.tag }}
+          name: ${{ needs.vars.outputs.tag }}
+          body: ${{ needs.vars.outputs.clean_changelog }}
+  pause-resources:
+    name: Pause Resources # This job pauses resources for the merged PR which is needed if the resources were not paused, this is to save money, remove it after cloning.
+    needs: [release]
+    uses: ./.github/workflows/pause-resources.yml
+    secrets: inherit

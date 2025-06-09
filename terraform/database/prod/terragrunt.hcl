@@ -2,17 +2,17 @@ include {
   path = find_in_parent_folders()
 }
 locals {
-  app_env          = get_env("app_env")
-  target_env              = get_env("target_env")
-  
+  app_env              = get_env("app_env")
 }
 
 # Include the common terragrunt configuration for all modules
-generate "test_tfvars" {
-  path              = "test.auto.tfvars"
+generate "prod_tfvars" {
+  path              = "prod.auto.tfvars"
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
-  target_env = "test"
+  target_env = "prod"
+  backup_retention_period=1
+  ha_enabled=false
 EOF
 }
