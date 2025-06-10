@@ -2,13 +2,26 @@
 # This script pauses AWS resources (ECS service and RDS Aurora cluster) in the current AWS account.
 
 set -e  # Exit on error
-trap 'echo "Error occurred at line $LINENO while executing function $FUNCNAME"' ERR
+
+# Error handler function
+function error_handler() {
+    local script_name=$(basename "$0")
+    echo "Error in script: $script_name"
+    echo "Error occurred at line $LINENO in function ${FUNCNAME[1]}"
+    exit 1
+}
+
+trap 'error_handler' ERR
 # Parse arguments
 ENVIRONMENT=${1}
 STACK_PREFIX=${2}
 
 # Validate required arguments
 function validate_args() {
+    if [ -z "$ENVIRONMENT" ]; then
+        echo "Error: Environment is required as the first parameter"
+        exit 1
+    fi
     if [ -z "$STACK_PREFIX" ]; then
         echo "Error: Stack prefix is required as the second parameter"
         exit 1
