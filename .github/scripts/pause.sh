@@ -9,6 +9,10 @@ STACK_PREFIX=${2}
 
 # Validate required arguments
 function validate_args() {
+    if [ -z "$ENVIRONMENT" ]; then
+        echo "Error: Environment is required as the first parameter"
+        exit 1
+    fi
     if [ -z "$STACK_PREFIX" ]; then
         echo "Error: Stack prefix is required as the second parameter"
         exit 1
