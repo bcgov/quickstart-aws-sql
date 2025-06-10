@@ -49,15 +49,7 @@ start_db_cluster() {
     aws rds start-db-cluster --db-cluster-identifier ${cluster_id} --no-cli-pager --output json
     
     echo "Waiting for DB cluster to be available..."
-    local attempt=1
-    until [[ $(aws rds describe-db-clusters --db-cluster-identifier ${cluster_id} --query 'DBClusters[0].Status' --output text) == "available" ]] || [[ $attempt -gt $max_attempts ]]
-    do
-        echo "Waiting for DB cluster... Attempt $attempt of $max_attempts"
-        sleep 60
-        ((attempt++))
-    done
-
-    if [[ $attempt -gt $max_attempts ]]; then
+    if ! aws rds wait db-cluster-available --db-cluster-identifier ${cluster_id}; then
         echo "Timeout waiting for DB cluster to become available"
         return 1
     fi
