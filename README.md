@@ -203,27 +203,28 @@ When code is merged to the main branch:
 3. Infrastructure is updated or created via Terraform/Terragrunt
 4. New application versions are deployed to the target environment
 
-## Workflow Files Structure
+## GitHub Actions Workflows Overview
 
-The repository uses composite workflows in `.github/workflows/` to organize CI/CD processes:
+The repository includes a comprehensive set of GitHub Actions workflows that automate the entire development lifecycle. These workflows are organized into three categories:
 
-- **Main Workflows**:
-  - `pr-open.yml` - Triggers test and validation workflows when PRs are opened
-  - `pr-validate.yml` - Validates code and configuration changes
-  - `merge.yml` - Handles container builds and deployments on merge
-  - `pr-close.yml` - Cleans up resources when PRs are closed
+### Main Workflows
+- **PR Workflows**: Triggered when pull requests are opened, updated, or closed
+  - `pr-open.yml`: Builds containers, runs tests, and provides validation for new PRs
+  - `pr-validate.yml`: Ensures code quality and standards compliance
+  - `pr-close.yml`: Cleans up resources when PRs are closed
+- **Deployment Workflows**: Handle the deployment pipeline
+  - `merge.yml`: Deploys to development environment when changes are merged to main
+  - `release.yml`: Creates releases and deploys to production (manually triggered)
 
-- **Composite Workflows**:
-  - `.tests.yml` - Runs backend and frontend tests with PostgreSQL service
-  - `.e2e.yml` - Runs end-to-end tests using Playwright against deployed containers
-  - `.load-test.yml` - Executes performance tests with k6 for both frontend and backend
-  - `.deploy_stack.yml` - Handles application stack deployment
-  - `.destroy_stack.yml` - Manages stack teardown operations
+### Composite Workflows
+- **Testing**: `.tests.yml`, `.e2e.yml`, `.load-test.yml`
+- **Deployment**: `.deploy_stack.yml`, `.destroy_stack.yml`, `.deployer.yml`, `.stack-prefix.yml`
 
-- **Resource Management**:
-  - `pause-resources.yml` - Pauses AWS resources to save costs during non-working hours
-  - `resume-resources.yml` - Resumes paused AWS resources
-  - `prune-env.yml` - Cleans up unused environments
+### Resource Management
+- **Cost Optimization**: `pause-resources.yml`, `resume-resources.yml`
+- **Cleanup**: `prune-env.yml`
+
+For detailed documentation on all GitHub Actions workflows, including their triggers, purposes, steps, and outputs, see the [GitHub Actions Workflows Guide](./GHA.md).
 
 ## Architecture
 ![Architecture](./.diagrams/arch.drawio.svg)

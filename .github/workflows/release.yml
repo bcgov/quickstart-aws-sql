@@ -1,6 +1,12 @@
 name: PROD
 on:
   workflow_dispatch:
+    inputs:
+      containers_tag:
+        description: 'The tag of the containers to deploy, if not provided, it will use the test tag'
+        required: false
+        default: 'test'
+        type: string
 concurrency:
   group: main
   cancel-in-progress: false
@@ -27,6 +33,7 @@ jobs:
           github-token: ${{ github.token }}
           output-file: "CHANGELOG.md"
           skip-version-file: "true"
+          skip-on-empty: "false"
           skip-commit: "true"
           git-push: "true"
   retag-images:
@@ -42,7 +49,7 @@ jobs:
         with:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.package }}
-          target:  test # this is the tag of the containers to deploy
+          target:  ${{inputs.containers_tag}} # this is the tag of the containers to deploy, defaults to test
           tags: |
             prod
             ${{ needs.vars.outputs.version}}
