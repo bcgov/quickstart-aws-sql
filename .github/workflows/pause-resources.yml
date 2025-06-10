@@ -28,6 +28,7 @@ jobs:
           aws-region: ca-central-1
       - name: Pause AWS Resources
         run: |
+          chmod +x ./.github/scripts/pause.sh
           ./.github/scripts/pause.sh dev ${{ needs.stack-prefix.outputs.stack_prefix }} 
           
   pause-resources-test:
@@ -47,6 +48,7 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
+          chmod +x ./.github/scripts/pause.sh
           ./.github/scripts/pause.sh test ${{ needs.stack-prefix.outputs.stack_prefix }}
   pause-resources-prod:
     name: Pause Resources PROD
@@ -65,4 +67,5 @@ jobs:
       - name: Pause AWS Resources
         shell: bash
         run: |
+          chmod +x ./.github/scripts/pause.sh
           ./.github/scripts/pause.sh prod ${{ needs.stack-prefix.outputs.stack_prefix }}

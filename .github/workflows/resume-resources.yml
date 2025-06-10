@@ -28,6 +28,7 @@ jobs:
       - name: Resume AWS Resources
         shell: bash
         run: |
+          chmod +x ./.github/scripts/resume.sh
           ./.github/scripts/resume.sh dev ${{ needs.stack-prefix.outputs.stack_prefix }}
   resume-resources-test:
     name: Resume Resources Test
@@ -46,6 +47,7 @@ jobs:
       - name: Resume AWS Resources
         shell: bash
         run: |
+          chmod +x ./.github/scripts/resume.sh
           ./.github/scripts/resume.sh test ${{ needs.stack-prefix.outputs.stack_prefix }}
   resume-resources-prod:
     name: Resume Resources PROD
@@ -64,5 +66,6 @@ jobs:
       - name: Resume AWS Resources
         shell: bash
         run: |
+          chmod +x ./.github/scripts/resume.sh
           ./.github/scripts/resume.sh prod ${{ needs.stack-prefix.outputs.stack_prefix }}
           
