@@ -53,10 +53,16 @@ jobs:
     uses: ./.github/workflows/.tests.yml
     with:
       tag: ${{ github.event.number || 'latest' }} 
+  resume-resources-dev:
+    name: Resume Resources Dev
+    if: (github.event_name == 'workflow_dispatch')
+    needs: [builds]
+    uses: ./.github/workflows/resume-resources.yml
+    secrets: inherit
   deploy-to-dev:
     name: Deploy to Dev
     if: (github.event_name == 'workflow_dispatch')
-    needs: [builds]
+    needs: [resume-resources-dev]
     uses: ./.github/workflows/.deploy_stack.yml
     with:
       environment_name: dev
