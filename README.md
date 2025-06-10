@@ -150,6 +150,8 @@ The repository includes pre-configured GitHub Actions workflows that handle:
 - Building and testing changes on pull requests
 - Deploying to AWS environments on merge to specific branches
 - Resource management (pausing/resuming)
+- Automated testing including unit tests, integration tests, and load tests
+- Security scanning with Trivy
 
 To use the CI/CD pipeline:
 
@@ -161,6 +163,7 @@ Required GitHub secrets:
 - `AWS_ROLE_TO_ASSUME` - IAM role ARN with deployment permissions
 - `SONAR_TOKEN_BACKEND` - For SonarCloud analysis of backend code
 - `SONAR_TOKEN_FRONTEND` - For SonarCloud analysis of frontend code
+- `AWS_LICENSE_PLATE` - The license plate without env(-dev or -test) provided from OCIO when creating namespace
 
 ### Option 2: Manual Terraform Deployment
 
@@ -185,19 +188,42 @@ This repository includes sophisticated GitHub Actions workflows for continuous i
 ![Pull Request Workflow](./.github/graphics/pr-open.jpg)
 
 When a pull request is opened:
-1. Code is tested and validated
-2. Security scans are performed
-3. A review environment can be created automatically
-4. End-to-end tests verify functionality
+1. Code is tested and validated using test runners in isolated environments
+2. Security scans are performed with Trivy for vulnerability detection
+3. SonarCloud analysis runs for both frontend and backend code quality
+4. A review environment can be created automatically for testing
+5. End-to-end tests verify functionality across the entire stack
 
 ## Merge Workflow
 ![Merge](./.github/graphics/merge.jpg)
 
 When code is merged to the main branch:
-1. Containers are built and tagged
-2. Tests are run against the built containers
-3. Infrastructure is updated or created
-4. New application versions are deployed
+1. Containers are built and tagged with appropriate version numbers
+2. Comprehensive tests run against the built containers
+3. Infrastructure is updated or created via Terraform/Terragrunt
+4. New application versions are deployed to the target environment
+
+## Workflow Files Structure
+
+The repository uses composite workflows in `.github/workflows/` to organize CI/CD processes:
+
+- **Main Workflows**:
+  - `pr-open.yml` - Triggers test and validation workflows when PRs are opened
+  - `pr-validate.yml` - Validates code and configuration changes
+  - `merge.yml` - Handles container builds and deployments on merge
+  - `pr-close.yml` - Cleans up resources when PRs are closed
+
+- **Composite Workflows**:
+  - `.tests.yml` - Runs backend and frontend tests with PostgreSQL service
+  - `.e2e.yml` - Runs end-to-end tests using Playwright against deployed containers
+  - `.load-test.yml` - Executes performance tests with k6 for both frontend and backend
+  - `.deploy_stack.yml` - Handles application stack deployment
+  - `.destroy_stack.yml` - Manages stack teardown operations
+
+- **Resource Management**:
+  - `pause-resources.yml` - Pauses AWS resources to save costs during non-working hours
+  - `resume-resources.yml` - Resumes paused AWS resources
+  - `prune-env.yml` - Cleans up unused environments
 
 ## Architecture
 ![Architecture](./.diagrams/arch.drawio.svg)
@@ -223,10 +249,16 @@ To adapt this template for your own project:
 4. **CI/CD Pipeline Adjustments**
    - Modify GitHub workflows in `.github/workflows` as needed
    - Update deployment configuration to match your AWS account structure
+   - Configure resource management workflows (pause/resume) to match your schedule
 
 5. **Testing**
-   - Adapt existing tests to match your application logic
-   - Add new tests as needed for your specific requirements
+   - Adapt existing tests to match your application logic in each component:
+     - Backend unit tests using Vitest in the `backend/src` directory
+     - Frontend unit tests in the `frontend/src/__tests__` directory
+     - End-to-end tests using Playwright in the `frontend/e2e` directory
+     - Load tests using k6 in the `tests/load` directory
+   - Configure SonarCloud for code quality analysis by updating the project keys
+   - Adjust GitHub workflow test runners as needed for your specific environments
 
 # Contributing
 
