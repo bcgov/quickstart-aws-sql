@@ -14,21 +14,29 @@ The workflows in this repository are organized into three main categories:
 
 ### `pr-open.yml`
 
-**Trigger**: Pull request open or update
+**Trigger**: 
+- Pull request open or update
+- Manual workflow dispatch (for deploying to dev environment)
 
-**Purpose**: Validates the proposed changes to ensure they meet quality standards and work as expected.
+**Purpose**: Validates the proposed changes to ensure they meet quality standards and work as expected. Additionally allows manual deployment to the dev environment through workflow dispatch.
 
 **Steps**:
-1. Builds container images for backend, frontend, and migrations, tagging them with the PR number
+1. Builds container images for backend, frontend, and migrations, tagging them with:
+   - The PR number (for PR events)
+   - 'manual' tag (for workflow dispatch events)
+   - 'latest' tag
+   - 'pr-{number}' tag
 2. Runs comprehensive tests on the codebase including:
    - Backend unit tests with a PostgreSQL service container
    - Frontend unit tests
    - Security scanning with Trivy
 3. SonarCloud analysis for code quality
-4. Creates a preview environment (when comments contain `/deploy`)
-5. Runs end-to-end tests using Playwright
+4. Plans infrastructure changes using Terraform/Terragrunt
+5. For workflow dispatch events:
+   - Resumes any paused resources in the dev environment
+   - Deploys the stack to the dev environment for testing
 
-**Outputs**: Container images tagged with PR number, test results, SonarCloud reports
+**Outputs**: Container images with appropriate tags, test results, SonarCloud reports, and (for workflow dispatch) a deployed environment
 
 ### `pr-validate.yml`
 
@@ -198,8 +206,10 @@ The workflows in this repository are organized into three main categories:
 The workflows use the following environment configurations:
 
 1. **Development (dev)**: Used for continuous integration and feature testing
+   - Can be deployed manually via workflow dispatch on the PR workflow
+   - Serves as the target for merged PRs from the main branch
 2. **Testing (test)**: Used for QA and acceptance testing
-3. **Production (prod)**: Used for live production deployments
+3. **Production (prod)**: Used for live production deployments via the release workflow
 
 ## Required Secrets
 
@@ -223,6 +233,12 @@ GitHub Event (PR, Push, etc.)
     │       │
     │       ├─── Test (calls .tests.yml)
     │       │
+    │       ├─── Manual Workflow Dispatch─┐
+    │       │                             │
+    │       │                             ▼
+    │       │                        Resume Resources
+    │       │                             │
+    │       │                             ▼
     │       ├─── Deploy (calls .deploy_stack.yml)
     │       │     │
     │       │     └─── Deploy Components (database, api, frontend)
@@ -245,6 +261,10 @@ When customizing these workflows:
 3. Test changes thoroughly in isolation before merging
 4. Consider impacts on automated resource management
 5. Update documentation when changing workflow behavior
+6. When using manual workflow dispatch for deployments:
+   - Ensure proper resource resume/pause mechanisms are in place
+   - Use consistent tagging strategies between PR-based and manual deployments
+   - Consider adding validation steps after manual deployments to verify success
 
 ## Troubleshooting
 
