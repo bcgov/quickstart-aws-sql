@@ -35,7 +35,7 @@ check_db_cluster() {
     echo "Checking DB cluster status for ${cluster_id}..."
     local status=$(aws rds describe-db-clusters --db-cluster-identifier ${cluster_id} --query 'DBClusters[0].Status' --output text 2>/dev/null || echo "not-found")
     echo "DB cluster status: ${status}"
-    echo "$status"
+    return "$status"
 }
 
 # Function to start DB cluster
