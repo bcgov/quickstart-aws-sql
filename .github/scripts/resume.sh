@@ -31,11 +31,8 @@ check_db_cluster() {
     local prefix=$1
     local env=$2
     local cluster_id="${prefix}-aurora-${env}"
-    
-    echo "Checking DB cluster status for ${cluster_id}..."
     local status=$(aws rds describe-db-clusters --db-cluster-identifier ${cluster_id} --query 'DBClusters[0].Status' --output text 2>/dev/null || echo "not-found")
-    echo "DB cluster status: ${status}"
-    return "$status"
+    echo "$status"
 }
 
 # Function to start DB cluster
@@ -43,7 +40,6 @@ start_db_cluster() {
     local prefix=$1
     local env=$2
     local cluster_id="${prefix}-aurora-${env}"
-    local max_attempts=20
     
     echo "Starting DB cluster ${cluster_id}..."
     aws rds start-db-cluster --db-cluster-identifier ${cluster_id} --no-cli-pager --output json
