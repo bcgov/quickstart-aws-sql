@@ -25,7 +25,7 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 data "aws_rds_engine_version" "postgresql" {
   engine  = "aurora-postgresql"
-  version = "16.4"
+  version = "16.8"
 }
 
 resource "aws_db_parameter_group" "db_postgresql" {
@@ -66,7 +66,7 @@ EOF
 }
 module "aurora_postgresql_v2" {
   source = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.13.0"
+  version = "9.14.0"
 
   name              = var.db_cluster_name
   engine            = data.aws_rds_engine_version.postgresql.engine
@@ -94,10 +94,10 @@ module "aurora_postgresql_v2" {
 
   db_parameter_group_name         = aws_db_parameter_group.db_postgresql.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.db_postgresql.id
-
+  deletion_protection = contains(["prod"], var.app_env) ? true : false
   serverlessv2_scaling_configuration = {
-    min_capacity = 0.5
-    max_capacity = 1.0
+    min_capacity = var.min_capacity
+    max_capacity = var.max_capacity
   }
 
   instance_class = "db.serverless"

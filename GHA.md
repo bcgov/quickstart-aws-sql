@@ -136,6 +136,10 @@ The workflows in this repository are organized into three main categories:
 - Uses Terragrunt to manage deployment
 - Supports different environments (dev, test, prod)
 - Exposes important outputs like API Gateway URL and CloudFront domain
+- Orchestrates deployment in the correct order to ensure dependencies are met
+- Sets up ECS tasks including the Flyway migration task and main application task
+- Configures the task with environment variables for database connectivity
+- Manages secrets from AWS Secrets Manager for secure database access
 
 ### `.destroy_stack.yml`
 
@@ -208,8 +212,15 @@ The workflows use the following environment configurations:
 1. **Development (dev)**: Used for continuous integration and feature testing
    - Can be deployed manually via workflow dispatch on the PR workflow
    - Serves as the target for merged PRs from the main branch
+   - Uses FARGATE_SPOT instances (80%) for cost optimization
+   - Auto-scales based on demand with configurable thresholds
 2. **Testing (test)**: Used for QA and acceptance testing
+   - Matches the production configuration for accurate testing
+   - Includes database migration execution via Flyway ECS tasks
 3. **Production (prod)**: Used for live production deployments via the release workflow
+   - Uses a mix of FARGATE (base=1, 20%) and FARGATE_SPOT (80%) for reliability and cost-effectiveness
+   - Database credentials stored and retrieved securely from AWS Secrets Manager
+   - API Gateway with VPC Link for secure backend access
 
 ## Required Secrets
 

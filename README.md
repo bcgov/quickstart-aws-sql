@@ -9,12 +9,15 @@
 This template repository provides a ready-to-deploy containerized application stack for AWS, developed by BC Government. It includes a complete application architecture with:
 
 - **Aurora Serverless v2** PostgreSQL database with PostGIS extension
-- **ECS Fargate** for containerized backend services
+- **ECS Fargate** with mixed FARGATE/FARGATE_SPOT capacity providers for cost-optimized backend services
+- **Flyway Migrations** automated through ECS tasks for database schema management
+- **API Gateway** with VPC link integration for secure backend access
 - **CloudFront** for frontend content delivery with WAF protection
-- **NestJS** TypeScript backend API
+- **NestJS** TypeScript backend API with Prisma ORM
 - **React** with Vite for the frontend application
 - **Terragrunt/Terraform** for infrastructure-as-code deployment
 - **GitHub Actions** for CI/CD pipeline automation
+- **AWS Secrets Manager** integration for secure credential management
 
 Use this repository as a starting point to quickly deploy a modern, scalable web application on AWS infrastructure.
 
@@ -68,7 +71,14 @@ Use this repository as a starting point to quickly deploy a modern, scalable web
   - Uses the infrastructure modules defined in the infrastructure directory.
 
 - **infrastructure/**: Contains Terraform modules for each AWS component.
-  - **api/**: Defines ECS Fargate cluster, Application Load Balancer, API Gateway, autoscaling policies, IAM roles, and networking.
+  - **api/**: Defines infrastructure for the backend API:
+    - ECS Fargate cluster with mixed FARGATE/FARGATE_SPOT capacity providers
+    - Application Load Balancer with internal/external listeners
+    - API Gateway with VPC link for secure backend access
+    - Auto-scaling policies based on CPU/memory utilization
+    - Flyway migration task execution for database schema management
+    - IAM roles and security group configurations
+    - AWS Secrets Manager integration for database credentials
   - **frontend/**: Sets up CloudFront distribution with WAF rules for content delivery.
   - **database/**: Configures Aurora Serverless v2 PostgreSQL database with networking.
 
@@ -229,6 +239,29 @@ For detailed documentation on all GitHub Actions workflows, including their trig
 ## Architecture
 ![Architecture](./.diagrams/arch.drawio.svg)
 
+### Infrastructure Components
+
+#### ECS Fargate Configuration
+- **Mixed Capacity Strategy**: Uses both FARGATE (20% weight with base=1) and FARGATE_SPOT (80% weight) for cost optimization
+- **Auto-Scaling**: Configures automatic scaling based on CPU and memory utilization:
+  - Scales up aggressively (by 2 instances) when thresholds are exceeded
+  - Scales down conservatively (by 1 instance) when resources are underutilized
+- **Task Definitions**:
+  - Flyway migration task that runs before application deployment
+  - Backend API task with PostgreSQL environment variables
+- **Secrets Management**: Securely retrieves database credentials from AWS Secrets Manager
+
+#### API Gateway
+- HTTP API Gateway with VPC Link integration
+- Routes all traffic to the internal Application Load Balancer
+- Supports ANY method with proxy path integration
+
+#### Database Integration
+- Automatically connects to Aurora PostgreSQL using endpoint discovery
+- Uses master credentials stored in Secrets Manager
+- Applies schema migrations using Flyway in a dedicated ECS task
+- Supports read/write splitting with separate endpoints for read-only operations
+
 # Customizing the Template
 
 To adapt this template for your own project:
@@ -241,6 +274,12 @@ To adapt this template for your own project:
 2. **Infrastructure Customization**
    - Modify `terraform` and `infrastructure` directories to adjust resource configurations
    - Update environment-specific variables for your needs
+   - Adjust ECS task definitions in `infrastructure/api/ecs.tf`:
+     - Customize container resources (CPU/memory) based on your application needs
+     - Modify auto-scaling thresholds in `infrastructure/api/autoscaling.tf`
+     - Update capacity provider strategy for cost-optimization vs. reliability balance
+   - Configure database connection parameters and schema information
+   - Customize API Gateway and VPC link settings in `infrastructure/api/api-gateway.tf`
 
 3. **Application Customization**
    - Customize the NestJS backend in the `backend` directory
