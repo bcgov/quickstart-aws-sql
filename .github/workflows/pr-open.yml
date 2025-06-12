@@ -5,22 +5,23 @@ on:
 
   workflow_dispatch:
 
-concurrency:
-  # Cancel in progress for PR open and close
-  group: ${{ github.event.number || 'latest' }}
-  cancel-in-progress: false
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
   packages: write
   pull-requests: write
   security-events: write
+  attestations: write # This is required for uploading attestations to the Security tab
 env:
     AWS_REGION: ca-central-1
 jobs:
   # https://github.com/bcgov-nr/action-builder-ghcr
   builds:
     name: Builds
+    concurrency:
+      # Cancel in progress for PR open and close
+      group: ${{ github.event.number || 'latest' }}
+      cancel-in-progress: true
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -39,6 +40,9 @@ jobs:
 
   plan-stack:
     name: Plan Stack
+    concurrency:
+      group: ${{ github.event.number || 'latest' }}
+      cancel-in-progress: false
     uses: ./.github/workflows/.deploy_stack.yml
     with:
       environment_name: dev
@@ -50,18 +54,28 @@ jobs:
   tests:
     name: Tests
     needs: builds
+    concurrency:
+      # Cancel in progress for PR open and close
+      group: ${{ github.event.number || 'latest' }}
+      cancel-in-progress: true
     uses: ./.github/workflows/.tests.yml
     with:
       tag: ${{ github.event.number || 'latest' }} 
   resume-resources-dev:
     name: Resume Resources Dev
     if: (github.event_name == 'workflow_dispatch')
+    concurrency:
+      group: ${{ github.event.number || 'latest' }}
+      cancel-in-progress: false
     needs: [builds]
     uses: ./.github/workflows/resume-resources.yml
     secrets: inherit
   deploy-to-dev:
     name: Deploy to Dev
     if: (github.event_name == 'workflow_dispatch')
+    concurrency:
+      group: ${{ github.event.number || 'latest' }}
+      cancel-in-progress: false
     needs: [resume-resources-dev]
     uses: ./.github/workflows/.deploy_stack.yml
     with:
@@ -72,6 +86,9 @@ jobs:
     secrets: inherit
   results:
     name: PR Results
+    concurrency:
+      group: ${{ github.event.number || 'latest' }}
+      cancel-in-progress: true
     needs: [builds, plan-stack, tests]
     if: always()
     runs-on: ubuntu-24.04
