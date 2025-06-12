@@ -19,7 +19,7 @@ jobs:
   builds:
     concurrency:
       # Cancel in progress for PR open and close
-      group: ${{ github.event.number || 'latest' }}
+      group: builds-${{ github.event.number || 'latest' }}
       cancel-in-progress: true
     uses: ./.github/workflows/.builds.yml
     with:
@@ -30,7 +30,7 @@ jobs:
   plan-stack:
     name: Plan Stack
     concurrency:
-      group: ${{ github.event.number || 'latest' }}
+      group: plan-stack-${{ github.event.number || 'latest' }}
       cancel-in-progress: false
     uses: ./.github/workflows/.deploy_stack.yml
     with:
@@ -45,7 +45,7 @@ jobs:
     needs: builds
     concurrency:
       # Cancel in progress for PR open and close
-      group: ${{ github.event.number || 'latest' }}
+      group: tests-${{ github.event.number || 'latest' }}
       cancel-in-progress: true
     uses: ./.github/workflows/.tests.yml
     with:
@@ -54,7 +54,7 @@ jobs:
     name: Resume Resources Dev
     if: (github.event_name == 'workflow_dispatch')
     concurrency:
-      group: ${{ github.event.number || 'latest' }}
+      group: rrd-${{ github.event.number || 'latest' }}
       cancel-in-progress: false
     needs: [builds]
     uses: ./.github/workflows/resume-resources.yml
@@ -63,7 +63,7 @@ jobs:
     name: Deploy to Dev
     if: (github.event_name == 'workflow_dispatch')
     concurrency:
-      group: ${{ github.event.number || 'latest' }}
+      group: deploy-dev-${{ github.event.number || 'latest' }}
       cancel-in-progress: false
     needs: [resume-resources-dev]
     uses: ./.github/workflows/.deploy_stack.yml
@@ -76,7 +76,7 @@ jobs:
   results:
     name: PR Results
     concurrency:
-      group: ${{ github.event.number || 'latest' }}
+      group: pr-results-${{ github.event.number || 'latest' }}
       cancel-in-progress: true
     needs: [builds, plan-stack, tests]
     if: always()
