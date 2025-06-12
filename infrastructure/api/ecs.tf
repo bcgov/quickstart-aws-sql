@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
         --task-definition ${var.app_name}-flyway-task \
         --cluster ${aws_ecs_cluster.ecs_cluster.id} \
         --count 1 \
-        --network-configuration awsvpcConfiguration={securityGroups=[${data.aws_security_group.app.id}],subnets=${data.aws_subnets.app.ids[0]},assignPublicIp=DISABLED} \
+        --network-configuration "{\"awsvpcConfiguration\":{\"subnets\":[\"${data.aws_subnets.app.ids[0]}\"],\"securityGroups\":[\"${data.aws_security_group.app.id}\"],\"assignPublicIp\":\"DISABLED\"}}" \
         --query 'tasks[0].taskArn' \
         --output text)
 
