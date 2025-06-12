@@ -32,6 +32,7 @@ jobs:
       - uses: bcgov-nr/action-test-and-analyse@v1.3.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACKEND }}
+          NODE_ENV: unittest
         with:
           commands: |
             npm ci
