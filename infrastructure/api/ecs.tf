@@ -98,16 +98,34 @@ resource "aws_ecs_task_definition" "flyway_task" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-    task_arn=$(aws ecs run-task \
-      --task-definition ${var.app_name}-flyway-task \
-      --cluster ${aws_ecs_cluster.ecs_cluster.id} \
-      --count 1 \
-      --network-configuration awsvpcConfiguration={securityGroups=[${data.aws_security_group.app.id}],subnets=${data.aws_subnets.app.ids[0]},assignPublicIp=DISABLED} \
-      --query 'tasks[0].taskArn' \
-      --output text)
+    set -euo pipefail
 
-    echo "Flyway task started with ARN: $task_arn at $(date)."
-    
+    max_attempts=5
+    attempt=1
+    task_arn=""
+    while [[ $attempt -le $max_attempts ]]; do
+      echo "Starting Flyway task (attempt $attempt)..."
+      task_arn=$(aws ecs run-task \
+        --task-definition ${var.app_name}-flyway-task \
+        --cluster ${aws_ecs_cluster.ecs_cluster.id} \
+        --count 1 \
+        --network-configuration awsvpcConfiguration={securityGroups=[${data.aws_security_group.app.id}],subnets=${data.aws_subnets.app.ids[0]},assignPublicIp=DISABLED} \
+        --query 'tasks[0].taskArn' \
+        --output text)
+
+      echo "Flyway task started with ARN: $task_arn at $(date)."
+      if [[ -n "$task_arn" && "$task_arn" != "None" ]]; then
+        echo "Flyway task started with ARN: $task_arn at $(date)."
+        break
+      fi
+      echo "No task ARN returned. Retrying in 5 seconds..."
+      sleep 5
+      ((attempt++))
+    done
+    if [[ -z "$task_arn" || "$task_arn" == "None" ]]; then
+      echo "ERROR: Failed to start ECS task after $max_attempts attempts."
+      exit 1
+    fi
     echo "Waiting for Flyway task to complete..."
     aws ecs wait tasks-stopped --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn
     
@@ -130,8 +148,17 @@ resource "aws_ecs_task_definition" "flyway_task" {
       --log-stream-name $log_stream_name \
       --limit 1000 \
       --no-cli-pager
+    task_exit_code=$(aws ecs describe-tasks \
+        --cluster ${aws_ecs_cluster.ecs_cluster.id} \
+        --tasks $task_arn \
+        --query 'tasks[0].containers[0].exitCode' \
+        --output text)
 
-EOF
+    if [ "$task_exit_code" != "0" ]; then
+      echo "Flyway task failed with exit code: $task_exit_code"
+      exit 1
+    fi
+  EOF
   }
 }
 
@@ -199,6 +226,9 @@ resource "aws_ecs_task_definition" "node_api_task" {
       volumesFrom = []
     }
   ])
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 

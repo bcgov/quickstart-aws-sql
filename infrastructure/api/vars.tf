@@ -159,3 +159,8 @@ variable "db_cluster_name"{
   description = "Name of the database cluster"
   type        = string
 }
+variable "is_public_api" {
+  description = "Flag to indicate if the API is public or private"
+  type        = bool
+  default     = true
+}
