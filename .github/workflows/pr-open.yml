@@ -17,27 +17,16 @@ env:
 jobs:
   # https://github.com/bcgov-nr/action-builder-ghcr
   builds:
-    name: Builds
     concurrency:
       # Cancel in progress for PR open and close
       group: ${{ github.event.number || 'latest' }}
       cancel-in-progress: true
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        package: [backend, migrations, frontend]
-    timeout-minutes: 10
-    steps:
-      - uses: bcgov-nr/action-builder-ghcr@v4.0.0
-        with:
-          package: ${{ matrix.package }}
-          tags: |
-            ${{ github.event.number || 'manual' }}
-            latest
-            pr-${{ github.event.number || 'manual' }}
-          tag_fallback: latest
-          triggers: ('${{ matrix.package }}/')
-
+    uses: ./.github/workflows/.builds.yml
+    with:
+      tags: |
+        ${{ github.event.number || 'manual' }}
+        latest
+        
   plan-stack:
     name: Plan Stack
     concurrency:
