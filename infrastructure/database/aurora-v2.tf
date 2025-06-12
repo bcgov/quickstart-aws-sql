@@ -29,18 +29,18 @@ data "aws_rds_engine_version" "postgresql" {
 }
 
 resource "aws_db_parameter_group" "db_postgresql" {
-  name        = "${var.db_cluster_name}-parameter-group-17"
+  name        = "${var.db_cluster_name}-parameter-group"
   family      = "aurora-postgresql17"
-  description = "${var.db_cluster_name}-parameter-group-17"
+  description = "${var.db_cluster_name}-parameter-group"
   tags = {
     managed-by = "terraform"
   }
 }
 
 resource "aws_rds_cluster_parameter_group" "db_postgresql" {
-  name        = "${var.db_cluster_name}-cluster-parameter-group-17"
+  name        = "${var.db_cluster_name}-cluster-parameter-group"
   family      = "aurora-postgresql17"
-  description = "${var.db_cluster_name}-cluster-parameter-group-17"
+  description = "${var.db_cluster_name}-cluster-parameter-group"
   tags = {
     managed-by = "terraform"
   }
