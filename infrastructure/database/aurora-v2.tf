@@ -1,6 +1,3 @@
-locals {
-  rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
-}
 data "aws_kms_alias" "rds_key" {
   name = "alias/aws/rds"
 }

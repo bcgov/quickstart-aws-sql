@@ -113,7 +113,6 @@ resource "aws_ecs_task_definition" "flyway_task" {
         --query 'tasks[0].taskArn' \
         --output text)
 
-      echo "Flyway task started with ARN: $task_arn at $(date)."
       if [[ -n "$task_arn" && "$task_arn" != "None" ]]; then
         echo "Flyway task started with ARN: $task_arn at $(date)."
         break
