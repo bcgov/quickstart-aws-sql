@@ -97,6 +97,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
     replace_triggered_by = [terraform_data.trigger_flyway]
   }
   provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
     command = <<-EOF
     set -euo pipefail
 
