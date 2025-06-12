@@ -25,12 +25,12 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 data "aws_rds_engine_version" "postgresql" {
   engine  = "aurora-postgresql"
-  version = "16.8"
+  version = "17.4"
 }
 
 resource "aws_db_parameter_group" "db_postgresql" {
   name        = "${var.db_cluster_name}-parameter-group"
-  family      = "aurora-postgresql16"
+  family      = "aurora-postgresql17"
   description = "${var.db_cluster_name}-parameter-group"
   tags = {
     managed-by = "terraform"
@@ -39,7 +39,7 @@ resource "aws_db_parameter_group" "db_postgresql" {
 
 resource "aws_rds_cluster_parameter_group" "db_postgresql" {
   name        = "${var.db_cluster_name}-cluster-parameter-group"
-  family      = "aurora-postgresql16"
+  family      = "aurora-postgresql17"
   description = "${var.db_cluster_name}-cluster-parameter-group"
   tags = {
     managed-by = "terraform"

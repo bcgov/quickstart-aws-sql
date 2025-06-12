@@ -128,7 +128,7 @@ Prerequisites:
 
     1. Install JDK 17 and above.
     2. Install Node.js 22 and above.
-    3. Install Postgres 16.4 with Postgis extension.
+    3. Install Postgres 17.4 with Postgis extension.
     4. Download flyway.jar file
 Once all the softwares are installed follow below steps.
 

@@ -3,6 +3,7 @@ output "cloudfront" {
   value = {
     domain_name     = aws_cloudfront_distribution.s3_distribution.domain_name
     distribution_id = aws_cloudfront_distribution.s3_distribution.id
+    url= "https://${aws_cloudfront_distribution.s3_distribution.domain_name}"
   }
 }
 
