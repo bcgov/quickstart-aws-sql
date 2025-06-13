@@ -5,13 +5,22 @@ resource "aws_s3_bucket" "frontend" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "frontend_encryption" {
+  bucket = aws_s3_bucket.frontend.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "frontend_bucket_block" {
   bucket            = aws_s3_bucket.frontend.id
   block_public_acls = true
   block_public_policy = true
   restrict_public_buckets = true
   ignore_public_acls      = true
-  
 }
 
 
@@ -38,6 +47,29 @@ resource "aws_s3_bucket_policy" "site_policy" {
   })
 }
 
+resource "aws_s3_bucket" "cloudfront_logs" {
+  bucket = "${var.app_name}-cloudfront-logs"
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudfront_logs_encryption" {
+  bucket = aws_s3_bucket.cloudfront_logs.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "cloudfront_logs_block" {
+  bucket                  = aws_s3_bucket.cloudfront_logs.id
+  block_public_acls       = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+  ignore_public_acls      = true
+}
+
 resource "aws_cloudfront_distribution" "s3_distribution" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -45,6 +77,12 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
   web_acl_id          = aws_wafv2_web_acl.waf_cloudfront.arn
+  
+  logging_config {
+    include_cookies = false
+    bucket          = aws_s3_bucket.cloudfront_logs.bucket_regional_domain_name
+    prefix          = "${var.app_name}/cloudfront-logs/"
+  }
 
   origin {
     domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
