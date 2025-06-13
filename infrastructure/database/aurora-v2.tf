@@ -28,24 +28,6 @@ data "aws_rds_engine_version" "postgresql" {
   version = "17.4"
 }
 
-resource "aws_db_parameter_group" "db_postgresql" {
-  name        = "${var.db_cluster_name}-parameter-group-17"
-  family      = "aurora-postgresql17"
-  description = "${var.db_cluster_name}-parameter-group-17"
-  tags = {
-    managed-by = "terraform"
-  }
-}
-
-resource "aws_rds_cluster_parameter_group" "db_postgresql" {
-  name        = "${var.db_cluster_name}-cluster-parameter-group-17"
-  family      = "aurora-postgresql17"
-  description = "${var.db_cluster_name}-cluster-parameter-group-17"
-  tags = {
-    managed-by = "terraform"
-  }
-}
-
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
   name = "${var.db_cluster_name}"
@@ -92,8 +74,6 @@ module "aurora_postgresql_v2" {
   skip_final_snapshot = true
   auto_minor_version_upgrade = false
 
-  db_parameter_group_name         = aws_db_parameter_group.db_postgresql.id
-  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.db_postgresql.id
   deletion_protection = contains(["prod"], var.app_env) ? true : false
   serverlessv2_scaling_configuration = {
     min_capacity = var.min_capacity
