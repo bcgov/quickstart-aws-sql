@@ -48,14 +48,14 @@ resource "aws_ecs_task_definition" "flyway_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
-    {
+    {      
       name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
-      essential   = true
+      essential = true
       environment = [
         {
           name  = "FLYWAY_URL"
-          value = "jdbc:postgresql://${data.aws_rds_cluster.rds_cluster.endpoint}/${var.db_name}"
+          value = "jdbc:postgresql://${data.aws_rds_cluster.rds_cluster.endpoint}/${var.db_name}?sslmode=require"
         },
         {
           name  = "FLYWAY_USER"
@@ -196,12 +196,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
           name  = "POSTGRES_DATABASE"
           value = var.db_name
         },
-         {
+        {
           name  = "POSTGRES_SCHEMA"
           value = "${var.db_schema}"
-        }
-        ,
-         {
+        },
+        {
           name  = "PORT"
           value = "3000"
         }
