@@ -59,12 +59,6 @@ resource "aws_s3_bucket_ownership_controls" "cloudfront_logs_ownership" {
   }
 }
 
-resource "aws_s3_bucket_acl" "cloudfront_logs_acl" {
-  depends_on = [aws_s3_bucket_ownership_controls.cloudfront_logs_ownership]
-  bucket = aws_s3_bucket.cloudfront_logs.id
-  acl    = "private"
-}
-
 resource "aws_s3_bucket_server_side_encryption_configuration" "cloudfront_logs_encryption" {
   bucket = aws_s3_bucket.cloudfront_logs.id
 
@@ -82,8 +76,39 @@ resource "aws_s3_bucket_public_access_block" "cloudfront_logs_block" {
   restrict_public_buckets = true
   ignore_public_acls      = true
 }
+resource "aws_s3_bucket_policy" "cloudfront_logs_policy" {
+  bucket = aws_s3_bucket.cloudfront_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        },
+        Action = "s3:PutObject",
+        Resource = "arn:aws:s3:::${aws_s3_bucket.cloudfront_logs.id}/*",
+        Condition = {
+          StringEquals = {
+            "aws:SourceArn" = aws_cloudfront_distribution.s3_distribution.arn # Grant access only for this specific distribution
+          }
+        }
+      },
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        },
+        Action = "s3:GetBucketAcl",
+        Resource = "arn:aws:s3:::${aws_s3_bucket.cloudfront_logs.id}"
+      }
+    ]
+  })
+}
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
+  depends_on = [aws_s3_bucket_policy.cloudfront_logs_policy] 
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Distribution for ${var.app_name} site."
