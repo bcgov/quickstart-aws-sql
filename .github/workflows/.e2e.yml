@@ -56,5 +56,5 @@ jobs:
           options: --network=host
           args: bash -c "cd frontend && npx playwright test --project="chromium" --reporter=blob"
         env:
-          E2E_BASE_URL: ${{ inputs.frontend_url }}
+          E2E_BASE_URL: ${{ (inputs.frontend_url == 'http://localhost:3000' && 'http://host.docker.internal:3000') || inputs.frontend_url }}
           CI: 'true'
