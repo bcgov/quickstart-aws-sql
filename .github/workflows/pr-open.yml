@@ -26,7 +26,7 @@ jobs:
       tags: |
         ${{ github.event.number || 'manual' }}
         latest
-        
+
   plan-stack:
     name: Plan Stack
     concurrency:
@@ -58,6 +58,8 @@ jobs:
       cancel-in-progress: false
     needs: [builds]
     uses: ./.github/workflows/resume-resources.yml
+    with:
+      app_env: dev
     secrets: inherit
   deploy-to-dev:
     name: Deploy to Dev

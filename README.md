@@ -198,20 +198,24 @@ This repository includes sophisticated GitHub Actions workflows for continuous i
 ![Pull Request Workflow](./.github/graphics/pr-open.jpg)
 
 When a pull request is opened:
-1. Code is tested and validated using test runners in isolated environments
-2. Security scans are performed with Trivy for vulnerability detection
-3. SonarCloud analysis runs for both frontend and backend code quality
-4. A review environment can be created automatically for testing
-5. End-to-end tests verify functionality across the entire stack
+1. Code is built with concurrency control to prevent overlapping operations
+2. Infrastructure changes are planned with Terraform/Terragrunt
+3. Comprehensive tests are run in isolated environments with concurrency control
+4. Security scans are performed with Trivy for vulnerability detection
+5. SonarCloud analysis runs for both frontend and backend code quality
+6. A review environment can be created manually via workflow dispatch
 
 ## Merge Workflow
 ![Merge](./.github/graphics/merge.jpg)
 
 When code is merged to the main branch:
-1. Containers are built and tagged with appropriate version numbers
-2. Comprehensive tests run against the built containers
-3. Infrastructure is updated or created via Terraform/Terragrunt
-4. New application versions are deployed to the target environment
+1. AWS resources are automatically resumed across all environments
+2. The application is deployed to the dev environment
+3. Container images are tagged with the 'dev' tag
+4. End-to-end tests verify functionality against the dev environment
+5. Upon successful testing, deployment progresses to the test environment
+6. Container images are tagged with the 'test' tag
+7. AWS resources are paused after deployment to optimize costs
 
 ## GitHub Actions Workflows Overview
 
@@ -219,19 +223,26 @@ The repository includes a comprehensive set of GitHub Actions workflows that aut
 
 ### Main Workflows
 - **PR Workflows**: Triggered when pull requests are opened, updated, or closed
-  - `pr-open.yml`: Builds containers, runs tests, and provides validation for new PRs
+  - `pr-open.yml`: Builds containers with concurrency control, runs tests, and provides validation for new PRs
   - `pr-validate.yml`: Ensures code quality and standards compliance
   - `pr-close.yml`: Cleans up resources when PRs are closed
 - **Deployment Workflows**: Handle the deployment pipeline
-  - `merge.yml`: Deploys to development environment when changes are merged to main
+  - `merge.yml`: Resumes resources, deploys to dev and test environments, and then pauses resources
   - `release.yml`: Creates releases and deploys to production (manually triggered)
 
 ### Composite Workflows
+- **Building**: `.builds.yml` 
 - **Testing**: `.tests.yml`, `.e2e.yml`, `.load-test.yml`
 - **Deployment**: `.deploy_stack.yml`, `.destroy_stack.yml`, `.deployer.yml`, `.stack-prefix.yml`
 
 ### Resource Management
-- **Cost Optimization**: `pause-resources.yml`, `resume-resources.yml`
+- **Cost Optimization**: 
+  - `pause-resources.yml`: Pauses resources in specified environments (dev/test/prod) either on schedule, manually, or automatically after deployment
+  - `resume-resources.yml`: Resumes resources in specified environments either on schedule, manually, or automatically before deployment
+- **Workflow Integration**:
+  - Resources are automatically resumed before deployments in the merge workflow
+  - Resources are automatically paused after successful deployments to save costs
+  - Individual environment targeting allows for selective resource management
 - **Cleanup**: `prune-env.yml`
 
 For detailed documentation on all GitHub Actions workflows, including their triggers, purposes, steps, and outputs, see the [GitHub Actions Workflows Guide](./GHA.md).
@@ -289,7 +300,10 @@ To adapt this template for your own project:
 4. **CI/CD Pipeline Adjustments**
    - Modify GitHub workflows in `.github/workflows` as needed
    - Update deployment configuration to match your AWS account structure
-   - Configure resource management workflows (pause/resume) to match your schedule
+   - Configure resource management workflows (pause/resume) to match your schedule:
+     - Adjust cron schedules for automatic pausing/resuming based on your working hours
+     - Set up environment-specific resource management for cost optimization
+     - Customize protection rules for production environments
 
 5. **Testing**
    - Adapt existing tests to match your application logic in each component:
