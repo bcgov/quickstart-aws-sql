@@ -115,7 +115,7 @@ resource "aws_wafv2_web_acl" "api_gateway_acl" {
 # Associate WAF with API Gateway
 resource "aws_wafv2_web_acl_association" "api_gateway" {
   count        = var.is_public_api ? 1 : 0
-  resource_arn = "arn:aws:apigateway:${data.aws_region.current.name}::/apis/${aws_apigatewayv2_api.app.id}/stages/${aws_apigatewayv2_stage.app.name}"
+  resource_arn = aws_apigatewayv2_stage.app.arn
   web_acl_arn  = aws_wafv2_web_acl.api_gateway_acl[0].arn
 }
 # Get current region for ARN construction
