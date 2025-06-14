@@ -57,6 +57,8 @@ jobs:
     name: Resume Resources # This job resumes resources for the merged PR which is needed if the resources were paused.
     needs: [vars]
     uses: ./.github/workflows/resume-resources.yml
+    with:
+      app_env: prod
     secrets: inherit
   deploy:
     name: Deploy Stack
@@ -89,4 +91,6 @@ jobs:
     name: Pause Resources # This job pauses resources for the merged PR which is needed if the resources were not paused, this is to save money, remove it after cloning.
     needs: [release]
     uses: ./.github/workflows/pause-resources.yml
+    with:
+      app_env: prod
     secrets: inherit

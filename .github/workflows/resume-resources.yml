@@ -3,8 +3,27 @@ name: Resume AWS Resources
 on:
   schedule:
     - cron: "0 15 * * 1-5" # Runs every weekday (Monday to Friday) at 7AM PST
+    
   workflow_dispatch:
+    inputs:
+      app_env:
+        description: 'Stack prefix to use for resuming resources'
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - test
+          - prod
+          - all
+
   workflow_call:
+    inputs:
+      app_env:
+        description: 'Stack prefix to use for resuming resources'
+        required: false
+        default: dev
+        type: string
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
@@ -13,6 +32,7 @@ jobs:
     name: Stack Prefix
     uses: ./.github/workflows/.stack-prefix.yml
   resume-resources-dev:
+    if: (${{inputs.app_env == 'dev' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
     name: Resume Resources Dev
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
@@ -32,6 +52,7 @@ jobs:
           ./.github/scripts/resume.sh dev ${{ needs.stack-prefix.outputs.stack_prefix }}
   resume-resources-test:
     name: Resume Resources Test
+    if: (${{inputs.app_env == 'test' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
     environment: test
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
@@ -50,7 +71,8 @@ jobs:
           chmod +x ./.github/scripts/resume.sh
           ./.github/scripts/resume.sh test ${{ needs.stack-prefix.outputs.stack_prefix }}
   resume-resources-prod:
-    name: Resume Resources PROD
+    name: Resume Resources Prod
+    if: (${{inputs.app_env == 'prod' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
     environment: prod
     needs: [stack-prefix]
     runs-on: ubuntu-24.04

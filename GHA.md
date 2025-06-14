@@ -20,21 +20,25 @@ The workflows in this repository are organized into three main categories:
 
 **Purpose**: Validates the proposed changes to ensure they meet quality standards and work as expected. Additionally allows manual deployment to the dev environment through workflow dispatch.
 
+**Concurrency**:
+- Group-based concurrency controls to prevent overlapping operations
+- Jobs can be canceled in progress for newer runs of the same PR
+
 **Steps**:
-1. Builds container images for backend, frontend, and migrations, tagging them with:
-   - The PR number (for PR events)
-   - 'manual' tag (for workflow dispatch events)
-   - 'latest' tag
-   - 'pr-{number}' tag
-2. Runs comprehensive tests on the codebase including:
+1. Uses reusable `.builds.yml` workflow to build container images for backend, frontend, and migrations .
+2. Plans infrastructure changes using Terraform/Terragrunt with concurrency controls
+3. Runs comprehensive tests on the codebase including:
    - Backend unit tests with a PostgreSQL service container
    - Frontend unit tests
    - Security scanning with Trivy
-3. SonarCloud analysis for code quality
-4. Plans infrastructure changes using Terraform/Terragrunt
+4. SonarCloud analysis for code quality
 5. For workflow dispatch events:
-   - Resumes any paused resources in the dev environment
-   - Deploys the stack to the dev environment for testing
+   - Resumes paused resources in the dev environment with concurrency control
+   - Deploys the stack to the dev environment for testing with concurrency protection
+
+**Permissions**: 
+- Enhanced security permissions including attestations for vulnerability scanning
+- Pull request write access for status updates
 
 **Outputs**: Container images with appropriate tags, test results, SonarCloud reports, and (for workflow dispatch) a deployed environment
 
@@ -67,19 +71,25 @@ The workflows in this repository are organized into three main categories:
 
 ### `merge.yml`
 
-**Trigger**: Push to main branch (merge)
+**Trigger**: Push to main branch (merge) or manual workflow dispatch with PR number
 
-**Purpose**: Creates production-ready resources and deploys to the dev environment.
+**Purpose**: Creates production-ready resources and deploys to both dev and test environments in sequence.
+
+**Concurrency**: Ensures only one deployment runs at a time for the main branch
 
 **Steps**:
 1. Determines the PR number that was merged
-2. Builds or reuses container images tagged with that PR number
-3. Runs tests on the built containers
-4. Adds 'latest' tag to container images
-5. Deploys the stack to the dev environment using Terragrunt
-6. Runs end-to-end tests against the deployed environment
+2. Resumes all AWS resources (dev, test, and prod) before deployment
+3. Deploys the stack to the dev environment using Terragrunt
+4. Retags container images with 'dev' tag
+5. Runs end-to-end tests against the deployed dev environment
+6. Deploys the stack to the test environment using Terragrunt
+7. Retags container images with 'test' tag
+8. Pauses all AWS resources after successful deployment to save costs
 
-**Outputs**: Deployed application in dev environment, container images with 'latest' tag
+**Outputs**: 
+- Deployed applications in both dev and test environments
+- Container images tagged with PR number, 'dev', and 'test' tags
 
 ### `release.yml`
 
@@ -168,31 +178,56 @@ The workflows in this repository are organized into three main categories:
 - Can be used for specific components
 - Maintains proper dependency order
 
+### `.builds.yml`
+
+**Purpose**: Standardized container image building process.
+
+**Details**:
+- Builds container images for backend, frontend, and migrations
+- Handles image tagging with consistent naming conventions
+- Supports multiple tags including PR numbers, environment names, and 'latest'
+- Designed to be reusable across different workflows
+- Uses the bcgov/action-builder-ghcr action for optimized builds
+
 ## Resource Management Workflows
 
 ### `pause-resources.yml`
 
-**Trigger**: Schedule (weekdays at 6PM PST) or manual
+**Trigger**: 
+- Schedule (weekdays at 6PM PST)
+- Manual workflow dispatch with environment selection
+- Workflow call from other workflows
 
 **Purpose**: Cost optimization by pausing resources outside of working hours.
 
+**Inputs**:
+- `app_env`: Environment to pause resources for (dev, test, prod, or all)
+
 **Details**:
-- Identifies resources that can be safely paused
+- Identifies resources that can be safely paused in specified environment(s)
 - Scales down ECS services to zero
 - Stops RDS clusters
 - Uses AWS CLI commands to pause specific services
 - Runs on a schedule to automatically pause resources
+- Can be targeted to specific environments (dev, test, prod)
 
 ### `resume-resources.yml`
 
-**Trigger**: Schedule (weekdays at 6AM PST) or manual
+**Trigger**: 
+- Schedule (weekdays at 7AM PST)
+- Manual workflow dispatch with environment selection
+- Workflow call from other workflows (like PR deployment)
 
-**Purpose**: Resume paused resources at the start of the working day.
+**Purpose**: Resume paused resources at the start of the working day or on-demand.
+
+**Inputs**:
+- `app_env`: Environment to resume resources for (dev, test, prod, or all)
 
 **Details**:
-- Starts RDS clusters
+- Starts RDS clusters in specified environment(s)
 - Scales ECS services back to their configured capacity
 - Ensures all services are in a ready state
+- Can be targeted to specific environments (dev, test, prod)
 
 ### `prune-env.yml`
 
@@ -214,13 +249,18 @@ The workflows use the following environment configurations:
    - Serves as the target for merged PRs from the main branch
    - Uses FARGATE_SPOT instances (80%) for cost optimization
    - Auto-scales based on demand with configurable thresholds
+   - Resources can be paused/resumed individually for this environment
 2. **Testing (test)**: Used for QA and acceptance testing
    - Matches the production configuration for accurate testing
    - Includes database migration execution via Flyway ECS tasks
+   - Requires environment approval for resource management operations
+   - Can be paused/resumed independently from other environments
 3. **Production (prod)**: Used for live production deployments via the release workflow
    - Uses a mix of FARGATE (base=1, 20%) and FARGATE_SPOT (80%) for reliability and cost-effectiveness
    - Database credentials stored and retrieved securely from AWS Secrets Manager
    - API Gateway with VPC Link for secure backend access
+   - Requires strict environment approval for resource management operations
+   - Can be excluded from automatic pause/resume schedules if needed for 24/7 availability
 
 ## Required Secrets
 
@@ -238,27 +278,53 @@ The workflow interactions follow this general pattern:
 ```
 GitHub Event (PR, Push, etc.)
     │
-    ├─── Main Workflow (pr-open.yml, merge.yml, etc.)
-    │       │
-    │       ├─── Build
-    │       │
-    │       ├─── Test (calls .tests.yml)
-    │       │
-    │       ├─── Manual Workflow Dispatch─┐
-    │       │                             │
-    │       │                             ▼
-    │       │                        Resume Resources
-    │       │                             │
-    │       │                             ▼
-    │       ├─── Deploy (calls .deploy_stack.yml)
-    │       │     │
-    │       │     └─── Deploy Components (database, api, frontend)
-    │       │
-    │       └─── Validate (calls .e2e.yml, .load-test.yml)
-    │
-    └─── Resource Management (scheduled)
+    ├─── PR Open/Update ─────────────────── PR Merge to Main
+    │       │                                    │
+    │       │                                    ▼
+    │       │                              Resume Resources
+    │       │                                    │
+    │       ├─── Build (calls .builds.yml)       │
+    │       │     with concurrency control       │
+    │       │                                    │
+    │       ├─── Plan Infrastructure             │
+    │       │     with concurrency control       │
+    │       │                                    │
+    │       ├─── Test (calls .tests.yml)         │
+    │       │     with concurrency control       │
+    │       │                                    ▼
+    │       │                                Deploy to Dev
+    │       ├─── Manual Workflow Dispatch─┐      │
+    │       │                             │      ▼
+    │       │                             ▼   Retag Images (dev)
+    │       │                        Resume Dev  │
+    │       │                             │      ▼
+    │       │                             ▼   Run E2E Tests
+    │       │                        Deploy to Dev
+    │       │                                    │
+    │       │                                    ▼
+    │       │                              Deploy to Test
+    │       │                                    │
+    │       │                                    ▼
+    │       │                              Retag Images (test)
+    │       │                                    │
+    │       │                                    ▼
+    │       └─── Results                    Pause Resources    │
+    └─── Resource Management
             │
-            ├─── Pause/Resume Resources
+            ├─── Pause Resources (Scheduled/Manual/After deployment)
+            │     │
+            │     ├─── Dev Environment
+            │     │
+            │     ├─── Test Environment (with approval)
+            │     │
+            │     └─── Prod Environment (with approval)            │
+            ├─── Resume Resources (Scheduled/Manual/Before deployment)
+            │     │
+            │     ├─── Dev Environment
+            │     │
+            │     ├─── Test Environment (with approval)
+            │     │
+            │     └─── Prod Environment (with approval)
             │
             └─── Prune Environments
 ```

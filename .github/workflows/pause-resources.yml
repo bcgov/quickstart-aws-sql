@@ -4,7 +4,25 @@ on:
   schedule:
     - cron: "0 2 * * 2-6" # Runs every day at 6PM PST, Monday to Friday
   workflow_dispatch:
+    inputs:
+      app_env:
+        description: 'Stack prefix to use for Pausing resources'
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - test
+          - prod
+          - all
+
   workflow_call:
+    inputs:
+      app_env:
+        description: 'Stack prefix to use for Pausing resources'
+        required: false
+        type: string
+        default: dev
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -15,6 +33,7 @@ jobs:
     uses: ./.github/workflows/.stack-prefix.yml
   pause-resources-dev:
     name: Pause Resources Dev
+    if: (${{inputs.app_env == 'dev' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
     steps:
@@ -33,6 +52,7 @@ jobs:
           
   pause-resources-test:
     name: Pause Resources Test
+    if: (${{inputs.app_env == 'test' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
     environment: test
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
@@ -52,6 +72,7 @@ jobs:
           ./.github/scripts/pause.sh test ${{ needs.stack-prefix.outputs.stack_prefix }}
   pause-resources-prod:
     name: Pause Resources PROD
+    if: (${{inputs.app_env == 'prod' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
     environment: prod
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
