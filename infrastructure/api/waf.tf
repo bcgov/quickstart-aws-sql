@@ -57,6 +57,10 @@ resource "aws_cloudfront_distribution" "api" {
             http_port              = 80
             https_port             = 443
             origin_ssl_protocols   = ["TLSv1.2"]
+        }        # Add custom header for origin verification
+        custom_header {
+            name  = "x-origin-verify"
+            value = data.aws_ssm_parameter.cloudfront_secret[0].value
         }
     }
 
@@ -154,4 +158,11 @@ resource "aws_s3_bucket_policy" "cloudfront_log_policy" {
             }
         ]
     })
+}
+
+# Data source to read the CloudFront secret from SSM Parameter Store
+data "aws_ssm_parameter" "cloudfront_secret" {
+  count = var.is_public_api ? 1 : 0
+  name  = "/${var.app_name}/cloudfront-origin-secret"
+  depends_on = [aws_ssm_parameter.cloudfront_secret]
 }
