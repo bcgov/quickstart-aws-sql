@@ -28,14 +28,6 @@ COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
 
-# Boilerplate, not used in OpenShift/Kubernetes
-EXPOSE 3001
-HEALTHCHECK --interval=15s --timeout=10s --start-period=5s --retries=3 \
-  CMD ["/nodejs/bin/node", "-e", \
-      "require('http').get({host: 'localhost', port: 3001, path: '/api/health'}, res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1));" \
-  ]
-
-
 # Nonroot user, limit heap size to 50 MB
 USER nonroot
 CMD ["--max-old-space-size=50", "/app/dist/main"]

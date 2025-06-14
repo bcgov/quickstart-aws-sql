@@ -53,6 +53,7 @@ jobs:
       - name: Run Tests
         uses: docker://mcr.microsoft.com/playwright:v1.51.0-noble
         with:
+          options: --network=host
           args: bash -c "cd frontend && npx playwright test --project="chromium" --reporter=blob"
         env:
           E2E_BASE_URL: ${{ inputs.frontend_url }}
