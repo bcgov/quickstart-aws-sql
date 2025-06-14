@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       app_env:
-        description: 'Stack prefix to use for resuming resources'
+        description: 'Stack prefix to use for Pausing resources'
         required: true
         type: choice
         default: dev
@@ -14,11 +14,12 @@ on:
           - dev
           - test
           - prod
+          - all
 
   workflow_call:
     inputs:
       app_env:
-        description: 'Stack prefix to use for resuming resources'
+        description: 'Stack prefix to use for Pausing resources'
         required: false
         type: string
         default: dev

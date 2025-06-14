@@ -15,6 +15,7 @@ on:
           - dev
           - test
           - prod
+          - all
 
   workflow_call:
     inputs:
