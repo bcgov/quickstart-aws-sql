@@ -10,6 +10,10 @@ variable "app_env" {
 variable "app_name" {
   description  = " The APP name with environment (app_env)"
   type        = string
+  validation {
+    condition     = lower(var.app_name) == var.app_name
+    error_message = "The app_name must be in lowercase."
+  }
 }
 
 variable "aws_region" {
