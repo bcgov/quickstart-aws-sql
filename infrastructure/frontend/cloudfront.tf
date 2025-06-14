@@ -91,7 +91,7 @@ resource "aws_s3_bucket_policy" "cloudfront_logs_policy" {
         Resource = "arn:aws:s3:::${aws_s3_bucket.cloudfront_logs.id}/*",
         Condition = {
           StringEquals = {
-            "aws:SourceArn" = aws_cloudfront_distribution.s3_distribution.arn # Grant access only for this specific distribution
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
           }
         }
       },
