@@ -51,7 +51,7 @@ jobs:
         run: |
           npm ci
       - name: Run Tests
-        uses: docker://mcr.microsoft.com/playwright:v1.50.0-noble
+        uses: docker://mcr.microsoft.com/playwright:v1.51.0-noble
         with:
           args: bash -c "cd frontend && npx playwright test --project="chromium" --reporter=blob"
         env:
