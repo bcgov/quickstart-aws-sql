@@ -61,8 +61,6 @@ services:
     build:
       context: ./backend
     ports: ["3001:3001"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api"]
     working_dir: "/app"
 
   frontend:
