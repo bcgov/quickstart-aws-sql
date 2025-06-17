@@ -70,24 +70,4 @@ jobs:
         run: |
           chmod +x ./.github/scripts/resume.sh
           ./.github/scripts/resume.sh test ${{ needs.stack-prefix.outputs.stack_prefix }}
-  resume-resources-prod:
-    name: Resume Resources Prod
-    if: (inputs.app_env == 'prod' || inputs.app_env == 'all' || github.event_name == 'schedule')
-    environment: prod
-    needs: [stack-prefix]
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          role-session-name: gha-resume-resources
-          aws-region: ca-central-1
-      - name: Resume AWS Resources
-        shell: bash
-        run: |
-          chmod +x ./.github/scripts/resume.sh
-          ./.github/scripts/resume.sh prod ${{ needs.stack-prefix.outputs.stack_prefix }}
           
