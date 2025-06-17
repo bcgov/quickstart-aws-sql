@@ -121,22 +121,22 @@ jobs:
         run: |
           # Create ECR repository if it doesn't exist
             aws ecr create-repository \
-            --repository-name quickstart-aws-containers-${{ matrix.package }}-prod \
+            --repository-name ${{ github.event.repository.name }}-${{ matrix.package }}-prod \
             --image-tag-mutability IMMUTABLE \
             --image-scanning-configuration scanOnPush=true \
             || true
             
             # Apply lifecycle policy separately
             aws ecr put-lifecycle-policy \
-            --repository-name quickstart-aws-containers-${{ matrix.package }}-prod \
-            --lifecycle-policy '{"rules":[{"rulePriority":1,"description":"Keep only 5 tagged images","selection":{"tagStatus":"tagged","countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}},{"rulePriority":2,"description":"Remove untagged images","selection":{"tagStatus":"untagged","countType":"imageCountMoreThan","countNumber":0},"action":{"type":"expire"}}]}' \
+            --repository-name ${{ github.event.repository.name }}-${{ matrix.package }}-prod \
+            --lifecycle-policy '{"rules":[{"rulePriority":1,"description":"Keep only 5 tagged images","selection":{"tagStatus":"tagged","tagPatternList":["*"],"countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}},{"rulePriority":2,"description":"Remove untagged images","selection":{"tagStatus":"untagged","countType":"imageCountMoreThan","countNumber":1},"action":{"type":"expire"}}]}' \
             || true
           
           # Pull image from GHCR
-          docker pull $GHCR_IMAGE
+          docker pull $GHCR_IMAGE || { echo "Error: Failed to pull image $GHCR_IMAGE"; exit 1; }
           
           # Tag for ECR
-          ECR_IMAGE=$ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:${{ needs.vars.outputs.tag }}
+          ECR_IMAGE=$ECR_REGISTRY/${{ github.event.repository.name }}-${{ matrix.package }}-prod:${{ needs.vars.outputs.tag }}
           docker tag $GHCR_IMAGE $ECR_IMAGE
           
           # Push to ECR

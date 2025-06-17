@@ -90,13 +90,26 @@ jobs:
         ECR_REGISTRY=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.ca-central-1.amazonaws.com
         echo "ecr-registry=$ECR_REGISTRY" >> $GITHUB_OUTPUT
     
+    - name: Image Tags
+      id: image-tags
+      shell: bash
+      run: |
+        if [[ "${{ inputs.app_env }}" == "prod" && "${{ inputs.working_directory }}" == "api" ]]; then
+          API_IMAGE="${{ steps.ecr-check.outputs.ecr-registry }}/${{ github.event.repository.name }}-backend-prod:${{ inputs.tag }}"
+          FLYWAY_IMAGE="${{ steps.ecr-check.outputs.ecr-registry }}/${{ github.event.repository.name }}-migrations-prod:${{ inputs.tag }}"
+        else
+          API_IMAGE="ghcr.io/${{ github.repository }}/backend:${{ inputs.tag }}"
+          FLYWAY_IMAGE="ghcr.io/${{ github.repository }}/migrations:${{ inputs.tag }}"
+        fi
+        echo "api-image=$API_IMAGE" >> $GITHUB_OUTPUT
+        echo "flyway-image=$FLYWAY_IMAGE" >> $GITHUB_OUTPUT
     - name: Terragrunt ${{inputs.command}}
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
-          flyway_image: ${{ (inputs.app_env == 'prod' && inputs.working_directory == 'api' && format('{0}/quickstart-aws-containers-migrations-prod:{1}', steps.ecr-check.outputs.ecr-registry, inputs.tag)) || (format('ghcr.io/{0}/migrations:{1}', github.repository, inputs.tag)) }}
-          api_image: ${{ (inputs.app_env == 'prod' && inputs.working_directory == 'api' && format('{0}/quickstart-aws-containers-backend-prod:{1}', steps.ecr-check.outputs.ecr-registry, inputs.tag)) || (format('ghcr.io/{0}/backend:{1}', github.repository, inputs.tag)) }}
+          flyway_image: ${{ steps.image-tags.outputs.flyway-image }}
+          api_image: ${{ steps.image-tags.outputs.api-image }}
           app_env: ${{inputs.app_env}}
           stack_prefix: ${{ inputs.stack_prefix }}
       run: |
@@ -110,8 +123,8 @@ jobs:
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
-          flyway_image: ${{ inputs.app_env == 'prod' && format('{0}/quickstart-aws-containers-migrations-prod:{1}', steps.ecr-check.outputs.ecr-registry, inputs.tag) || format('ghcr.io/{0}/migrations:{1}', github.repository, inputs.tag) }}
-          api_image: ${{ inputs.app_env == 'prod' && format('{0}/quickstart-aws-containers-backend-prod:{1}', steps.ecr-check.outputs.ecr-registry, inputs.tag) || format('ghcr.io/{0}/backend:{1}', github.repository, inputs.tag) }}
+          flyway_image: ${{ steps.image-tags.outputs.flyway-image }}
+          api_image: ${{ steps.image-tags.outputs.api-image }}
           app_env: ${{inputs.app_env}}
           stack_prefix: ${{ inputs.stack_prefix }}
       run: |
@@ -127,8 +140,8 @@ jobs:
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
-          flyway_image: ${{ inputs.app_env == 'prod' && format('{0}/quickstart-aws-containers-migrations-prod:{1}', steps.ecr-check.outputs.ecr-registry, inputs.tag) || format('ghcr.io/{0}/migrations:{1}', github.repository, inputs.tag) }}
-          api_image: ${{ inputs.app_env == 'prod' && format('{0}/quickstart-aws-containers-backend-prod:{1}', steps.ecr-check.outputs.ecr-registry, inputs.tag) || format('ghcr.io/{0}/backend:{1}', github.repository, inputs.tag) }}
+          flyway_image: ${{ steps.image-tags.outputs.flyway-image }}
+          api_image: ${{ steps.image-tags.outputs.api-image }}
           app_env: ${{inputs.app_env}}
           stack_prefix: ${{ inputs.stack_prefix }}
       run: |
