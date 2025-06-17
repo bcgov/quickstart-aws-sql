@@ -121,11 +121,9 @@ resource "aws_iam_role_policy" "ecs_task_execution_ecr" {
           "ecr:BatchGetImage",
           "ecr:GetAuthorizationToken"
         ]
-        Resource = compact([
-          length(aws_ecr_repository.backend) > 0 ? aws_ecr_repository.backend[0].arn : null,
-          length(aws_ecr_repository.migrations) > 0 ? aws_ecr_repository.migrations[0].arn : null,
-          "*"
-        ])
+        Resource = [
+          "arn:aws:ecr:*:*:*"
+        ]
       }
     ]
   })
