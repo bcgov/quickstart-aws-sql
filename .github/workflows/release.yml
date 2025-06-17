@@ -120,7 +120,12 @@ jobs:
           GHCR_IMAGE: ghcr.io/${{ github.repository }}/${{ matrix.package }}:${{ needs.vars.outputs.tag }}
         run: |
           # Create ECR repository if it doesn't exist
-          aws ecr create-repository --repository-name quickstart-aws-containers-${{ matrix.package }}-prod || true
+            aws ecr create-repository \
+            --repository-name quickstart-aws-containers-${{ matrix.package }}-prod \
+            --image-tag-mutability IMMUTABLE \
+            --image-scanning-configuration scanOnPush=true \
+            --lifecycle-policy '{"rules":[{"rulePriority":1,"description":"Keep only 5 tagged images","selection":{"tagStatus":"tagged","countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}},{"rulePriority":2,"description":"Remove untagged images","selection":{"tagStatus":"untagged","countType":"imageCountMoreThan","countNumber":0},"action":{"type":"expire"}}]}' \
+            || true
           
           # Pull image from GHCR
           docker pull $GHCR_IMAGE
