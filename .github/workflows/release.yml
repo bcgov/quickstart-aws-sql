@@ -22,12 +22,13 @@ jobs:
     name: Vars
     runs-on: ubuntu-24.04
     outputs:
-      tag: ${{ steps.changelog.outputs.tag || github.event.release.tag_name || '' }}
-      version: ${{ steps.changelog.outputs.version || github.event.release.tag_name || '' }}
+      tag: ${{ steps.release.outputs.tag }}
+      tags: ${{ steps.release.outputs.tags }}
       clean_changelog: ${{ steps.changelog.outputs.clean_changelog || '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Conventional Changelog Update
+        if: (github.event_name != 'release')
         uses: TriPSs/conventional-changelog-action@v6
         id: changelog
         continue-on-error: true
@@ -38,6 +39,37 @@ jobs:
           skip-on-empty: "false"
           skip-commit: "true"
           git-push: "true"
+      - name: GitHub Release
+        id: release
+        shell: bash
+        run: |
+          # Determine the tag based on the event type
+          tag=""
+          version=""
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "getting tag from release which was done manually in github"
+            # remove all spaces and new lines from the tag name and make it lowercase.
+            tag=$(echo "${{ github.event.release.tag_name }}" | tr -d ' \n\r\t' | tr '[:upper:]' '[:lower:]')
+            version=$(echo "$tag" | sed 's/^v//') # Compute version as tag without the leading 'v'
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "generating tag from workflow dispatch"
+            # Generate tag from current timestamp or use a default
+            tag=$(echo "${{ steps.changelog.outputs.tag}}" | tr -d ' \n\r\t' | tr '[:upper:]' '[:lower:]')
+            version="${{ steps.changelog.outputs.version}}"
+          else
+            echo "unsupported event type: ${{ github.event_name }}"
+            exit 1
+          fi
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          
+          # Generate multiline tags output for retag-images step
+          tags=$(printf "prod\n%s\n%s" "$version" "$tag")
+          
+          # Trim and set multiline outputs
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "$tags" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
   retag-images:
     name: Retag Images
     needs: [vars]
@@ -53,8 +85,7 @@ jobs:
           repository: ${{ github.repository }}/${{ matrix.package }}
           target:  ${{inputs.containers_tag}} # this is the tag of the containers to deploy, defaults to test
           tags: |
-            prod
-            ${{ needs.vars.outputs.version}}
+            ${{ needs.vars.outputs.tags }}
   resume-resources:
     name: Resume Resources # This job resumes resources for the merged PR which is needed if the resources were paused.
     needs: [vars]
@@ -70,7 +101,7 @@ jobs:
     with:
       environment_name: dev # since we only have one namespace dev, update this to PROD
       command: apply
-      tag: ${{ needs.vars.outputs.version}} # this is the tag of the containers to deploy
+      tag: ${{ needs.vars.outputs.tag}} # this is the tag of the containers to deploy
       app_env: prod
   release:
     name: Github Release
