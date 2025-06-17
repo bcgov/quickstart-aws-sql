@@ -10,7 +10,7 @@ on:
         default: 'test'
         type: string
 concurrency:
-  group: main
+  group: prod
   cancel-in-progress: false
 # This concurrency group ensures that only one workflow runs at a time for the main branch.
 permissions:
