@@ -32,7 +32,7 @@ jobs:
     name: Stack Prefix
     uses: ./.github/workflows/.stack-prefix.yml
   resume-resources-dev:
-    if: (${{inputs.app_env == 'dev' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
+    if: (inputs.app_env == 'dev' || inputs.app_env == 'all' || github.event_name == 'schedule')
     name: Resume Resources Dev
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
@@ -52,7 +52,7 @@ jobs:
           ./.github/scripts/resume.sh dev ${{ needs.stack-prefix.outputs.stack_prefix }}
   resume-resources-test:
     name: Resume Resources Test
-    if: (${{inputs.app_env == 'test' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
+    if: (inputs.app_env == 'test' || inputs.app_env == 'all' || github.event_name == 'schedule')
     environment: test
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
@@ -72,7 +72,7 @@ jobs:
           ./.github/scripts/resume.sh test ${{ needs.stack-prefix.outputs.stack_prefix }}
   resume-resources-prod:
     name: Resume Resources Prod
-    if: (${{inputs.app_env == 'prod' || inputs.app_env == 'all'}} || github.event_name == 'schedule')
+    if: (inputs.app_env == 'prod' || inputs.app_env == 'all' || github.event_name == 'schedule')
     environment: prod
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
