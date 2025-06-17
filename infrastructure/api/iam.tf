@@ -1,4 +1,3 @@
-
 data "aws_caller_identity" "current" {}
 # ECS task execution role data
 data "aws_iam_policy_document" "ecs_task_execution_role" {
@@ -103,4 +102,31 @@ EOF
 resource "aws_iam_role_policy_attachment" "rdsAttach" {
   role       = aws_iam_role.app_container_role.name
   policy_arn = data.aws_iam_policy.appRDS.arn
+}
+
+# ECR permissions for production environment
+resource "aws_iam_role_policy" "ecs_task_execution_ecr" {
+  count = var.app_env == "prod" ? 1 : 0
+  name  = "${var.app_name}-ecs_task_execution_ecr"
+  role  = aws_iam_role.ecs_task_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = [
+          length(aws_ecr_repository.backend) > 0 ? aws_ecr_repository.backend[0].arn : "",
+          length(aws_ecr_repository.migrations) > 0 ? aws_ecr_repository.migrations[0].arn : "",
+          "*"
+        ]
+      }
+    ]
+  })
 }

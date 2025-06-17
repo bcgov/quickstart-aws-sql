@@ -70,6 +70,7 @@ jobs:
           echo "tags<<EOF" >> $GITHUB_OUTPUT
           echo "$tags" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+  
   retag-images:
     name: Retag Images
     needs: [vars]
@@ -86,6 +87,57 @@ jobs:
           target:  ${{inputs.containers_tag || 'test'}} # this is the tag of the containers to deploy, defaults to test
           tags: |
             ${{ needs.vars.outputs.tags }}
+  
+  push-to-ecr:
+    name: Push Images to ECR
+    needs: [vars, retag-images]
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [backend, migrations]
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: gha-ecr-push
+          aws-region: ca-central-1
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Pull, tag and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          GHCR_IMAGE: ghcr.io/${{ github.repository }}/${{ matrix.package }}:${{ needs.vars.outputs.tag }}
+        run: |
+          # Create ECR repository if it doesn't exist
+          aws ecr create-repository --repository-name quickstart-aws-containers-${{ matrix.package }}-prod || true
+          
+          # Pull image from GHCR
+          docker pull $GHCR_IMAGE
+          
+          # Tag for ECR
+          ECR_IMAGE=$ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:${{ needs.vars.outputs.tag }}
+          docker tag $GHCR_IMAGE $ECR_IMAGE
+          
+          # Push to ECR
+          docker push $ECR_IMAGE
+          
+          # Also tag with 'prod' and 'latest' for production
+          docker tag $GHCR_IMAGE $ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:prod
+          docker tag $GHCR_IMAGE $ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:latest
+          docker push $ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:prod
+          docker push $ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:latest
+          
   resume-resources:
     name: Resume Resources # This job resumes resources for the merged PR which is needed if the resources were paused.
     needs: [vars]
@@ -93,9 +145,10 @@ jobs:
     with:
       app_env: prod
     secrets: inherit
+    
   deploy:
     name: Deploy Stack
-    needs: [vars, resume-resources, retag-images]
+    needs: [vars, resume-resources, retag-images, push-to-ecr]
     uses: ./.github/workflows/.deploy_stack.yml
     secrets: inherit
     with:
@@ -103,6 +156,7 @@ jobs:
       command: apply
       tag: ${{ needs.vars.outputs.tag}} # this is the tag of the containers to deploy
       app_env: prod
+      
   release:
     name: Github Release
     runs-on: ubuntu-24.04
@@ -120,6 +174,7 @@ jobs:
           tag_name: ${{ needs.vars.outputs.tag }}
           name: ${{ needs.vars.outputs.tag }}
           body: ${{ needs.vars.outputs.clean_changelog }}
+          
   pause-resources:
     name: Pause Resources # This job pauses resources for the merged PR which is needed if the resources were not paused, this is to save money, remove it after cloning.
     needs: [release]

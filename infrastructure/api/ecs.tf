@@ -1,6 +1,13 @@
 locals {
   container_name = "${var.app_name}"
   
+  # Extract tag from GHCR image URL for ECR
+  image_tag = can(regex(":([^:]+)$", var.api_image)) ? regex(":([^:]+)$", var.api_image)[0] : "latest"
+  
+  # Use ECR images for production, GHCR for other environments
+  flyway_image = var.app_env == "prod" && length(aws_ecr_repository.migrations) > 0 ? "${aws_ecr_repository.migrations[0].repository_url}:${local.image_tag}" : var.flyway_image
+    
+  api_image = var.app_env == "prod" && length(aws_ecr_repository.backend) > 0 ? "${aws_ecr_repository.backend[0].repository_url}:${local.image_tag}" : var.api_image
 }
 data "aws_secretsmanager_secret" "db_master_creds" {
   name = "${var.db_cluster_name}"
@@ -48,9 +55,9 @@ resource "aws_ecs_task_definition" "flyway_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
-    {      
+    { 
       name      = "${var.app_name}-flyway"
-      image     = "${var.flyway_image}"
+      image     = "${local.flyway_image}"
       essential = true
       environment = [
         {
@@ -171,9 +178,9 @@ resource "aws_ecs_task_definition" "node_api_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
-    {
+    {      
       name      = "${local.container_name}"
-      image     = "${var.api_image}"
+      image     = "${local.api_image}"
       essential = true
       environment = [
         {
