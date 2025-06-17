@@ -149,6 +149,11 @@ variable "write_principals" {
   type        = list(any)
   default     = []
 }
+variable "ecr_image_retention_count" {
+  description = "Number of images to retain in ECR repository"
+  type        = number
+  default     = 5
+}
 
 variable "tags" {
   description = "A set of of one or more tags to provide some metadata for the provisioned resources."

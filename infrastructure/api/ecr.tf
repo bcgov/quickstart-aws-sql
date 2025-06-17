@@ -8,31 +8,45 @@ resource "aws_ecr_repository" "backend" {
     scan_on_push = var.image_scanning_enabled
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
+    lifecycle {
+        prevent_destroy = true
+        # Don't replace this resource if it exists
+        create_before_destroy = false
+        # Ignore changes that might be managed outside of Terraform
+        ignore_changes = [
+            image_tag_mutability,
+            image_scanning_configuration
+        ]
+    }
 
-  tags = merge(var.common_tags, var.tags, {
-    Name = "${var.app_name}-backend-ecr"
-  })
+    tags = merge(var.common_tags, var.tags, {
+        Name = "${var.app_name}-backend-ecr"
+    })
 }
 
 resource "aws_ecr_repository" "migrations" {
-  count                = var.app_env == "prod" ? 1 : 0
-  name                 = "quickstart-aws-containers-migrations-prod"
-  image_tag_mutability = var.image_tag_mutability
+    count                = var.app_env == "prod" ? 1 : 0
+    name                 = "quickstart-aws-containers-migrations-prod"
+    image_tag_mutability = var.image_tag_mutability
 
-  image_scanning_configuration {
-    scan_on_push = var.image_scanning_enabled
-  }
+    image_scanning_configuration {
+        scan_on_push = var.image_scanning_enabled
+    }
 
-  lifecycle {
-    prevent_destroy = true
-  }
+    lifecycle {
+        prevent_destroy = true
+        # Don't replace this resource if it exists
+        create_before_destroy = false
+        # Ignore changes that might be managed outside of Terraform
+        ignore_changes = [
+            image_tag_mutability,
+            image_scanning_configuration
+        ]
+    }
 
-  tags = merge(var.common_tags, var.tags, {
-    Name = "${var.app_name}-migrations-ecr"
-  })
+    tags = merge(var.common_tags, var.tags, {
+        Name = "${var.app_name}-migrations-ecr"
+    })
 }
 
 # ECR lifecycle policies to manage image retention
@@ -49,7 +63,7 @@ resource "aws_ecr_lifecycle_policy" "backend" {
           tagStatus     = "tagged"
           tagPrefixList = ["prod", "v"]
           countType     = "imageCountMoreThan"
-          countNumber   = 10
+          countNumber   = var.ecr_image_retention_count
         }
         action = {
           type = "expire"
@@ -85,7 +99,7 @@ resource "aws_ecr_lifecycle_policy" "migrations" {
           tagStatus     = "tagged"
           tagPrefixList = ["prod", "v"]
           countType     = "imageCountMoreThan"
-          countNumber   = 10
+          countNumber   = var.ecr_image_retention_count
         }
         action = {
           type = "expire"
