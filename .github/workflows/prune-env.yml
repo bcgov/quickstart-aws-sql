@@ -24,7 +24,7 @@ permissions:
 jobs:
   destroy-dev:
     name: Destroy Stack Dev
-    if: ${{ github.event.inputs.app_env == 'dev' }}
+    if: ( github.event.inputs.app_env == 'dev' )
     uses: ./.github/workflows/.destroy_stack.yml
     secrets: inherit
     with:
@@ -32,7 +32,7 @@ jobs:
       app_env: ${{ github.event.inputs.app_env }}
   destroy-test:
     name: Destroy Stack Test
-    if: ${{ github.event.inputs.app_env == 'test' }}
+    if: ( github.event.inputs.app_env == 'test' )
     uses: ./.github/workflows/.destroy_stack.yml
     secrets: inherit
     with:

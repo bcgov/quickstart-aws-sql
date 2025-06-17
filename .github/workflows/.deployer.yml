@@ -92,7 +92,7 @@ jobs:
           # Run terraform
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
     - name: Terragrunt API Outputs
-      if: ${{ inputs.working_directory == 'api'  && inputs.command == 'apply' }}
+      if: ( inputs.working_directory == 'api'  && inputs.command == 'apply' )
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       id: tg-outputs
       env:
@@ -109,7 +109,7 @@ jobs:
           
           echo "API_GW_URL=$(jq -r .apigw_url.value outputs.json)" >> $GITHUB_OUTPUT
     - name: Terragrunt Frontend Outputs
-      if: ${{ inputs.working_directory == 'frontend' && inputs.command == 'apply' }}
+      if: ( inputs.working_directory == 'frontend' && inputs.command == 'apply' )
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       id: tg-outputs-frontend
       env:

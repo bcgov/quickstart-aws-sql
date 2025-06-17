@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run Docker compose
-        if: ${{ inputs.frontend_url == 'http://localhost:3000' }}
+        if: ( inputs.frontend_url == 'http://localhost:3000' )
         env:
           BACKEND_IMAGE: ghcr.io/${{ github.repository }}/backend:${{ inputs.tag }}
           FLYWAY_IMAGE: ghcr.io/${{ github.repository }}/migrations:${{ inputs.tag }}
@@ -29,7 +29,7 @@ jobs:
         run: docker compose up -d --wait
         continue-on-error: true
       - name: Docker Compose Logs
-        if:  ${{ inputs.frontend_url == 'http://localhost:3000' }}
+        if:  ( inputs.frontend_url == 'http://localhost:3000' )
         run: docker compose logs
       - name: Cache Playwright Browsers
         uses: actions/cache@v4
