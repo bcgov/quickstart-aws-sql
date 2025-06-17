@@ -129,7 +129,7 @@ variable "repository_names" {
 }
 variable "image_tag_mutability" {
   description = "Tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE."
-  default     = "MUTABLE"
+  default     = "IMMUTABLE"
 }
 
 variable "image_scanning_enabled" {

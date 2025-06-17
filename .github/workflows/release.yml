@@ -132,12 +132,6 @@ jobs:
           # Push to ECR
           docker push $ECR_IMAGE
           
-          # Also tag with 'prod' and 'latest' for production
-          docker tag $GHCR_IMAGE $ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:prod
-          docker tag $GHCR_IMAGE $ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:latest
-          docker push $ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:prod
-          docker push $ECR_REGISTRY/quickstart-aws-containers-${{ matrix.package }}-prod:latest
-          
   resume-resources:
     name: Resume Resources # This job resumes resources for the merged PR which is needed if the resources were paused.
     needs: [vars]
