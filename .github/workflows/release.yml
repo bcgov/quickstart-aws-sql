@@ -124,6 +124,11 @@ jobs:
             --repository-name quickstart-aws-containers-${{ matrix.package }}-prod \
             --image-tag-mutability IMMUTABLE \
             --image-scanning-configuration scanOnPush=true \
+            || true
+            
+            # Apply lifecycle policy separately
+            aws ecr put-lifecycle-policy \
+            --repository-name quickstart-aws-containers-${{ matrix.package }}-prod \
             --lifecycle-policy '{"rules":[{"rulePriority":1,"description":"Keep only 5 tagged images","selection":{"tagStatus":"tagged","countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}},{"rulePriority":2,"description":"Remove untagged images","selection":{"tagStatus":"untagged","countType":"imageCountMoreThan","countNumber":0},"action":{"type":"expire"}}]}' \
             || true
           
