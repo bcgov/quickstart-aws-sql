@@ -83,7 +83,7 @@ jobs:
         with:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.package }}
-          target:  ${{inputs.containers_tag}} # this is the tag of the containers to deploy, defaults to test
+          target:  ${{inputs.containers_tag || 'test'}} # this is the tag of the containers to deploy, defaults to test
           tags: |
             ${{ needs.vars.outputs.tags }}
   resume-resources:
