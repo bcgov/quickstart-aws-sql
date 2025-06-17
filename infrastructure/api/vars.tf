@@ -129,7 +129,7 @@ variable "repository_names" {
 }
 variable "image_tag_mutability" {
   description = "Tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE."
-  default     = "MUTABLE"
+  default     = "IMMUTABLE"
 }
 
 variable "image_scanning_enabled" {
@@ -148,6 +148,11 @@ variable "write_principals" {
   description = "Defines which external principals are allowed to write to the ECR repository"
   type        = list(any)
   default     = []
+}
+variable "ecr_image_retention_count" {
+  description = "Number of images to retain in ECR repository"
+  type        = number
+  default     = 5
 }
 
 variable "tags" {

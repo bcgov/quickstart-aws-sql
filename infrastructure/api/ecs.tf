@@ -48,7 +48,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
-    {      
+    { 
       name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
       essential = true
@@ -171,7 +171,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
-    {
+    {      
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
