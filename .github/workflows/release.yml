@@ -1,5 +1,7 @@
 name: PROD
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       containers_tag:
@@ -20,9 +22,9 @@ jobs:
     name: Vars
     runs-on: ubuntu-24.04
     outputs:
-      tag: ${{ steps.changelog.outputs.tag }}
-      version: ${{ steps.changelog.outputs.version }}
-      clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
+      tag: ${{ steps.changelog.outputs.tag || github.event.release.tag_name || '' }}
+      version: ${{ steps.changelog.outputs.version || github.event.release.tag_name || '' }}
+      clean_changelog: ${{ steps.changelog.outputs.clean_changelog || '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Conventional Changelog Update
@@ -74,7 +76,7 @@ jobs:
     name: Github Release
     runs-on: ubuntu-24.04
     needs: [vars, deploy]
-    if: ${{ needs.vars.outputs.tag != '' }}
+    if: (needs.vars.outputs.tag != '' && github.event_name != 'release')
     steps:
       - name: Create Release
         uses: softprops/action-gh-release@v2
