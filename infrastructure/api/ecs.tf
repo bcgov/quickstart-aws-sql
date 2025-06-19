@@ -201,6 +201,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = "${var.db_schema}"
         },
         {
+          name = "POSTGRES_POOL_SIZE"
+          value = "2"
+        },
+        {
           name  = "PORT"
           value = "3000"
         }

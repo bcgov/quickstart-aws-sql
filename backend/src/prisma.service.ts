@@ -7,9 +7,10 @@ const DB_PWD = encodeURIComponent(process.env.POSTGRES_PASSWORD || "default"); /
 const DB_PORT = process.env.POSTGRES_PORT || 5432;
 const DB_NAME = process.env.POSTGRES_DATABASE || "postgres";
 const DB_SCHEMA = process.env.POSTGRES_SCHEMA || "app";
+const DB_POOL_SIZE = parseInt(process.env.POSTGRES_POOL_SIZE || "5", 10);
 // SSL settings for PostgreSQL 17+ which requires SSL by default
 const SSL_MODE = (process.env.NODE_ENV === 'local' || 'unittest') ? 'prefer' : 'require'; // 'require' for aws deployments, 'prefer' for local development or ut in gha
-const dataSourceURL = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=5&sslmode=${SSL_MODE}`;
+const dataSourceURL = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_POOL_SIZE}&sslmode=${SSL_MODE}`;
 
 @Injectable({ scope:  Scope.DEFAULT})
 class PrismaService extends PrismaClient<Prisma.PrismaClientOptions, 'query'> implements OnModuleInit, OnModuleDestroy {
