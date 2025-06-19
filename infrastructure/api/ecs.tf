@@ -202,7 +202,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
         },
         {
           name = "POSTGRES_POOL_SIZE"
-          value = "1"
+          value = "${var.postgres_pool_size}"
         },
         {
           name  = "PORT"
