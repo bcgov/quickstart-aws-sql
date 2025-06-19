@@ -38,7 +38,7 @@ variable "app_env" {
 variable "min_capacity" {
   description = "Minimum capacity for Aurora Serverless v2"
   type        = number
-  default     = 0.5
+  default     = 0
 }
 
 variable "max_capacity" {

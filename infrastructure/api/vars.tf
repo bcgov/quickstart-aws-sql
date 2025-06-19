@@ -169,3 +169,8 @@ variable "is_public_api" {
   type        = bool
   default     = true
 }
+variable "postgres_pool_size" {
+  description = "The size of the connection pool for the API"
+  type        = string
+  default     = "1"
+}
