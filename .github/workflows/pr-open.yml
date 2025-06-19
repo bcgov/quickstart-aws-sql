@@ -43,6 +43,7 @@ jobs:
     uses: ./.github/workflows/.tests.yml
     with:
       tag: ${{ github.event.number || 'latest' }} 
+
   resume-resources-dev:
     name: Resume Resources Dev
     if: (github.event_name == 'workflow_dispatch')
@@ -54,6 +55,7 @@ jobs:
     with:
       app_env: dev
     secrets: inherit
+
   deploy-to-dev:
     name: Deploy to Dev
     if: (github.event_name == 'workflow_dispatch')
@@ -68,12 +70,13 @@ jobs:
       tag: manual
       app_env: dev
     secrets: inherit
+
   results:
     name: PR Results
     concurrency:
       group: pr-results-${{ github.event.number || 'latest' }}
       cancel-in-progress: true
-    needs: [builds, plan-stack, tests]
+    needs: [builds, deploy-to-dev, plan-stack, tests]
     if: always()
     runs-on: ubuntu-24.04
     steps:
