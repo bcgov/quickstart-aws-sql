@@ -76,22 +76,32 @@ const Dashboard: FC = () => {
           </tr>
         </thead>
         <tbody>
-          {data.map((user: UserDto) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td className="text-center">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setSelectedUser(user)}
-                >
-                  View Details
-                </Button>
+          {data.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="text-center py-3">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
               </td>
             </tr>
-          ))}
+          ) : (
+            data.map((user: UserDto) => (
+              <tr key={user.id}>
+                <td>{user.id}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td className="text-center">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setSelectedUser(user)}
+                  >
+                    View Details
+                  </Button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </Table>
       <ModalComponent
