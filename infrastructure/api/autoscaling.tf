@@ -4,6 +4,7 @@ resource "aws_appautoscaling_target" "api_target" {
   scalable_dimension = "ecs:service:DesiredCount"
   min_capacity       = var.min_capacity
   max_capacity       = var.max_capacity
+  tags = local.common_tags
 }
 
 # Automatically scale capacity up by one

@@ -13,10 +13,7 @@ resource "aws_db_subnet_group" "db_subnet_group" {
   description = "For Aurora cluster ${var.db_cluster_name}"
   name        = "${var.db_cluster_name}-subnet-group"
   subnet_ids  = [ for s in data.aws_subnet.data : s.id ]
-
-  tags = {
-    managed-by = "terraform"
-  }
+  tags = var.common_tags
 
   tags_all = {
     managed-by = "terraform"
@@ -32,9 +29,7 @@ data "aws_rds_engine_version" "postgresql" {
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
   name = "${var.db_cluster_name}"
 
-  tags = {
-    managed-by = "terraform"
-  }
+  tags = var.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "db_mastercreds_secret_version" {
@@ -86,9 +81,7 @@ module "aurora_postgresql_v2" {
     two = {}
   }: {one = {}}
   
-  tags = {
-    managed-by = "terraform"
-  }
+  tags = var.common_tags
 
   enabled_cloudwatch_logs_exports = ["postgresql"]
   backup_retention_period = "${var.backup_retention_period}"

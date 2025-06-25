@@ -2,11 +2,13 @@ resource "aws_apigatewayv2_vpc_link" "app" {
   name               = var.app_name
   subnet_ids         = data.aws_subnets.web.ids
   security_group_ids = [data.aws_security_group.web.id]
+  tags = local.common_tags
 }
 
 resource "aws_apigatewayv2_api" "app" {
   name          = var.app_name
   protocol_type = "HTTP"
+  tags = local.common_tags
 }
 
 resource "aws_apigatewayv2_integration" "app" {

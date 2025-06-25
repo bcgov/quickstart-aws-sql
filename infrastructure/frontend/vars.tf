@@ -20,3 +20,16 @@ variable "aws_region" {
   type = string
   default = "ca-central-1"
 }
+variable "repo_name" {
+  description = "Name of the repository for resource descriptions and tags"
+  type        = string
+}
+variable "common_tags" {
+  description = "Common tags to be applied to resources"
+  type        = map(string)
+  default     = {}
+}
+variable "repo_name" {
+  description = "Name of the repository for resource descriptions and tags"
+  type        = string
+}

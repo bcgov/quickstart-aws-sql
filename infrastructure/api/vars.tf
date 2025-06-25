@@ -174,3 +174,7 @@ variable "postgres_pool_size" {
   type        = string
   default     = "1"
 }
+variable "repo_name" {
+  description = "Name of the repository for resource descriptions and tags"
+  type        = string
+}
