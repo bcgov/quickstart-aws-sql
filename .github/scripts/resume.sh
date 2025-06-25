@@ -58,8 +58,8 @@ start_db_cluster() {
 resume_ecs_service() {
     local prefix=$1
     local env=$2
-    local cluster="ecs-cluster-${prefix}-node-api-${env}"
-    local service="${prefix}-node-api-${env}-service"
+    local cluster="${prefix}-node-api-${env}"
+    local service="${prefix}-node-api-${env}"
     
     echo "Resuming ECS service ${service} on cluster ${cluster}..."
     
