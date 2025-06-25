@@ -44,11 +44,7 @@ generate "tfvars" {
     app_name="${local.stack_prefix}-frontend-${local.app_env}"
     repo_name="${get_env("repo_name")}"
     common_tags = {
-      "Environment" = "${local.target_env}"
-      "AppEnv"      = "${local.app_env}"
-      "AppName"     = "${local.stack_prefix}-frontend-${local.app_env}"
-      "RepoName"    = "${get_env("repo_name")}"
-      "ManagedBy"   = "Terraform"
+      common_tags = local.common_tags
     }
 EOF
 }
