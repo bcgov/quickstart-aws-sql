@@ -20,11 +20,7 @@ locals {
 
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-<<<<<<< chore/align-serverless
   name = "${var.app_name}"
-=======
-  name = "ecs-cluster-${var.app_name}"
->>>>>>> main
   tags = local.common_tags
 }
 
