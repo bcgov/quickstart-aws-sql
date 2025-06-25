@@ -54,7 +54,7 @@ function pause_aurora_cluster() {
 
 # Check if ECS cluster exists
 function check_ecs_cluster() {
-    local cluster_name="ecs-cluster-${STACK_PREFIX}-node-api-${ENVIRONMENT}"
+    local cluster_name="${STACK_PREFIX}-node-api-${ENVIRONMENT}"
     local status=$(aws ecs describe-clusters --clusters "$cluster_name" \
                   --query 'clusters[0].status' --output text 2>/dev/null || echo "INACTIVE")
     echo "$status"
@@ -62,8 +62,8 @@ function check_ecs_cluster() {
 
 # Pause ECS service by setting min/max capacity to 0
 function pause_ecs_service() {
-    local cluster_name="ecs-cluster-${STACK_PREFIX}-node-api-${ENVIRONMENT}"
-    local service_name="${STACK_PREFIX}-node-api-${ENVIRONMENT}-service"
+    local cluster_name="${STACK_PREFIX}-node-api-${ENVIRONMENT}"
+    local service_name="${STACK_PREFIX}-node-api-${ENVIRONMENT}"
     local cluster_status=$1
     
     if [ "$cluster_status" != "ACTIVE" ]; then
