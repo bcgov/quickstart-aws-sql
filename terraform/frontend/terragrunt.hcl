@@ -42,6 +42,7 @@ generate "tfvars" {
   contents          = <<-EOF
     app_env="${local.app_env}"
     app_name="${local.stack_prefix}-frontend-${local.app_env}"
+    repo_name="${get_env("repo_name")}"
 EOF
 }
 
