@@ -10,6 +10,7 @@ on:
       options:
         - dev
         - test
+        - prod
     app_env:
       required: true
       type: choice
@@ -17,6 +18,7 @@ on:
       options:
         - dev
         - test
+        - prod
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
@@ -33,6 +35,14 @@ jobs:
   destroy-test:
     name: Destroy Stack Test
     if: ( github.event.inputs.app_env == 'test' )
+    uses: ./.github/workflows/.destroy_stack.yml
+    secrets: inherit
+    with:
+      environment_name: ${{ github.event.inputs.environment_name }}
+      app_env: ${{ github.event.inputs.app_env }}
+  destroy-prod:
+    name: Destroy Stack Prod
+    if: ( github.event.inputs.app_env == 'prod' )
     uses: ./.github/workflows/.destroy_stack.yml
     secrets: inherit
     with:
