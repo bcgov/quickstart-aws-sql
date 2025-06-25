@@ -62,7 +62,17 @@ resume_ecs_service() {
     local service="${prefix}-node-api-${env}"
     
     echo "Resuming ECS service ${service} on cluster ${cluster}..."
-    
+    # Check if the ECS cluster exists
+    if ! aws ecs describe-clusters --clusters "${cluster}" --query 'clusters[0]' --output text &>/dev/null; then
+        echo "ECS cluster ${cluster} does not exist. Skipping service resume."
+        return 0
+    fi
+
+    # Check if the ECS service exists
+    if ! aws ecs describe-services --cluster "${cluster}" --services "${service}" --query 'services[0]' --output text &>/dev/null; then
+        echo "ECS service ${service} does not exist in cluster ${cluster}. Skipping service resume."
+        return 0
+    fi
     # Update scaling policy
     aws application-autoscaling register-scalable-target \
         --service-namespace ecs \

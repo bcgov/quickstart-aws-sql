@@ -108,7 +108,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
     while [[ $attempt -le $max_attempts ]]; do
       echo "Starting Flyway task (attempt $attempt)..."
       task_arn=$(aws ecs run-task \
-        --task-definition ${var.app_name}-flyway-task \
+        --task-definition ${var.app_name}-flyway \
         --cluster ${aws_ecs_cluster.ecs_cluster.id} \
         --count 1 \
         --network-configuration "{\"awsvpcConfiguration\":{\"subnets\":[\"${data.aws_subnets.app.ids[0]}\"],\"securityGroups\":[\"${data.aws_security_group.app.id}\"],\"assignPublicIp\":\"DISABLED\"}}" \
