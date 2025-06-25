@@ -44,6 +44,13 @@ generate "tfvars" {
     db_cluster_name = "${local.stack_prefix}-aurora-${local.rds_app_env}"
     app_env = "${local.app_env}"
     repo_name = "${get_env("repo_name")}"
+    common_tags = {
+      "Environment" = "${local.target_env}"
+      "AppEnv"      = "${local.app_env}"
+      "AppName"     = "${local.stack_prefix}-aurora-${local.rds_app_env}"
+      "RepoName"    = "${get_env("repo_name")}"
+      "ManagedBy"   = "Terraform"
+    }
 EOF
 }
 
