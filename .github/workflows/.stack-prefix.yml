@@ -21,34 +21,32 @@ jobs:
         shell: bash
         run: |
           # Get repository name
-          REPO_NAME="${{ github.event.repository.name }}"
+          repo_name="${{ github.event.repository.name }}"
+          # 1. Clean the repository name
+          # Convert to lowercase, replace non-alphanumeric/hyphen with hyphen,
+          # reduce multiple hyphens, remove leading/trailing hyphens.
+          cleaned_name=$(echo "$repo_name" | tr '[:upper:]' '[:lower:]' | \
+                              sed 's/[^a-z0-9-]/-/g' | sed 's/-\{2,\}/-/g' | \
+                              sed 's/^-//;s/-$//')
 
-          # If repo name is less than 20 characters, use it directly
-          if [[ ${#REPO_NAME} -lt 20 ]]; then
-            STACK_PREFIX="${REPO_NAME}"
-          else
-            # Split by hyphen or underscore and get first letter of each word
-            PREFIX=$(echo "$REPO_NAME" | 
-                    awk -v RS='[-_]' '{printf "%s", tolower(substr($0,1,1))}' | 
-                    tr -d '\n')
+          # Define the target length for the human-readable prefix
+          prefix_len=5
 
-            # Ensure at least 4 characters without repetition
-            while [[ ${#PREFIX} -lt 4 ]]; do
-              # Concatenate with the next letter in the sequence (avoiding randomness)
-              SUFFIX="${PREFIX: -1}"  # Get the last character of the current PREFIX
-              INDEX=$(( $(echo "$PREFIX" | grep -o "$SUFFIX" | wc -l) + 1 ))  # Get the index of the next character
-              NEXT_CHAR=$(echo "$PREFIX" | cut -c $INDEX)  # Get the next character
-              PREFIX="${PREFIX}${NEXT_CHAR}"
-            done
+          # 2. Generate the 5-character human-readable prefix
+          prefix_part=""
+          # Remove all hyphens from the cleaned name to get a continuous string of letters/numbers
+          continuous_name=$(echo "$cleaned_name" | sed 's/-//g')
 
-            # Truncate if prefix exceeds 10 characters
-            if [[ ${#PREFIX} -gt 10 ]]; then
-              PREFIX="${PREFIX:0:10}"
-            fi
+          # Take up to 'prefix_len' (5) characters, but allow shorter prefixes
+          prefix_part="${continuous_name:0:$prefix_len}"
 
-            STACK_PREFIX="${PREFIX}"
-          fi
+          # 3. Generate the 4-character consistent hash suffix
+          # The MD5 hash of the original repo name ensures consistency and uniqueness
+          hash_suffix=$(echo -n "$repo_name" | md5sum | head -c 4)
+
+          # 4. Combine the prefix, hyphen, and hash suffix
+          final_name="${prefix_part}-${hash_suffix}"
 
           # Set output
-          echo "STACK_PREFIX=$STACK_PREFIX" >> $GITHUB_OUTPUT
-          echo "Generated prefix: $STACK_PREFIX"
+          echo "STACK_PREFIX=$final_name" >> $GITHUB_OUTPUT
+          echo "Generated prefix: $final_name"

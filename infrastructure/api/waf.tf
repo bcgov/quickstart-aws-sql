@@ -40,13 +40,14 @@ resource "aws_wafv2_web_acl" "cloudfront_acl" {
         metric_name                = "AppWebACL"
         sampled_requests_enabled   = true
     }
+    tags = local.common_tags
 }
 
 resource "aws_cloudfront_distribution" "api" {
     count      = var.is_public_api ? 1 : 0
     provider   = aws.cloudfront_waf
     web_acl_id = aws_wafv2_web_acl.cloudfront_acl[0].arn
-    comment    = "Distribution for ${var.app_name} api."
+    comment    = "Distribution for ${var.app_name} api, for github repository :: ${var.repo_name}"
 
     origin {
         domain_name = "${aws_apigatewayv2_api.app.id}.execute-api.${var.aws_region}.amazonaws.com"
@@ -97,12 +98,14 @@ resource "aws_cloudfront_distribution" "api" {
     }
 
     depends_on = [aws_s3_bucket_policy.cloudfront_log_policy]
+    tags = local.common_tags
 }
 
 resource "aws_s3_bucket" "cloudfront_api_logs" {
     count         = var.is_public_api ? 1 : 0
     bucket        = "cloudfront-api-logs-${var.app_name}"
     force_destroy = true
+    tags = local.common_tags
 }
 
 resource "aws_s3_bucket_public_access_block" "cloudfront_api_logs_block" {

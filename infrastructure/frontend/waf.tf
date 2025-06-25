@@ -115,10 +115,7 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
         }
     }
 
-    tags = {
-        env = "${var.target_env}"
-        managed-by = "terraform"
-    }
+    tags = var.common_tags
 
     visibility_config {
         cloudwatch_metrics_enabled = true

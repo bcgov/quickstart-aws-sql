@@ -47,6 +47,7 @@ generate "tfvars" {
   contents          = <<-EOF
   app_name="${local.stack_prefix}-node-api-${local.app_env}"
   db_cluster_name = "${local.stack_prefix}-aurora-${local.rds_app_env}"
+  repo_name = "${get_env("repo_name")}"
 EOF
 }
 
