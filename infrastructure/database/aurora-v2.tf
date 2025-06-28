@@ -1,3 +1,20 @@
+# Import common configurations
+module "common" {
+  source = "../modules/common"
+  
+  target_env    = var.target_env
+  app_env       = var.app_env
+  app_name      = var.db_cluster_name
+  repo_name     = var.repo_name
+  common_tags   = var.common_tags
+}
+
+# Import networking configurations
+module "networking" {
+  source = "../modules/networking"
+  target_env = var.target_env
+}
+
 data "aws_kms_alias" "rds_key" {
   name = "alias/aws/rds"
 }
@@ -12,12 +29,8 @@ resource "random_password" "db_master_password" {
 resource "aws_db_subnet_group" "db_subnet_group" {
   description = "For Aurora cluster ${var.db_cluster_name}"
   name        = "${var.db_cluster_name}-subnet-group"
-  subnet_ids  = [ for s in data.aws_subnet.data : s.id ]
-  tags = var.common_tags
-
-  tags_all = {
-    managed-by = "terraform"
-  }
+  subnet_ids  = module.networking.subnets.data.ids
+  tags = module.common.common_tags
 }
 
 data "aws_rds_engine_version" "postgresql" {
@@ -28,8 +41,7 @@ data "aws_rds_engine_version" "postgresql" {
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
   name = "${var.db_cluster_name}"
-
-  tags = var.common_tags
+  tags = module.common.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "db_mastercreds_secret_version" {
@@ -52,9 +64,8 @@ module "aurora_postgresql_v2" {
   storage_encrypted = true
   database_name     = var.db_database_name
   
-  vpc_id                 = data.aws_vpc.main.id
-  vpc_security_group_ids = [data.aws_security_group.data.id]
-  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
+  vpc_id                 = module.networking.vpc.id
+  vpc_security_group_ids = module.networking.security_groups.data.ids
 
   master_username = var.db_master_username
   master_password = random_password.db_master_password.result
@@ -67,7 +78,7 @@ module "aurora_postgresql_v2" {
   
   apply_immediately   = true
   skip_final_snapshot = true
-  auto_minor_version_upgrade = false
+  auto_minor_version_upgrade = true
 
   deletion_protection = contains(["prod"], var.app_env) ? true : false
   serverlessv2_scaling_configuration = {
@@ -81,7 +92,7 @@ module "aurora_postgresql_v2" {
     two = {}
   }: {one = {}}
   
-  tags = var.common_tags
+  tags = module.common.common_tags
 
   enabled_cloudwatch_logs_exports = ["postgresql"]
   backup_retention_period = "${var.backup_retention_period}"

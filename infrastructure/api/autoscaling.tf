@@ -4,7 +4,6 @@ resource "aws_appautoscaling_target" "api_target" {
   scalable_dimension = "ecs:service:DesiredCount"
   min_capacity       = var.min_capacity
   max_capacity       = var.max_capacity
-  tags = local.common_tags
 }
 
 # Automatically scale capacity up by one
@@ -66,7 +65,7 @@ resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_low" {
 
   alarm_actions = [aws_appautoscaling_policy.api_down.arn]
 
-  tags = local.common_tags
+  tags = module.common.common_tags
 }
 
 # CloudWatch alarm that triggers the autoscaling up policy
@@ -87,5 +86,5 @@ resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_high" {
 
   alarm_actions = [aws_appautoscaling_policy.api_up.arn]
 
-  tags = local.common_tags
+  tags = module.common.common_tags
 }
