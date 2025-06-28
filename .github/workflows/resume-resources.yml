@@ -34,6 +34,7 @@ jobs:
   resume-resources-dev:
     if: (inputs.app_env == 'dev' || inputs.app_env == 'all' || github.event_name == 'schedule')
     name: Resume Resources Dev
+    environment: prod # ::change it to:: dev , template repo only has PROD
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
     steps:
@@ -53,7 +54,7 @@ jobs:
   resume-resources-test:
     name: Resume Resources Test
     if: (inputs.app_env == 'test' || inputs.app_env == 'all' || github.event_name == 'schedule')
-    environment: test
+    environment: prod # ::change it to:: test , template repo only has PROD
     needs: [stack-prefix]
     runs-on: ubuntu-24.04
     steps:
