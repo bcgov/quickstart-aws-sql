@@ -65,8 +65,7 @@ module "aurora_postgresql_v2" {
   database_name     = var.db_database_name
   
   vpc_id                 = module.networking.vpc.id
-  vpc_security_group_ids = module.networking.security_groups.data.id
-
+  vpc_security_group_ids = [module.networking.security_groups.data.id]
   master_username = var.db_master_username
   master_password = random_password.db_master_password.result
   manage_master_user_password = false
