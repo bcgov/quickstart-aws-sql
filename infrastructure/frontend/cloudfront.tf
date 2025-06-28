@@ -1,166 +1,86 @@
-data "aws_caller_identity" "current" {}
-
-resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.app_name}-static-assets"
-  force_destroy = true
-  tags = var.common_tags
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "frontend_encryption" {
-  bucket = aws_s3_bucket.frontend.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "frontend_bucket_block" {
-  bucket            = aws_s3_bucket.frontend.id
-  block_public_acls = true
-  block_public_policy = true
-  restrict_public_buckets = true
-  ignore_public_acls      = true
-}
-
-
-# CloudFront distribution for the S3 bucket
-resource "aws_cloudfront_origin_access_identity" "oai" {
-  comment = "OAI for ${var.app_name} site."
-}
-
-resource "aws_s3_bucket_policy" "site_policy" {
-  bucket = aws_s3_bucket.frontend.bucket
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          "AWS" : "${aws_cloudfront_origin_access_identity.oai.iam_arn}"
-        },
-        Action   = "s3:GetObject",
-        Resource = "arn:aws:s3:::${aws_s3_bucket.frontend.bucket}/*"
-      }
-    ]
-  })
-}
-
-resource "aws_s3_bucket" "cloudfront_logs" {
-  bucket = "${var.app_name}-cf-logs"
-  force_destroy = true
-  tags = var.common_tags
-}
-
-resource "aws_s3_bucket_ownership_controls" "cloudfront_logs_ownership" {
-  bucket = aws_s3_bucket.cloudfront_logs.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "cloudfront_logs_encryption" {
-  bucket = aws_s3_bucket.cloudfront_logs.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "cloudfront_logs_block" {
-  bucket                  = aws_s3_bucket.cloudfront_logs.id
-  block_public_acls       = true
-  block_public_policy     = true
-  restrict_public_buckets = true
-  ignore_public_acls      = true
-}
-resource "aws_s3_bucket_policy" "cloudfront_logs_policy" {
-  bucket = aws_s3_bucket.cloudfront_logs.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        },
-        Action = "s3:PutObject",
-        Resource = "arn:aws:s3:::${aws_s3_bucket.cloudfront_logs.id}/*",
-        Condition = {
-          StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
-          }
-        }
-      },
-      {
-        Effect = "Allow",
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        },
-        Action = "s3:GetBucketAcl",
-        Resource = "arn:aws:s3:::${aws_s3_bucket.cloudfront_logs.id}"
-      }
-    ]
-  })
-}
-
-resource "aws_cloudfront_distribution" "s3_distribution" {
-  depends_on = [aws_s3_bucket_policy.cloudfront_logs_policy] 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Distribution for ${var.app_name} site from github repository :: ${var.repo_name}"
-  default_root_object = "index.html"
-  price_class         = "PriceClass_100"
-  web_acl_id          = aws_wafv2_web_acl.waf_cloudfront.arn
+# Import common configurations
+module "common" {
+  source = "../modules/common"
   
-  logging_config {
-    include_cookies = false
-    bucket          = aws_s3_bucket.cloudfront_logs.bucket_regional_domain_name
-    prefix          = "${var.app_name}/cloudfront-logs/"
-  }
+  target_env    = var.target_env
+  app_env       = var.app_env
+  app_name      = var.app_name
+  repo_name     = var.repo_name
+  common_tags   = var.common_tags
+}
 
-  origin {
-    domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
-    origin_id   = aws_s3_bucket.frontend.bucket
+# Create the frontend S3 bucket using the secure bucket module
+module "frontend_bucket" {
+  source = "../modules/s3-secure-bucket"
+  
+  bucket_name                = "${var.app_name}-static-assets"
+  force_destroy              = true
+  enable_encryption          = true
+  encryption_algorithm       = "AES256"
+  enable_public_access_block = true
+  enable_versioning          = false
+  tags                       = module.common.common_tags
+}
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
-    }
-  }
+# Create CloudFront Origin Access Identity
+module "cloudfront_oai" {
+  source = "../modules/cloudfront-oai"
+  
+  comment         = "OAI for ${var.app_name} site."
+  s3_bucket_name  = module.frontend_bucket.bucket_name
+  s3_bucket_arn   = module.frontend_bucket.bucket_arn
+}
 
-  default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = aws_s3_bucket.frontend.bucket
+# Create CloudFront logs bucket
+module "cloudfront_logs" {
+  source = "../modules/s3-cloudfront-logs"
+  
+  bucket_name = "${var.app_name}-cf-logs"
+  log_prefix  = "${var.app_name}/cloudfront-logs/"
+  tags        = module.common.common_tags
+}
 
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
-
-  tags = var.common_tags
+# Create CloudFront distribution using the CloudFront module
+module "cloudfront_distribution" {
+  source = "../modules/cloudfront"
+  
+  app_name          = var.app_name
+  repo_name         = var.repo_name
+  distribution_type = "s3"
+  enabled          = true
+  is_ipv6_enabled  = true
+  default_root_object = "index.html"
+  price_class      = "PriceClass_100"
+  
+  # S3 Origin Configuration
+  s3_origin_domain_name          = module.frontend_bucket.bucket_regional_domain_name
+  s3_origin_id                   = module.frontend_bucket.bucket_name
+  s3_origin_access_identity_path = module.cloudfront_oai.oai_cloudfront_access_identity_path
+  
+  # WAF Integration
+  web_acl_arn = module.waf_cloudfront.web_acl_arn
+  
+  # Logging Configuration
+  enable_logging             = true
+  log_bucket_domain_name     = module.cloudfront_logs.bucket_regional_domain_name
+  log_prefix                = "${var.app_name}/cloudfront-logs/"
+  log_include_cookies       = false
+  
+  # Cache Behavior (optimized for static sites)
+  cache_allowed_methods          = ["GET", "HEAD"]
+  cache_cached_methods           = ["GET", "HEAD"]
+  cache_viewer_protocol_policy   = "redirect-to-https"
+  cache_min_ttl                 = 0
+  cache_default_ttl             = 3600
+  cache_max_ttl                 = 86400
+  cache_forward_query_string     = false
+  cache_forward_cookies         = "none"
+  
+  # Geo Restrictions
+  geo_restriction_type = "none"
+  
+  # SSL Configuration
+  use_cloudfront_default_certificate = true
+  
+  tags = module.common.common_tags
 }

@@ -88,59 +88,6 @@ jobs:
           tags: |
             ${{ needs.vars.outputs.tags }}
   
-  push-to-ecr:
-    name: Push Images to ECR
-    needs: [vars, retag-images]
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        package: [backend, migrations]
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          role-session-name: gha-ecr-push
-          aws-region: ca-central-1
-      
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Pull, tag and push image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          GHCR_IMAGE: ghcr.io/${{ github.repository }}/${{ matrix.package }}:${{ needs.vars.outputs.tag }}
-        run: |
-          # Create ECR repository if it doesn't exist
-            aws ecr create-repository \
-            --repository-name ${{ github.event.repository.name }}-${{ matrix.package }}-prod \
-            --image-tag-mutability IMMUTABLE \
-            --image-scanning-configuration scanOnPush=true \
-            || true
-            
-            # Apply lifecycle policy separately
-            aws ecr put-lifecycle-policy \
-            --repository-name ${{ github.event.repository.name }}-${{ matrix.package }}-prod \
-            --lifecycle-policy '{"rules":[{"rulePriority":1,"description":"Keep only 5 tagged images","selection":{"tagStatus":"tagged","tagPatternList":["*"],"countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}},{"rulePriority":2,"description":"Remove untagged images","selection":{"tagStatus":"untagged","countType":"imageCountMoreThan","countNumber":1},"action":{"type":"expire"}}]}' \
-            || true
-          
-          # Pull image from GHCR
-          docker pull $GHCR_IMAGE || { echo "Error: Failed to pull image $GHCR_IMAGE"; exit 1; }
-          
-          # Tag for ECR
-          ECR_IMAGE=$ECR_REGISTRY/${{ github.event.repository.name }}-${{ matrix.package }}-prod:${{ needs.vars.outputs.tag }}
-          docker tag $GHCR_IMAGE $ECR_IMAGE
-          
-          # Push to ECR
-          docker push $ECR_IMAGE
           
   resume-resources:
     name: Resume Resources # This job resumes resources for the merged PR which is needed if the resources were paused.
@@ -152,11 +99,11 @@ jobs:
     
   deploy:
     name: Deploy Stack
-    needs: [vars, resume-resources, retag-images, push-to-ecr]
+    needs: [vars, resume-resources, retag-images]
     uses: ./.github/workflows/.deploy_stack.yml
     secrets: inherit
     with:
-      environment_name: dev # since we only have one namespace dev, update this to PROD
+      environment_name: prod
       command: apply
       tag: ${{ needs.vars.outputs.tag}} # this is the tag of the containers to deploy
       app_env: prod

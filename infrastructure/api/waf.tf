@@ -3,158 +3,82 @@ provider "aws" {
     region = "us-east-1" # WAF is only available in us-east-1 for CloudFront
 }
 
-resource "aws_wafv2_web_acl" "cloudfront_acl" {
-    count    = var.is_public_api ? 1 : 0
-    provider = aws.cloudfront_waf
-    name     = "api-web-acl-${var.app_name}"
-    scope    = "CLOUDFRONT"
-
-    default_action {
-        allow {}
-    }
-
-    rule {
-        name     = "RateLimitPerIP"
-        priority = 1
-
-        action {
-            block {}
-        }
-
-        statement {
-            rate_based_statement {
-                limit              = 50
-                aggregate_key_type = "IP"
-            }
-        }
-
-        visibility_config {
-            cloudwatch_metrics_enabled = true
-            metric_name                = "RateLimitPerIP"
-            sampled_requests_enabled   = true
-        }
-    }
-
-    visibility_config {
-        cloudwatch_metrics_enabled = true
-        metric_name                = "AppWebACL"
-        sampled_requests_enabled   = true
-    }
-    tags = local.common_tags
+# WAF for API (if public API)
+module "waf_api" {
+  count  = var.is_public_api ? 1 : 0
+  source = "../modules/waf"
+  
+  name                    = "${var.app_name}-api-cf-waf"
+  description             = "API CloudFront WAF Rules"
+  scope                   = "CLOUDFRONT"
+  enable_rate_limiting    = true
+  rate_limit             = 50
+  enable_ip_reputation    = true
+  enable_common_rules     = true
+  enable_bad_inputs       = true
+  enable_linux_rules      = true
+  enable_sqli_rules       = true
+  tags                    = module.common.common_tags
+  
+  providers = {
+    aws = aws.cloudfront_waf  # us-east-1 provider
+  }
 }
 
-resource "aws_cloudfront_distribution" "api" {
-    count      = var.is_public_api ? 1 : 0
-    provider   = aws.cloudfront_waf
-    web_acl_id = aws_wafv2_web_acl.cloudfront_acl[0].arn
-    comment    = "Distribution for ${var.app_name} api, for github repository :: ${var.repo_name}"
-
-    origin {
-        domain_name = "${aws_apigatewayv2_api.app.id}.execute-api.${var.aws_region}.amazonaws.com"
-        origin_id   = "http-api-origin"
-
-        custom_origin_config {
-            origin_protocol_policy = "https-only"
-            http_port              = 80
-            https_port             = 443
-            origin_ssl_protocols   = ["TLSv1.2"]
-        }
-    }
-
-    enabled = true
-
-    default_cache_behavior {
-        allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"]
-        cached_methods   = ["GET", "HEAD"]
-        target_origin_id = "http-api-origin"
-        viewer_protocol_policy = "https-only"
-        default_ttl = 900 # 15 minutes
-        min_ttl     = 0
-        max_ttl     = 900
-
-        forwarded_values {
-            query_string = true
-
-            cookies {
-                forward = "all"
-            }
-        }
-    }
-
-    restrictions {
-        geo_restriction {
-            restriction_type = "none"
-        }
-    }
-
-    viewer_certificate {
-        cloudfront_default_certificate = true
-    }
-
-    logging_config {
-        bucket          = "${aws_s3_bucket.cloudfront_api_logs[0].bucket}.s3.amazonaws.com"
-        include_cookies = true
-        prefix          = "cloudfront/api/"
-    }
-
-    depends_on = [aws_s3_bucket_policy.cloudfront_log_policy]
-    tags = local.common_tags
+# CloudFront logs bucket for API (if public API)
+module "cloudfront_api_logs" {
+  count  = var.is_public_api ? 1 : 0
+  source = "../modules/s3-cloudfront-logs"
+  
+  bucket_name = "cf-api-logs-${var.app_name}"
+  log_prefix  = "cf/api/"
+  tags        = module.common.common_tags
 }
 
-resource "aws_s3_bucket" "cloudfront_api_logs" {
-    count         = var.is_public_api ? 1 : 0
-    bucket        = "cloudfront-api-logs-${var.app_name}"
-    force_destroy = true
-    tags = local.common_tags
-}
-
-resource "aws_s3_bucket_public_access_block" "cloudfront_api_logs_block" {
-    count  = var.is_public_api ? 1 : 0
-    bucket = aws_s3_bucket.cloudfront_api_logs[0].id
-
-    block_public_acls       = true
-    block_public_policy     = true
-    ignore_public_acls      = true
-    restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_ownership_controls" "cloudfront_api_logs_ownership" {
-    count      = var.is_public_api ? 1 : 0
-    depends_on = [aws_s3_bucket.cloudfront_api_logs]
-
-    bucket = aws_s3_bucket.cloudfront_api_logs[0].id
-
-    rule {
-        object_ownership = "BucketOwnerPreferred"
-    }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "cloudfront_api_logs_sse" {
-    count  = var.is_public_api ? 1 : 0
-    bucket = aws_s3_bucket.cloudfront_api_logs[0].id
-
-    rule {
-        apply_server_side_encryption_by_default {
-            sse_algorithm = "AES256"
-        }
-    }
-}
-
-resource "aws_s3_bucket_policy" "cloudfront_log_policy" {
-    count  = var.is_public_api ? 1 : 0
-    bucket = aws_s3_bucket.cloudfront_api_logs[0].id
-
-    policy = jsonencode({
-        Version = "2012-10-17",
-        Statement = [
-            {
-                Effect    = "Allow",
-                Action    = "s3:PutObject",
-                Resource  = "arn:aws:s3:::${aws_s3_bucket.cloudfront_api_logs[0].bucket}/cloudfront/api/*",
-                Principal = {
-                    Service = "cloudfront.amazonaws.com"
-                }
-            }
-        ]
-    })
+# CloudFront distribution for API (if public API)
+module "cloudfront_api" {
+  count  = var.is_public_api ? 1 : 0
+  source = "../modules/cloudfront"
+  
+  app_name          = var.app_name
+  repo_name         = var.repo_name
+  distribution_type = "api"
+  enabled          = true
+  
+  # API Origin Configuration
+  api_origin_domain_name     = "${module.api_gateway.api_id}.execute-api.${var.aws_region}.amazonaws.com"
+  api_origin_id             = "http-api-origin"
+  api_origin_protocol_policy = "https-only"
+  api_origin_ssl_protocols   = ["TLSv1.2"]
+  
+  # WAF Integration
+  web_acl_arn = module.waf_api[0].web_acl_arn
+  
+  # Logging Configuration
+  enable_logging             = true
+  log_bucket_domain_name     = "${module.cloudfront_api_logs[0].bucket_name}.s3.amazonaws.com"
+  log_prefix                = "cf/api/"
+  log_include_cookies       = true
+  
+  # Cache Behavior (optimized for API)
+  cache_allowed_methods          = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"]
+  cache_cached_methods           = ["GET", "HEAD"]
+  cache_viewer_protocol_policy   = "https-only"
+  cache_min_ttl                 = 0
+  cache_default_ttl             = 60    # 1 minute for API responses
+  cache_max_ttl                 = 60
+  cache_forward_query_string     = true
+  cache_forward_cookies         = "all"
+  
+  # Geo Restrictions
+  geo_restriction_type = "none"
+  
+  # SSL Configuration
+  use_cloudfront_default_certificate = true
+  
+  tags = module.common.common_tags
+  
+  providers = {
+    aws = aws.cloudfront_waf
+  }
 }

@@ -38,8 +38,57 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
 jobs:
+  
+  ecr:
+    name:  ECR
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment_name }}
+    strategy:
+      matrix:
+        package: [backend,migrations]
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: gha-ecr-push
+          aws-region: ca-central-1
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Pull, tag and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          GHCR_IMAGE: ghcr.io/${{ github.repository }}/${{ matrix.package }}:${{ inputs.tag }}
+        run: |
+          # Check if command is apply and validate image exists
+          if [ "${{ inputs.command }}" == "apply" ]; then
+            docker manifest inspect $GHCR_IMAGE > /dev/null 2>&1 || { echo "Error: Image $GHCR_IMAGE does not exist and command is apply"; exit 1; }
+            docker pull $GHCR_IMAGE || { echo "Error: Failed to pull image $GHCR_IMAGE"; exit 1; }
+            
+            # Tag for ECR
+            ECR_IMAGE=$ECR_REGISTRY/${{ github.repository }}:${{ matrix.package }}-${{ inputs.tag }}
+            docker tag $GHCR_IMAGE $ECR_IMAGE
+            
+            # Push to ECR
+            docker push $ECR_IMAGE
+          else
+            echo "Command is not apply, continuing"
+            exit 0;
+          fi
+          
   stack-prefix:
     name: Stack Prefix
+    needs: ecr
     uses: ./.github/workflows/.stack-prefix.yml
   deploy-db:
     name: Deploys Database
@@ -79,7 +128,7 @@ jobs:
   build-ui:
     name: Build And upload UI to s3 ${{ inputs.environment_name }}
     environment: ${{ inputs.environment_name }}
-    if: ( inputs.command == 'apply' )
+    if: (inputs.command == 'apply')
     needs: [deploy-api, deploy-cloudfront]
     runs-on: ubuntu-24.04
     steps:

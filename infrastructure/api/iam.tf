@@ -19,10 +19,9 @@ data "aws_iam_policy" "appRDS" {
 
 # ECS task execution role
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name               = "${var.app_name}_ecs_task_execution_role"
+  name               = "${var.app_name}_ecs_role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_role.json
-
-  tags = local.common_tags
+  tags = module.common.common_tags
 }
 
 # ECS task execution role policy attachment
@@ -32,7 +31,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
 }
 
 resource "aws_iam_role_policy" "ecs_task_execution_cwlogs" {
-  name = "${var.app_name}-ecs_task_execution_cwlogs"
+  name = "${var.app_name}-ecs_cwlogs"
   role = aws_iam_role.ecs_task_execution_role.id
 
   policy = <<-EOF
@@ -72,7 +71,7 @@ resource "aws_iam_role" "app_container_role" {
 }
 EOF
 
-  tags = local.common_tags
+  tags = module.common.common_tags
 }
 
 resource "aws_iam_role_policy" "app_container_cwlogs" {
@@ -102,29 +101,4 @@ EOF
 resource "aws_iam_role_policy_attachment" "rdsAttach" {
   role       = aws_iam_role.app_container_role.name
   policy_arn = data.aws_iam_policy.appRDS.arn
-}
-
-# ECR permissions for production environment
-resource "aws_iam_role_policy" "ecs_task_execution_ecr" {
-  count = var.app_env == "prod" ? 1 : 0
-  name  = "${var.app_name}-ecs_task_execution_ecr"
-  role  = aws_iam_role.ecs_task_execution_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:GetAuthorizationToken"
-        ]
-        Resource = [
-          "arn:aws:ecr:*:*:*"
-        ]
-      }
-    ]
-  })
 }
