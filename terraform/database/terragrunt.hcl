@@ -14,7 +14,6 @@ locals {
   app_env          = get_env("app_env") # this is the environment for the app, like PR, dev, test, since same AWS dev can be reused for both dev and test
   statefile_bucket_name   = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}" 
   statefile_key           = "${local.stack_prefix}/${local.app_env}/database/aurora-v2/terraform.tfstate"
-  statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}" 
   rds_app_env = (contains(["dev", "test", "prod"], "${local.app_env}") ? "${local.app_env}" : "dev") # if app_env is not dev, test, or prod, default to dev 
 }
 
@@ -28,7 +27,7 @@ terraform {
     bucket         = "${local.statefile_bucket_name}"
     key            = "${local.statefile_key}"            # Path and name of the state file within the bucket
     region         = "${local.region}"                    # AWS region where the bucket is located
-    dynamodb_table = "${local.statelock_table_name}"
+    use_lockfile   = true  # Enable native S3 locking
     encrypt        = true
   }
 }
