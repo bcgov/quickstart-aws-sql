@@ -3,7 +3,7 @@ variable "target_env" {
   type        = string
   
   validation {
-    condition     = contains(["dev", "test", "prod"], var.target_env)
+    condition     = contains(["dev", "test", "prod", "tools", "unclass"], var.target_env)
     error_message = "Target environment must be one of: dev, test, prod, tools, unclass."
   }
 }
