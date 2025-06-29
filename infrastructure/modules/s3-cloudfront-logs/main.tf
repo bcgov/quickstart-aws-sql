@@ -53,7 +53,7 @@ module "logs_bucket" {
         ],
         Condition: {
           Bool: {
-            "aws:SecureTransport": "false"
+            "aws:SecureTransport": false
           }
         }
       }

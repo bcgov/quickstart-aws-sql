@@ -18,7 +18,7 @@ locals {
         Action    = "s3:*"
         Condition = {
           Bool = {
-            "aws:SecureTransport" = "false"
+            "aws:SecureTransport" = false
           }
         }
         Effect    = "Deny"
