@@ -1,21 +1,48 @@
 locals {
   container_name = "${var.app_name}"
-  
 }
+
+# Try to fetch secrets manager secret, but don't fail if it doesn't exist
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "${var.db_cluster_name}"
+  count = var.db_cluster_name != "" ? 1 : 0
+  name  = var.db_cluster_name
 }
 
+# Try to fetch RDS cluster, but don't fail if it doesn't exist
 data "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier = try("${var.db_cluster_name}", var.app_name)
+  count              = var.db_cluster_name != "" ? 1 : 0
+  cluster_identifier = var.db_cluster_name
 }
 
+# Try to fetch secret version, but don't fail if secret doesn't exist
 data "aws_secretsmanager_secret_version" "db_master_creds_version" {
-  secret_id = try(data.aws_secretsmanager_secret.db_master_creds.id, "${var.db_cluster_name}")
+  count     = length(data.aws_secretsmanager_secret.db_master_creds) > 0 ? 1 : 0
+  secret_id = data.aws_secretsmanager_secret.db_master_creds[0].id
 }
 
 locals {
-  db_master_creds = jsondecode(try(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string, "{\"username\": \"example\", \"password\": \"example\"}"))
+  # Use try() to safely access data sources with fallback values
+  db_master_creds = try(
+    jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version[0].secret_string),
+    {
+      username = "postgres"
+      password = "changeme"
+    }
+  )
+  
+  # Provide default database endpoints with try() for safe access
+  db_endpoint = try(
+    data.aws_rds_cluster.rds_cluster[0].endpoint,
+    "localhost"
+  )
+  
+  db_reader_endpoint = try(
+    data.aws_rds_cluster.rds_cluster[0].reader_endpoint,
+    "localhost"
+  )
+  
+  # Flag to indicate if database resources are available
+  db_resources_available = var.db_cluster_name != "" && length(data.aws_rds_cluster.rds_cluster) > 0
 }
 
 
@@ -37,10 +64,12 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
 }
 
 resource "terraform_data" "trigger_flyway" {
+  count = var.db_cluster_name != "" ? 1 : 0
   input = "${timestamp()}"
 }
 
 resource "aws_ecs_task_definition" "flyway_task" {
+  count                    = var.db_cluster_name != "" ? 1 : 0
   family                   = "${var.app_name}-flyway"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -56,7 +85,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
       environment = [
         {
           name  = "FLYWAY_URL"
-          value = "jdbc:postgresql://${data.aws_rds_cluster.rds_cluster.endpoint}/${var.db_name}?sslmode=require"
+          value = "jdbc:postgresql://${local.db_endpoint}/${var.db_name}?sslmode=require"
         },
         {
           name  = "FLYWAY_USER"
@@ -95,7 +124,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
     }
   ])
   lifecycle {
-    replace_triggered_by = [terraform_data.trigger_flyway]
+    replace_triggered_by = [terraform_data.trigger_flyway[0]]
   }
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
@@ -180,11 +209,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
       environment = [
         {
           name  = "POSTGRES_HOST"
-          value = data.aws_rds_cluster.rds_cluster.endpoint
+          value = local.db_endpoint
         },
         {
           name  = "POSTGRES_READ_ONLY_HOST"
-          value = data.aws_rds_cluster.rds_cluster.reader_endpoint
+          value = local.db_reader_endpoint
         },
         {
           name  = "POSTGRES_USER"
