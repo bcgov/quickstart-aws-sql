@@ -7,15 +7,15 @@ data "aws_secretsmanager_secret" "db_master_creds" {
 }
 
 data "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier = "${var.db_cluster_name}" 
+  cluster_identifier = try("${var.db_cluster_name}", var.app_name)
 }
 
 data "aws_secretsmanager_secret_version" "db_master_creds_version" {
-  secret_id = data.aws_secretsmanager_secret.db_master_creds.id
+  secret_id = try(data.aws_secretsmanager_secret.db_master_creds.id, "${var.db_cluster_name}")
 }
 
 locals {
-  db_master_creds = jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string)
+  db_master_creds = jsondecode(try(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string, "{\"username\": \"example\", \"password\": \"example\"}"))
 }
 
 
