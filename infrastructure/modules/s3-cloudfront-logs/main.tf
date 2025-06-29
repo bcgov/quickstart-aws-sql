@@ -42,6 +42,20 @@ module "logs_bucket" {
             "aws:SourceAccount" = var.account_id != null ? var.account_id : data.aws_caller_identity.current.account_id
           }
         }
+      },
+      {
+        Effect: "Deny",
+        Principal: "*",
+        Action: "s3:*",
+        Resource: [
+          "arn:aws:s3:::${var.bucket_name}",
+          "arn:aws:s3:::${var.bucket_name}/*"
+        ],
+        Condition: {
+          Bool: {
+            "aws:SecureTransport": "false"
+          }
+        }
       }
     ]
   })

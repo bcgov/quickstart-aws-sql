@@ -2,12 +2,8 @@
 resource "aws_cloudfront_origin_access_identity" "this" {
   comment = var.comment
 }
-
-# S3 bucket policy to allow OAI access
-resource "aws_s3_bucket_policy" "oai_policy" {
-  bucket = var.s3_bucket_name
-
-  policy = jsonencode({
+locals {
+  policy_json = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -17,7 +13,27 @@ resource "aws_s3_bucket_policy" "oai_policy" {
         }
         Action   = "s3:GetObject"
         Resource = "${var.s3_bucket_arn}/*"
+      },
+      {
+        Action    = "s3:*"
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+        Effect    = "Deny"
+        Principal = "*"
+        Resource  = [
+          "${var.s3_bucket_arn}",
+          "${var.s3_bucket_arn}/*",
+        ]
       }
     ]
   })
+}
+
+# S3 bucket policy to allow OAI access
+resource "aws_s3_bucket_policy" "oai_policy" {
+  bucket = var.s3_bucket_name
+  policy = local.policy_json
 }
