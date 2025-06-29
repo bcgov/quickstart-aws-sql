@@ -86,6 +86,7 @@ resource "aws_s3_bucket_policy" "this" {
       try(jsondecode(var.bucket_policy).Statement, []),
       [
         {
+          sid= "DenyUnencryptedObjectUploads"
           Effect    = "Deny"
           Principal = "*"
           Action    = "s3:*"
