@@ -18,7 +18,7 @@ module "logs_bucket" {
     Version = "2012-10-17"
     Statement = [
       {
-        sid = "AllowCloudFrontServicePrincipalPutObject"
+        Sid = "AllowCloudFrontServicePrincipalPutObject"
         Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
@@ -32,7 +32,7 @@ module "logs_bucket" {
         }
       },
       {
-        sid = "AllowCloudFrontServicePrincipalGetBucketAcl"
+        Sid = "AllowCloudFrontServicePrincipalGetBucketAcl"
         Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
