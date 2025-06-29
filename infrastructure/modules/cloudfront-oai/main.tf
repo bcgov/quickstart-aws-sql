@@ -7,6 +7,7 @@ locals {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid = "AllowCloudFrontServicePrincipalOaiGetObject"
         Effect = "Allow"
         Principal = {
           AWS = aws_cloudfront_origin_access_identity.this.iam_arn
