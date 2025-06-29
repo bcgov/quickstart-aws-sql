@@ -19,7 +19,7 @@ locals {
   api_image          = get_env("api_image")
   rds_app_env = (contains(["dev", "test", "prod"], "${local.app_env}") ? "${local.app_env}" : "dev") # if app_env is not dev, test, or prod, default to dev 
   repo_name               = get_env("repo_name")
-  command = get_env("TERRAGRUNT_COMMAND")
+  command = get_env("terrgrunt_command")
   db_cluster_name = local.command == "plan" ? "" : "${local.stack_prefix}-aurora-${local.rds_app_env}"
 }
 
