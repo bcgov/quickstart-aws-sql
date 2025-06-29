@@ -80,5 +80,26 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
 resource "aws_s3_bucket_policy" "this" {
   count  = var.bucket_policy != null ? 1 : 0
   bucket = aws_s3_bucket.this.id
-  policy = var.bucket_policy
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = concat(
+      try(jsondecode(var.bucket_policy).Statement, []),
+      [
+        {
+          Effect    = "Deny"
+          Principal = "*"
+          Action    = "s3:*"
+          Resource  = [
+            "arn:aws:s3:::${var.bucket_name}",
+            "arn:aws:s3:::${var.bucket_name}/*"
+          ]
+          Condition = {
+            Bool = {
+              "aws:SecureTransport" = false
+            }
+          }
+        }
+      ]
+    )
+  })
 }

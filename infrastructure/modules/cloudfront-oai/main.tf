@@ -13,20 +13,6 @@ locals {
         }
         Action   = "s3:GetObject"
         Resource = "${var.s3_bucket_arn}/*"
-      },
-      {
-        Action    = "s3:*"
-        Condition = {
-          Bool = {
-            "aws:SecureTransport" = false
-          }
-        }
-        Effect    = "Deny"
-        Principal = "*"
-        Resource  = [
-          "${var.s3_bucket_arn}",
-          "${var.s3_bucket_arn}/*",
-        ]
       }
     ]
   })
