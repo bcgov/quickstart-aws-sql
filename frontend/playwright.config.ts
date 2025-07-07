@@ -2,12 +2,6 @@ import { defineConfig, devices } from '@playwright/test'
 import { baseURL } from './e2e/utils'
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
-
-/**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
@@ -21,9 +15,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['line'],
-    ['list', { printSteps: true }],
-    ['html', { open: 'always' }],
+    [ 'line' ],
+    [ 'list', { printSteps: true } ],
+    [ 'html', { open: 'always' } ],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -39,14 +33,14 @@ export default defineConfig({
     {
       name: 'chromium',
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices[ 'Desktop Chrome' ],
         baseURL: baseURL,
       },
     },
     {
       name: 'Google Chrome',
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices[ 'Desktop Chrome' ],
         channel: 'chrome',
         baseURL: baseURL,
       },
@@ -55,7 +49,7 @@ export default defineConfig({
     {
       name: 'firefox',
       use: {
-        ...devices['Desktop Firefox'],
+        ...devices[ 'Desktop Firefox' ],
         baseURL: baseURL,
       },
     },
@@ -63,14 +57,14 @@ export default defineConfig({
     {
       name: 'safari',
       use: {
-        ...devices['Desktop Safari'],
+        ...devices[ 'Desktop Safari' ],
         baseURL: baseURL,
       },
     },
     {
       name: 'Microsoft Edge',
       use: {
-        ...devices['Desktop Edge'],
+        ...devices[ 'Desktop Edge' ],
         channel: 'msedge',
         baseURL: baseURL,
       },
