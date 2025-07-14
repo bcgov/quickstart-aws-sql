@@ -1,6 +1,6 @@
 # Create WAF for CloudFront using the WAF module
 module "waf_cloudfront" {
-  source = "../modules/waf"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/waf?ref=v0.0.5"
   
   name                    = "${var.app_name}-waf-cloudfront"
   description             = "CloudFront WAF Rules"

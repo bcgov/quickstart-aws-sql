@@ -188,7 +188,7 @@ terragrunt plan
 terragrunt apply
 ```
 
-For detailed deployment instructions, refer to the [AWS deployment setup guide](./AWS-DEPLOY.md).
+For detailed deployment instructions, refer to the [AWS deployment setup guide](https://github.com/bcgov/quickstart-aws-helpers/blob/main/AWS-DEPLOY.md).
 
 # CI/CD Workflows
 
