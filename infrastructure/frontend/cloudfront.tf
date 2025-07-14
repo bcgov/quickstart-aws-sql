@@ -1,6 +1,6 @@
 # Import common configurations
 module "common" {
-  source = "../modules/common"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.0.5"
   
   target_env    = var.target_env
   app_env       = var.app_env
@@ -11,11 +11,10 @@ module "common" {
 
 # Create the frontend S3 bucket using the secure bucket module
 module "frontend_bucket" {
-  source = "../modules/s3-secure-bucket"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-secure-bucket?ref=v0.0.5"
   
   bucket_name                = "${var.app_name}-static-assets"
   force_destroy              = true
-  enable_encryption          = true
   encryption_algorithm       = "AES256"
   enable_public_access_block = true
   enable_versioning          = false
@@ -24,7 +23,7 @@ module "frontend_bucket" {
 
 # Create CloudFront Origin Access Identity
 module "cloudfront_oai" {
-  source = "../modules/cloudfront-oai"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront-oai?ref=v0.0.5"
   
   comment         = "OAI for ${var.app_name} site."
   s3_bucket_name  = module.frontend_bucket.bucket_name
@@ -33,7 +32,7 @@ module "cloudfront_oai" {
 
 # Create CloudFront logs bucket
 module "cloudfront_logs" {
-  source = "../modules/s3-cloudfront-logs"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-cloudfront-logs?ref=v0.0.5"
   
   bucket_name = "${var.app_name}-cf-logs"
   log_prefix  = "${var.app_name}/cloudfront-logs/"
@@ -42,7 +41,7 @@ module "cloudfront_logs" {
 
 # Create CloudFront distribution using the CloudFront module
 module "cloudfront_distribution" {
-  source = "../modules/cloudfront"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront?ref=v0.0.5"
   
   app_name          = var.app_name
   repo_name         = var.repo_name
