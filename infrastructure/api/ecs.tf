@@ -63,10 +63,6 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
   }
 }
 
-resource "terraform_data" "trigger_flyway" {
-  count = var.db_cluster_name != "" ? 1 : 0
-  input = timestamp()
-}
 
 module "flyway_task" {
   count              = var.db_cluster_name != "" ? 1 : 0
