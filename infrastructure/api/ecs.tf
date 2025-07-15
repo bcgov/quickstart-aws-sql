@@ -70,7 +70,7 @@ resource "terraform_data" "trigger_flyway" {
 
 module "flyway_task" {
   count                    = var.db_cluster_name != "" ? 1 : 0
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=feat/modules-readme"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/flyway?ref=feat/modules-readme"
   app_name              = "${var.app_name}-flyway"
   aws_region           = var.aws_region
   db_cluster_name      = var.db_cluster_name
