@@ -76,8 +76,8 @@ module "flyway_task" {
   db_cluster_name    = var.db_cluster_name
   db_name            = var.db_name
   db_schema          = var.db_schema
-  db_password        = var.db_password
-  db_username        = var.db_username
+  db_password        = local.db_master_creds.password
+  db_username        = local.db_master_creds.username
   db_host            = local.db_endpoint
   flyway_image       = var.flyway_image
   ecs_cluster_name   = aws_ecs_cluster.ecs_cluster.name
