@@ -1,17 +1,17 @@
 # Import common configurations
 module "common" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.0.5"
-  
-  target_env    = var.target_env
-  app_env       = var.app_env
-  app_name      = var.db_cluster_name
-  repo_name     = var.repo_name
-  common_tags   = var.common_tags
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.0"
+
+  target_env  = var.target_env
+  app_env     = var.app_env
+  app_name    = var.db_cluster_name
+  repo_name   = var.repo_name
+  common_tags = var.common_tags
 }
 
 # Import networking configurations
 module "networking" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.0.5"
+  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.0"
   target_env = var.target_env
 }
 data "aws_kms_alias" "rds_key" {
@@ -29,7 +29,7 @@ resource "aws_db_subnet_group" "db_subnet_group" {
   description = "For Aurora cluster ${var.db_cluster_name}"
   name        = "${var.db_cluster_name}-subnet-group"
   subnet_ids  = module.networking.subnets.data.ids
-  tags = module.common.common_tags
+  tags        = module.common.common_tags
 }
 
 data "aws_rds_engine_version" "postgresql" {
@@ -39,7 +39,7 @@ data "aws_rds_engine_version" "postgresql" {
 
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
-  name = "${var.db_cluster_name}"
+  name = var.db_cluster_name
   tags = module.common.common_tags
 }
 
@@ -53,31 +53,31 @@ resource "aws_secretsmanager_secret_version" "db_mastercreds_secret_version" {
 EOF
 }
 module "aurora_postgresql_v2" {
-  source = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.15.0"
+  source                      = "terraform-aws-modules/rds-aurora/aws"
+  version                     = "9.15.0"
   allow_major_version_upgrade = true
-  name              = var.db_cluster_name
-  engine            = data.aws_rds_engine_version.postgresql.engine
-  engine_mode       = "provisioned"
-  engine_version    = data.aws_rds_engine_version.postgresql.version
-  storage_encrypted = true
-  database_name     = var.db_database_name
-  
+  name                        = var.db_cluster_name
+  engine                      = data.aws_rds_engine_version.postgresql.engine
+  engine_mode                 = "provisioned"
+  engine_version              = data.aws_rds_engine_version.postgresql.version
+  storage_encrypted           = true
+  database_name               = var.db_database_name
+
   vpc_id                 = module.networking.vpc.id
   vpc_security_group_ids = [module.networking.security_groups.data.id]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
-  
-  master_username = var.db_master_username
-  master_password = random_password.db_master_password.result
+
+  master_username             = var.db_master_username
+  master_password             = random_password.db_master_password.result
   manage_master_user_password = false
-  
-  
+
+
   create_security_group  = false
   create_db_subnet_group = false
   create_monitoring_role = false
-  
-  apply_immediately   = true
-  skip_final_snapshot = true
+
+  apply_immediately          = true
+  skip_final_snapshot        = true
   auto_minor_version_upgrade = true
 
   deletion_protection = contains(["prod"], var.app_env) ? true : false
@@ -90,12 +90,12 @@ module "aurora_postgresql_v2" {
   instances = var.ha_enabled ? {
     one = {}
     two = {}
-  }: {one = {}}
-  
+  } : { one = {} }
+
   tags = module.common.common_tags
 
   enabled_cloudwatch_logs_exports = ["postgresql"]
-  backup_retention_period = "${var.backup_retention_period}"
+  backup_retention_period         = var.backup_retention_period
 }
 output "ha_enabled" {
   value = var.ha_enabled
