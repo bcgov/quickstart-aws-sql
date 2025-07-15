@@ -6,7 +6,7 @@ variable "target_env" {
 variable "db_cluster_name" {
   description = "Name for the database cluster -- must be unique"
   type        = string
-  
+
 }
 
 variable "db_master_username" {

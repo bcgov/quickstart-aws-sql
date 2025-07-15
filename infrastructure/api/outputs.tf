@@ -18,7 +18,7 @@ output "database_status" {
   value = {
     cluster_name_provided = var.db_cluster_name != ""
     using_fallback_creds  = !local.db_resources_available
-    db_endpoint          = local.db_endpoint
-    warning = !local.db_resources_available ? "Using fallback database credentials. Ensure database cluster exists before deploying." : null
+    db_endpoint           = local.db_endpoint
+    warning               = !local.db_resources_available ? "Using fallback database credentials. Ensure database cluster exists before deploying." : null
   }
 }

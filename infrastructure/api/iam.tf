@@ -21,7 +21,7 @@ data "aws_iam_policy" "appRDS" {
 resource "aws_iam_role" "ecs_task_execution_role" {
   name               = "${var.app_name}_ecs_role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_role.json
-  tags = module.common.common_tags
+  tags               = module.common.common_tags
 }
 
 # ECS task execution role policy attachment
