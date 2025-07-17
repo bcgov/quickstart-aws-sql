@@ -5,16 +5,16 @@ terraform {
 
 
 locals {
-  region                  = "ca-central-1"
-  stack_prefix            = get_env("stack_prefix")
+  region       = "ca-central-1"
+  stack_prefix = get_env("stack_prefix")
   # Terraform remote S3 config
-  tf_remote_state_prefix  = "terraform-remote-state" # Do not change this, given by cloud.pathfinder.
-  target_env              = get_env("target_env") # this is the target environment of AWS, like dev, test, prod
-  aws_license_plate          = get_env("aws_license_plate")
-  app_env          = get_env("app_env") # this is the environment for the app, like PR, dev, test, since same AWS dev can be reused for both dev and test
-  statefile_bucket_name   = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}" 
-  statefile_key           = "${local.stack_prefix}/${local.app_env}/database/aurora-v2/terraform.tfstate"
-  rds_app_env = (contains(["dev", "test", "prod"], "${local.app_env}") ? "${local.app_env}" : "dev") # if app_env is not dev, test, or prod, default to dev 
+  tf_remote_state_prefix = "terraform-remote-state" # Do not change this, given by cloud.pathfinder.
+  target_env             = get_env("target_env")    # this is the target environment of AWS, like dev, test, prod
+  aws_license_plate      = get_env("aws_license_plate")
+  app_env                = get_env("app_env") # this is the environment for the app, like PR, dev, test, since same AWS dev can be reused for both dev and test
+  statefile_bucket_name  = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"
+  statefile_key          = "${local.stack_prefix}/${local.app_env}/database/aurora-v2/terraform.tfstate"
+  rds_app_env            = (contains(["dev", "test", "prod"], "${local.app_env}") ? "${local.app_env}" : "dev") # if app_env is not dev, test, or prod, default to dev 
 }
 
 # Remote S3 state for Terraform.

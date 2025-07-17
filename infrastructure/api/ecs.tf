@@ -1,5 +1,5 @@
 locals {
-  container_name = "${var.app_name}"
+  container_name = var.app_name
 }
 
 # Try to fetch secrets manager secret, but don't fail if it doesn't exist
@@ -29,25 +29,25 @@ locals {
       password = "changeme"
     }
   )
-  
+
   # Provide default database endpoints with try() for safe access
   db_endpoint = try(
     data.aws_rds_cluster.rds_cluster[0].endpoint,
     "localhost"
   )
-  
+
   db_reader_endpoint = try(
     data.aws_rds_cluster.rds_cluster[0].reader_endpoint,
     "localhost"
   )
-  
+
   # Flag to indicate if database resources are available
   db_resources_available = var.db_cluster_name != "" && length(data.aws_rds_cluster.rds_cluster) > 0
 }
 
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "${var.app_name}"
+  name = var.app_name
   tags = module.common.common_tags
 }
 
@@ -65,7 +65,7 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
 
 resource "terraform_data" "trigger_flyway" {
   count = var.db_cluster_name != "" ? 1 : 0
-  input = "${timestamp()}"
+  input = timestamp()
 }
 
 resource "aws_ecs_task_definition" "flyway_task" {
@@ -78,7 +78,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
-    { 
+    {
       name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
       essential = true
@@ -108,7 +108,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
           value = "true"
         }
       ]
-      
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -120,7 +120,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
       }
       mountPoints = []
       volumesFrom = []
-      
+
     }
   ])
   lifecycle {
@@ -128,7 +128,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
   }
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
-    command = <<-EOF
+    command     = <<-EOF
     set -euo pipefail
 
     max_attempts=5
@@ -194,7 +194,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
 }
 
 resource "aws_ecs_task_definition" "node_api_task" {
-  family                   = "${var.app_name}"
+  family                   = var.app_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.api_cpu
@@ -202,7 +202,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
-    {      
+    {
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
@@ -232,7 +232,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = "${var.db_schema}"
         },
         {
-          name = "POSTGRES_POOL_SIZE"
+          name  = "POSTGRES_POOL_SIZE"
           value = "${var.postgres_pool_size}"
         },
         {
@@ -268,10 +268,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
 
 
 resource "aws_ecs_service" "node_api_service" {
-  name            = "${var.app_name}"
-  cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.node_api_task.arn
-  desired_count   = 1
+  name                              = var.app_name
+  cluster                           = aws_ecs_cluster.ecs_cluster.id
+  task_definition                   = aws_ecs_task_definition.node_api_task.arn
+  desired_count                     = 1
   health_check_grace_period_seconds = 60
 
   capacity_provider_strategy {
@@ -292,10 +292,10 @@ resource "aws_ecs_service" "node_api_service" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.app.id
-    container_name   = "${local.container_name}"
+    container_name   = local.container_name
     container_port   = var.app_port
   }
   wait_for_steady_state = true
-  depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_role]
-  tags = module.common.common_tags
+  depends_on            = [aws_iam_role_policy_attachment.ecs_task_execution_role]
+  tags                  = module.common.common_tags
 }
