@@ -8,7 +8,7 @@ variable "app_env" {
 }
 
 variable "app_name" {
-  description = " The APP name with environment (app_env)"
+  description  = " The APP name with environment (app_env)"
   type        = string
   validation {
     condition     = lower(var.app_name) == var.app_name
@@ -17,7 +17,7 @@ variable "app_name" {
 }
 
 variable "aws_region" {
-  type    = string
+  type = string
   default = "ca-central-1"
 }
 variable "common_tags" {

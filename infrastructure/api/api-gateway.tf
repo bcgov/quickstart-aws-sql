@@ -1,34 +1,34 @@
 # Import common configurations
 module "common" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.0"
-
-  target_env  = var.target_env
-  app_env     = var.app_env
-  app_name    = var.app_name
-  repo_name   = var.repo_name
-  common_tags = var.common_tags
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.0.5"
+  
+  target_env    = var.target_env
+  app_env       = var.app_env
+  app_name      = var.app_name
+  repo_name     = var.repo_name
+  common_tags   = var.common_tags
 }
 
 # Import networking configurations
 module "networking" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.0"
-
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.0.5"
+  
   target_env = var.target_env
 }
 
 # API Gateway with VPC Link using the API Gateway module
 module "api_gateway" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/api-gateway?ref=v0.1.0"
-
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/api-gateway?ref=v0.0.5"
+  
   api_name           = var.app_name
   protocol_type      = "HTTP"
   subnet_ids         = module.networking.subnets.web.ids
   security_group_ids = [module.networking.security_groups.web.id]
   integration_uri    = aws_alb_listener.internal.arn
-  route_key          = "ANY /{proxy+}"
-  stage_name         = "$default"
-  auto_deploy        = true
-  tags               = module.common.common_tags
+  route_key         = "ANY /{proxy+}"
+  stage_name        = "$default"
+  auto_deploy       = true
+  tags              = module.common.common_tags
 }
 
 # Compatibility data sources for existing resource references

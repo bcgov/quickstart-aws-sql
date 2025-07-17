@@ -21,39 +21,39 @@ variable "db_schema" {
 
 variable "subnet_app_a" {
   description = "Value of the name tag for a subnet in the APP security group"
-  type        = string
-  default     = "App_Dev_aza_net"
+  type = string
+  default = "App_Dev_aza_net"
 }
 
 variable "subnet_app_b" {
   description = "Value of the name tag for a subnet in the APP security group"
-  type        = string
-  default     = "App_Dev_azb_net"
+  type = string
+  default = "App_Dev_azb_net"
 }
 variable "subnet_web_a" {
   description = "Value of the name tag for a subnet in the APP security group"
-  type        = string
-  default     = "Web_Dev_aza_net"
+  type = string
+  default = "Web_Dev_aza_net"
 }
 
 variable "subnet_web_b" {
   description = "Value of the name tag for a subnet in the APP security group"
-  type        = string
-  default     = "Web_Dev_azb_net"
+  type = string
+  default = "Web_Dev_azb_net"
 }
 
 
 # Networking Variables
 variable "subnet_data_a" {
   description = "Value of the name tag for a subnet in the DATA security group"
-  type        = string
-  default     = "Data_Dev_aza_net"
+  type = string
+  default = "Data_Dev_aza_net"
 }
 
 variable "subnet_data_b" {
   description = "Value of the name tag for a subnet in the DATA security group"
-  type        = string
-  default     = "Data_Dev_azb_net"
+  type = string
+  default = "Data_Dev_azb_net"
 }
 
 variable "app_port" {
@@ -62,7 +62,7 @@ variable "app_port" {
   default     = 3000
 }
 variable "app_name" {
-  description = " The APP name with environment (app_env)"
+  description  = " The APP name with environment (app_env)"
   type        = string
 }
 variable "common_tags" {
@@ -82,28 +82,28 @@ variable "health_check_path" {
   description = "The path for the health check"
   type        = string
   default     = "/api/health"
-
+  
 }
 
 variable "api_cpu" {
-  type    = number
-  default = "256"
+  type = number
+  default     = "256"
 }
 variable "api_memory" {
-  type    = number
-  default = "512"
+  type = number
+  default     = "512"
 }
 variable "aws_region" {
-  type    = string
+  type = string
   default = "ca-central-1"
 }
 variable "min_capacity" {
-  type    = number
+  type = number
   default = 1
 }
 variable "max_capacity" {
-  type        = number
-  default     = 5
+  type = number
+  default = 5
   description = <<EOT
     The maximum number of tasks to run, please consider,
     connection pooling and other factors when setting this value, 
@@ -123,9 +123,9 @@ variable "max_capacity" {
 ## ECR Variables
 
 variable "repository_names" {
-  type    = list(string)
-  default = ["bcgov/quickstart-aws-containers"]
-
+  type        = list(string)
+  default = [ "bcgov/quickstart-aws-containers" ]
+  
 }
 variable "image_tag_mutability" {
   description = "Tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE."
@@ -160,7 +160,7 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-variable "db_cluster_name" {
+variable "db_cluster_name"{
   description = "Name of the database cluster"
   type        = string
   default     = ""
