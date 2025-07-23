@@ -38,7 +38,11 @@ variable "ha_enabled" {
   type        = bool
   default     = true
 }
-
+variable "helpers_module_version" {
+  description = "Version of the quickstart aws helpers module."
+  type        = string
+  nullable    = false
+}
 variable "max_capacity" {
   description = "Maximum capacity for Aurora Serverless v2"
   type        = number

@@ -61,6 +61,11 @@ variable "health_check_path" {
   type        = string
   default     = "/api/health"
 }
+variable "helpers_module_version" {
+  description = "Version of the quickstart aws helpers module."
+  type        = string
+  nullable    = false
+}
 variable "image_scanning_enabled" {
   description = "Enable container image scanning for security issues."
   type        = bool

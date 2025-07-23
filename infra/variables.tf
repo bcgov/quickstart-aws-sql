@@ -100,6 +100,13 @@ variable "health_check_path" {
   nullable    = false
 }
 
+variable "helpers_module_version" {
+  description = "Version of the quickstart aws helpers module."
+  type        = string
+  default     = "v1.0.0"
+  nullable    = false
+}
+
 variable "image_scanning_enabled" {
   description = "Enable image scanning for ECR."
   type        = bool
