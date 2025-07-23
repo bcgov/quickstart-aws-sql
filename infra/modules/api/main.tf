@@ -61,7 +61,7 @@ locals {
 # MODULES (alphabetical)
 # -------------------------
 module "api_gateway" {
-  source             = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/api-gateway?ref=${var.helpers_module_version}"
+  source             = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/api-gateway?ref=v0.1.1"
   api_name           = var.app_name
   protocol_type      = "HTTP"
   subnet_ids         = module.networking.subnets.web.ids
@@ -75,7 +75,7 @@ module "api_gateway" {
 
 module "cloudfront_api" {
   count                              = var.is_public_api ? 1 : 0
-  source                             = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront?ref=${var.helpers_module_version}"
+  source                             = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront?ref=v0.1.1"
   app_name                           = var.app_name
   repo_name                          = var.repo_name
   distribution_type                  = "api"
@@ -104,14 +104,14 @@ module "cloudfront_api" {
 
 module "cloudfront_api_logs" {
   count       = var.is_public_api ? 1 : 0
-  source      = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-cloudfront-logs?ref=${var.helpers_module_version}"
+  source      = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-cloudfront-logs?ref=v0.1.1"
   bucket_name = "cf-api-logs-${var.app_name}"
   log_prefix  = "cf/api/"
   tags        = module.common.common_tags
 }
 
 module "common" {
-  source      = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=${var.helpers_module_version}"
+  source      = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.1"
   target_env  = var.target_env
   app_env     = var.app_env
   app_name    = var.app_name
@@ -120,13 +120,13 @@ module "common" {
 }
 
 module "networking" {
-  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=${var.helpers_module_version}"
+  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.1"
   target_env = var.target_env
 }
 
 module "waf_api" {
   count                = var.is_public_api ? 1 : 0
-  source               = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/waf?ref=${var.helpers_module_version}"
+  source               = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/waf?ref=v0.1.1"
   name                 = "${var.app_name}-api-cf-waf"
   description          = "API CloudFront WAF Rules"
   scope                = "CLOUDFRONT"

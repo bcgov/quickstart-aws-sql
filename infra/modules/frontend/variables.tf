@@ -22,11 +22,6 @@ variable "common_tags" {
   type        = map(string)
   default     = {}
 }
-variable "helpers_module_version" {
-  description = "Version of the quickstart aws helpers module."
-  type        = string
-  nullable    = false
-}
 variable "repo_name" {
   description = "Name of the repository for resource descriptions and tags"
   type        = string

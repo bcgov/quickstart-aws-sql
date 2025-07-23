@@ -61,7 +61,7 @@ module "aurora_postgresql_v2" {
 }
 
 module "common" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=${var.helpers_module_version}"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.1"
 
   target_env  = var.target_env
   app_env     = var.app_env
@@ -71,7 +71,7 @@ module "common" {
 }
 
 module "networking" {
-  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=${var.helpers_module_version}"
+  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.1"
   target_env = var.target_env
 }
 
