@@ -33,32 +33,102 @@ Use this repository as a starting point to quickly deploy a modern, scalable web
 # Folder Structure
 ```
 /quickstart-aws-containers
-├── .github/                   # GitHub workflows and actions for CI/CD
-│   └── workflows/             # GitHub Actions workflow definitions
-├── terraform/                 # Terragrunt configuration files for environment management
-│   ├── api/                   # API environment-specific configurations (dev, test)
-│   ├── database/              # Database environment-specific configurations (dev, test)
-│   └── frontend/              # Frontend environment-specific configurations (dev, test)
-├── infrastructure/            # Terraform code for each AWS infrastructure component
-│   ├── api/                   # ECS Fargate API configuration (ALB, API Gateway, autoscaling)
-│   ├── frontend/              # CloudFront with WAF configuration
-│   └── database/              # Aurora Serverless v2 PostgreSQL configuration
-├── backend/                   # NestJS backend API code
-│   ├── src/                   # Source code with controllers, services, and modules
-│   ├── prisma/                # Prisma ORM schema and migrations
-│   └── Dockerfile             # Container definition for backend service
-├── frontend/                  # Vite + React SPA
-│   ├── src/                   # React components, routes, and services
-│   ├── e2e/                   # End-to-end tests using Playwright
-│   └── Dockerfile             # Container definition for frontend service
-├── migrations/                # Flyway migrations for database schema management
-│   └── sql/                   # SQL migration scripts
-├── tests/                     # Test suites beyond component-level tests
-│   ├── integration/           # Integration tests across services
-│   └── load/                  # Load testing scripts for performance testing
-├── docker-compose.yml         # Local development environment definition
-├── README.md                  # Project documentation
-└── package.json               # Node.js monorepo for shared configurations
+├── CODE_OF_CONDUCT.md        # Project code of conduct
+├── COMPLIANCE.yaml           # Compliance and regulatory information
+├── CONTRIBUTING.md           # Contribution guidelines
+├── docker-compose.yml        # Local development environment definition
+├── eslint.config.mjs         # ESLint configuration
+├── GHA.md                    # GitHub Actions workflows documentation
+├── LICENSE                   # Project license
+├── package.json              # Monorepo configuration and dependencies
+├── README.md                 # Project documentation
+├── renovate.json             # Renovate bot configuration
+├── SECURITY.md               # Security policy
+├── tsconfig.json             # TypeScript configuration
+├── backend/                  # NestJS backend API code
+│   ├── Dockerfile            # Container definition for backend service
+│   ├── nest-cli.json         # NestJS CLI configuration
+│   ├── package.json          # Backend dependencies
+│   ├── tsconfig.build.json   # TypeScript build config
+│   ├── tsconfig.json         # TypeScript config for backend
+│   ├── vitest.config.mts     # Vitest config for backend tests
+│   ├── coverage/             # Test coverage reports
+│   ├── prisma/               # Prisma ORM schema and migrations
+│   │   └── schema.prisma     # Prisma schema definition
+│   ├── src/                  # Source code (controllers, services, modules)
+│   │   ├── app.controller.spec.ts
+│   │   ├── app.controller.ts
+│   │   ├── app.module.ts
+│   │   ├── app.service.ts
+│   │   ├── app.spec.ts
+│   │   ├── app.ts
+│   │   ├── health.controller.ts
+│   │   ├── main.ts
+│   │   ├── metrics.controller.ts
+│   │   ├── prisma.module.ts
+│   │   ├── prisma.service.ts
+│   │   ├── prom.ts
+│   │   ├── common/           # Common utilities and configs
+│   │   ├── middleware/       # Express/NestJS middleware
+│   │   └── users/            # User module (controllers, services, DTOs)
+│   └── test/                 # Backend test utilities
+├── frontend/                 # Vite + React SPA
+│   ├── Caddyfile             # Caddy server config for frontend
+│   ├── Dockerfile            # Container definition for frontend service
+│   ├── index.html            # Main HTML entry point
+│   ├── package.json          # Frontend dependencies
+│   ├── playwright.config.ts  # Playwright E2E test config
+│   ├── tsconfig.json         # TypeScript config for frontend
+│   ├── tsconfig.node.json    # Node-specific TypeScript config
+│   ├── vite.config.ts        # Vite build config
+│   ├── vitest.config.ts      # Vitest config for frontend tests
+│   ├── e2e/                  # End-to-end tests using Playwright
+│   │   ├── qsos.spec.ts
+│   │   ├── pages/            # Page objects for E2E tests
+│   │   └── utils/            # E2E test utilities
+│   ├── public/               # Static assets
+│   ├── src/                  # React source code
+│   │   ├── index.css
+│   │   ├── main.tsx
+│   │   ├── routeTree.gen.ts
+│   │   ├── test-setup.ts
+│   │   ├── test-utils.tsx
+│   │   ├── __tests__/        # Frontend unit tests
+│   │   ├── assets/           # Images and static assets
+│   │   ├── components/       # React components
+│   │   ├── interfaces/       # TypeScript interfaces
+│   │   ├── routes/           # Route definitions
+│   │   ├── scss/             # SCSS styles
+│   │   └── service/          # API and service logic
+├── infra/                    # Terraform code for AWS infrastructure
+│   ├── main.tf               # Infrastructure root module
+│   ├── outputs.tf
+│   ├── providers.tf
+│   ├── variables.tf
+│   └── modules/              # Infrastructure modules
+│       ├── api/              # API infrastructure (ECS, ALB, etc.)
+│       ├── database/         # Database infrastructure (Aurora, etc.)
+│       └── frontend/         # Frontend infrastructure (CloudFront, etc.)
+├── migrations/               # Flyway migrations for database
+│   ├── Dockerfile            # Container for running migrations
+│   └── sql/                  # SQL migration scripts
+│       └── V1.0.0__init.sql
+├── terragrunt/               # Terragrunt configuration for environments
+│   ├── terragrunt.hcl        # Root Terragrunt config
+│   ├── dev/
+│   │   └── terragrunt.hcl    # Dev environment config
+│   ├── prod/
+│   │   └── terragrunt.hcl    # Prod environment config
+│   └── test/
+│       └── terragrunt.hcl    # Test environment config
+├── tests/                    # Test suites beyond component-level
+│   └── integration/          # Integration tests across services
+│       ├── package.json
+│       └── src/
+│           ├── load/         # Load testing scripts
+│           │   ├── backend-test.js
+│           │   ├── frontend-test.js
+│           │   └── README.md
 ```
 
 ## Repository Structure Explained
@@ -66,21 +136,14 @@ Use this repository as a starting point to quickly deploy a modern, scalable web
 - **.github/**: Contains GitHub workflow definitions and actions for the CI/CD pipeline.
   - **workflows/**: GitHub Actions workflow files that handle automated testing, deployment, and resource management.
 
-- **terraform/**: Contains Terragrunt configuration files that orchestrate the infrastructure deployment.
+- **terragrunt/**: Contains Terragrunt configuration files that orchestrate the infrastructure deployment.
   - Environment-specific folders (`dev`, `test`) contain configurations for different deployment stages.
   - Uses the infrastructure modules defined in the infrastructure directory.
 
-- **infrastructure/**: Contains Terraform modules for each AWS component.
-  - **api/**: Defines infrastructure for the backend API:
-    - ECS Fargate cluster with mixed FARGATE/FARGATE_SPOT capacity providers
-    - Application Load Balancer with internal/external listeners
-    - API Gateway with VPC link for secure backend access
-    - Auto-scaling policies based on CPU/memory utilization
-    - Flyway migration task execution for database schema management
-    - IAM roles and security group configurations
-    - AWS Secrets Manager integration for database credentials
-  - **frontend/**: Sets up CloudFront distribution with WAF rules for content delivery.
-  - **database/**: Configures Aurora Serverless v2 PostgreSQL database with networking.
+**infra/**: Contains Terraform code and modules for AWS infrastructure components.
+  - **api/**: ECS Fargate backend API infrastructure (ALB, API Gateway, autoscaling, IAM, Secrets Manager, Flyway migration task)
+  - **frontend/**: CloudFront distribution and WAF for frontend content delivery
+  - **database/**: Aurora Serverless v2 PostgreSQL database and networking
 
 - **backend/**: NestJS backend application with TypeScript.
   - **src/**: Application code organized by feature modules.

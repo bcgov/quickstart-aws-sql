@@ -88,7 +88,7 @@ jobs:
         terragrunt-version: ${{ env.TG_VERSION }}
     - name: Terragrunt ${{inputs.command}}
       id: tg
-      working-directory: terraform/${{ inputs.environment_name }}
+      working-directory: terragrunt/${{ inputs.environment_name }}
       env:
         target_env: ${{ inputs.environment_name }}
         aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
