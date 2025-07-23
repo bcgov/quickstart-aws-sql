@@ -90,46 +90,22 @@ jobs:
     name: Stack Prefix
     needs: ecr
     uses: ./.github/workflows/.stack-prefix.yml
-  deploy-db:
-    name: Deploys Database
+  deploy:
+    name: Deploys
     needs: [stack-prefix]
     uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
-      working_directory: database
       app_env: ${{ inputs.app_env }}
       stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
     secrets: inherit
-  deploy-api:
-    name: Deploys API
-    needs: [deploy-db, stack-prefix]
-    uses: ./.github/workflows/.deployer.yml
-    with:
-      environment_name: ${{ inputs.environment_name }}
-      command: ${{ inputs.command }}
-      tag: ${{ inputs.tag }}
-      app_env: ${{ inputs.app_env }}
-      working_directory: api
-      stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
-    secrets: inherit
-  deploy-cloudfront:
-    name: Deploys Cloudfront
-    needs: [stack-prefix]
-    uses: ./.github/workflows/.deployer.yml
-    with:
-      environment_name: ${{ inputs.environment_name }}
-      command: ${{ inputs.command }}
-      tag: ${{ inputs.tag }}
-      app_env: ${{ inputs.app_env }}
-      working_directory: frontend
-      stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
-    secrets: inherit
+  
   build-ui:
     name: Build And upload UI to s3 ${{ inputs.environment_name }}
     environment: ${{ inputs.environment_name }}
     if: (inputs.command == 'apply')
-    needs: [deploy-api, deploy-cloudfront]
+    needs: [deploy]
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -149,9 +125,9 @@ jobs:
       - name: Build And Update UI (CF)
         working-directory: frontend
         env:
-          VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
-          S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
-          CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
+          VITE_API_BASE_URL: ${{ needs.deploy.outputs.API_GW_URL }}/api
+          S3_BUCKET_ARN: ${{ needs.deploy.outputs.S3_BUCKET_ARN }}
+          CF_DISTRIBUTION_ID: ${{ needs.deploy.outputs.CF_DISTRIBUTION_ID }}
         run: |
           npm run deploy
           aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
