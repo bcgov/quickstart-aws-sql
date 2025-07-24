@@ -74,6 +74,7 @@ variable "db_master_username" {
   description = "Master username for the database."
   type        = string
   nullable    = false
+  default     = "sysadmin"
 }
 
 variable "db_schema" {
@@ -103,18 +104,6 @@ variable "health_check_path" {
   default     = "/api/health"
 }
 
-
-variable "image_scanning_enabled" {
-  description = "Enable image scanning for ECR."
-  type        = bool
-  nullable    = false
-}
-
-variable "image_tag_mutability" {
-  description = "Image tag mutability for ECR."
-  type        = string
-  nullable    = false
-}
 
 variable "is_public_api" {
   description = "Whether the API is public."
