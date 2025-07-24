@@ -7,7 +7,7 @@ module "database" {
   app_env                 = var.app_env
   backup_retention_period = var.backup_retention_period
   common_tags             = var.common_tags
-  db_cluster_name         = var.db_cluster_name
+  db_cluster_name         = var.db_cluster_name == "" ? "${var.repo_name}-aurora-${var.target_env}" : var.db_cluster_name
   db_database_name        = var.db_database_name
   db_master_username      = var.db_master_username
   ha_enabled              = var.ha_enabled
