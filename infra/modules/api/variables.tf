@@ -1,83 +1,88 @@
 variable "api_cpu" {
-  type    = number
-  default = "256"
+  type     = number
+  nullable = false
 }
+
 variable "api_image" {
   description = "The image for the API container"
   type        = string
+  nullable    = false
 }
+
 variable "api_memory" {
-  type    = number
-  default = "512"
+  type     = number
+  nullable = false
 }
+
 variable "app_env" {
   description = "The environment for the app, since multiple instances can be deployed to same dev environment of AWS, this represents whether it is PR or dev or test"
   type        = string
+  nullable    = false
 }
+
 variable "app_name" {
   description = " The APP name with environment (app_env)"
   type        = string
+  nullable    = false
 }
+
 variable "app_port" {
   description = "The port of the API container"
   type        = number
-  default     = 3000
+  nullable    = false
 }
+
 variable "aws_region" {
-  type    = string
-  default = "ca-central-1"
+  type     = string
+  nullable = false
 }
+
 variable "common_tags" {
   description = "Common tags to be applied to resources"
   type        = map(string)
-  default     = {}
+  nullable    = false
 }
+
 variable "db_cluster_name" {
   description = "Name of the database cluster"
   type        = string
-  default     = ""
+  nullable    = false
 }
+
 variable "db_name" {
   description = "The default schema for Flyway"
   type        = string
-  default     = "app"
+  nullable    = false
 }
+
 variable "db_schema" {
   description = "The default schema for Flyway"
   type        = string
-  default     = "app"
+  nullable    = false
 }
-variable "ecr_image_retention_count" {
-  description = "Number of images to retain in ECR repository"
-  type        = number
-  default     = 5
-}
+
+
 variable "flyway_image" {
   description = "The image for the Flyway container"
   type        = string
+  nullable    = false
 }
+
 variable "health_check_path" {
   description = "The path for the health check"
   type        = string
-  default     = "/api/health"
+  nullable    = false
 }
-variable "image_scanning_enabled" {
-  description = "Enable container image scanning for security issues."
-  type        = bool
-  default     = true
-}
-variable "image_tag_mutability" {
-  description = "Tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE."
-  default     = "IMMUTABLE"
-}
+
 variable "is_public_api" {
   description = "Flag to indicate if the API is public or private"
   type        = bool
-  default     = true
+  nullable    = false
 }
+
 variable "max_capacity" {
   type        = number
-  default     = 5
+  nullable    = false
   description = <<EOT
     The maximum number of tasks to run, please consider,
     connection pooling and other factors when setting this value, 
@@ -94,69 +99,28 @@ variable "max_capacity" {
     if going beyond 37 tasks, consider increasing the max acu from 1 to 2.
   EOT
 }
+
 variable "min_capacity" {
-  type    = number
-  default = 1
+  type     = number
+  nullable = false
 }
+
 variable "postgres_pool_size" {
   description = "The size of the connection pool for the API"
   type        = string
-  default     = "1"
+  nullable    = false
 }
-variable "read_principals" {
-  description = "Defines which external principals are allowed to read from the ECR repository"
-  type        = list(any)
-  default     = []
-}
+
 variable "repo_name" {
   description = "Name of the repository for resource descriptions and tags"
   type        = string
+  nullable    = false
 }
-variable "repository_names" {
-  type    = list(string)
-  default = ["bcgov/quickstart-aws-containers"]
-}
-variable "subnet_app_a" {
-  description = "Value of the name tag for a subnet in the APP security group"
-  type        = string
-  default     = "App_Dev_aza_net"
-}
-variable "subnet_app_b" {
-  description = "Value of the name tag for a subnet in the APP security group"
-  type        = string
-  default     = "App_Dev_azb_net"
-}
-variable "subnet_data_a" {
-  description = "Value of the name tag for a subnet in the DATA security group"
-  type        = string
-  default     = "Data_Dev_aza_net"
-}
-variable "subnet_data_b" {
-  description = "Value of the name tag for a subnet in the DATA security group"
-  type        = string
-  default     = "Data_Dev_azb_net"
-}
-variable "subnet_web_a" {
-  description = "Value of the name tag for a subnet in the APP security group"
-  type        = string
-  default     = "Web_Dev_aza_net"
-}
-variable "subnet_web_b" {
-  description = "Value of the name tag for a subnet in the APP security group"
-  type        = string
-  default     = "Web_Dev_azb_net"
-}
-variable "tags" {
-  description = "A set of of one or more tags to provide some metadata for the provisioned resources."
-  type        = map(string)
-  default     = {}
-}
+
+
 variable "target_env" {
   description = "AWS workload account env"
   type        = string
+  nullable    = false
 }
-variable "write_principals" {
-  description = "Defines which external principals are allowed to write to the ECR repository"
-  type        = list(any)
-  default     = []
-}
+

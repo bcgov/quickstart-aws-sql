@@ -1,15 +1,7 @@
 # -------------------------
 # DATA SOURCES (alphabetical)
 # -------------------------
-data "aws_apigatewayv2_api" "app" {
-  api_id = module.api_gateway.api_id
-}
 
-data "aws_apigatewayv2_vpc_link" "app" {
-  vpc_link_id = module.api_gateway.vpc_link.id
-}
-
-data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy" "appRDS" {
   name = "AmazonRDSDataFullAccess"
@@ -48,8 +40,6 @@ data "aws_secretsmanager_secret_version" "db_master_creds_version" {
 # LOCALS (alphabetical)
 # -------------------------
 locals {
-  api_integration_id     = module.api_gateway.integration.id
-  api_stage_name         = module.api_gateway.stage.name
   container_name         = var.app_name
   db_endpoint            = try(data.aws_rds_cluster.rds_cluster[0].endpoint, "localhost")
   db_master_creds        = try(jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version[0].secret_string), { username = "postgres", password = "changeme" })
@@ -337,13 +327,13 @@ resource "aws_ecs_task_definition" "flyway_task" {
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([{
     name      = "${var.app_name}-flyway"
-    image     = "${var.flyway_image}"
+    image     = var.flyway_image
     essential = true
     environment = [
       { name = "FLYWAY_URL", value = "jdbc:postgresql://${local.db_endpoint}/${var.db_name}?sslmode=require" },
       { name = "FLYWAY_USER", value = local.db_master_creds.username },
       { name = "FLYWAY_PASSWORD", value = local.db_master_creds.password },
-      { name = "FLYWAY_DEFAULT_SCHEMA", value = "${var.db_schema}" },
+      { name = "FLYWAY_DEFAULT_SCHEMA", value = var.db_schema },
       { name = "FLYWAY_CONNECT_RETRIES", value = "2" },
       { name = "FLYWAY_GROUP", value = "true" }
     ]
@@ -438,8 +428,8 @@ resource "aws_ecs_task_definition" "node_api_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([{
-    name      = "${local.container_name}"
-    image     = "${var.api_image}"
+    name      = local.container_name
+    image     = var.api_image
     essential = true
     environment = [
       { name = "POSTGRES_HOST", value = local.db_endpoint },
@@ -447,8 +437,8 @@ resource "aws_ecs_task_definition" "node_api_task" {
       { name = "POSTGRES_USER", value = local.db_master_creds.username },
       { name = "POSTGRES_PASSWORD", value = local.db_master_creds.password },
       { name = "POSTGRES_DATABASE", value = var.db_name },
-      { name = "POSTGRES_SCHEMA", value = "${var.db_schema}" },
-      { name = "POSTGRES_POOL_SIZE", value = "${var.postgres_pool_size}" },
+      { name = "POSTGRES_SCHEMA", value = var.db_schema },
+      { name = "POSTGRES_POOL_SIZE", value = var.postgres_pool_size },
       { name = "PORT", value = "3000" }
     ]
     portMappings = [{

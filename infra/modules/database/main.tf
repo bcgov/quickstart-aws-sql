@@ -1,11 +1,7 @@
 # -------------------------
 # DATA SOURCES (alphabetical)
 # -------------------------
-data "aws_caller_identity" "current" {}
 
-data "aws_kms_alias" "rds_key" {
-  name = "alias/aws/rds"
-}
 
 data "aws_rds_engine_version" "postgresql" {
   engine  = "aurora-postgresql"
