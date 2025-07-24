@@ -60,7 +60,8 @@ variable "common_tags" {
 variable "db_cluster_name" {
   description = "Name of the database cluster."
   type        = string
-  nullable    = true
+  nullable    = false
+  default = ""
 }
 
 variable "db_database_name" {

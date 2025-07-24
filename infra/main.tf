@@ -31,7 +31,7 @@ module "api" {
   app_port                  = var.app_port
   aws_region                = var.aws_region
   common_tags               = var.common_tags
-  db_cluster_name           = var.db_cluster_name != null ? var.db_cluster_name : ""
+  db_cluster_name           = var.db_cluster_name
   db_name                   = var.db_database_name
   db_schema                 = var.db_schema
   flyway_image              = var.flyway_image

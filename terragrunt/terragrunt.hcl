@@ -7,7 +7,7 @@ locals {
   app_env                = get_env("app_env")
   aws_license_plate      = get_env("aws_license_plate")
   command                = get_env("terrgrunt_command")
-  db_cluster_name        = local.command == "plan" ? null : "${local.stack_prefix}-aurora-${local.rds_app_env}"
+  db_cluster_name        = local.command == "plan" ? "" : "${local.stack_prefix}-aurora-${local.rds_app_env}"
   flyway_image           = get_env("flyway_image")
   rds_app_env            = (contains(["dev", "test", "prod"], "${local.app_env}") ? "${local.app_env}" : "dev") # if app_env is not dev, test, or prod, default to dev 
   region                 = "ca-central-1"
@@ -44,7 +44,7 @@ generate "tfvars" {
   api_image="${local.api_image}"
   app_env="${local.app_env}"
   app_name="${local.stack_prefix}-node-api-${local.app_env}"
-  db_cluster_name = "${local.db_cluster_name}"
+  db_cluster_name="${local.db_cluster_name}"
   flyway_image="${local.flyway_image}"
   repo_name = "${get_env("repo_name")}"
   target_env="${local.target_env}"
