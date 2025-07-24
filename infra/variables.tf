@@ -41,6 +41,7 @@ variable "aws_region" {
   description = "AWS region to deploy resources."
   type        = string
   nullable    = false
+  default = "ca-central-1"
 }
 
 variable "backup_retention_period" {
@@ -121,19 +122,30 @@ variable "is_public_api" {
   nullable    = false
   default     = true
 }
-
-variable "max_capacity" {
-  description = "Maximum capacity for scaling."
+variable "api_max_capacity" {
+  description = "Maximum capacity for the API service."
   type        = number
   nullable    = false
   default     = 3
 }
-
-variable "min_capacity" {
-  description = "Minimum capacity for scaling."
+variable "api_min_capacity" {
+  description = "Minimum capacity for the API service."
   type        = number
   nullable    = false
   default     = 1
+}
+variable "aurora_max_capacity" {
+  description = "Maximum capacity for scaling."
+  type        = number
+  nullable    = false
+  default     = 1
+}
+
+variable "aurora_min_capacity" {
+  description = "Minimum capacity for scaling."
+  type        = number
+  nullable    = false
+  default     = 0
 }
 
 variable "postgres_pool_size" {
