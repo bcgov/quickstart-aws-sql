@@ -6,7 +6,7 @@ provider "aws" {
 # WAF for API (if public API)
 module "waf_api" {
   count  = var.is_public_api ? 1 : 0
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/waf?ref=v0.1.0"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/waf?ref=v0.1.1"
 
   name                 = "${var.app_name}-api-cf-waf"
   description          = "API CloudFront WAF Rules"
@@ -28,7 +28,7 @@ module "waf_api" {
 # CloudFront logs bucket for API (if public API)
 module "cloudfront_api_logs" {
   count  = var.is_public_api ? 1 : 0
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-cloudfront-logs?ref=v0.1.0"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-cloudfront-logs?ref=v0.1.1"
 
   bucket_name = "cf-api-logs-${var.app_name}"
   log_prefix  = "cf/api/"
@@ -38,7 +38,7 @@ module "cloudfront_api_logs" {
 # CloudFront distribution for API (if public API)
 module "cloudfront_api" {
   count  = var.is_public_api ? 1 : 0
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront?ref=v0.1.0"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront?ref=v0.1.1"
 
   app_name          = var.app_name
   repo_name         = var.repo_name
