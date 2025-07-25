@@ -97,7 +97,7 @@ jobs:
         app_env: ${{inputs.app_env}}
         stack_prefix: ${{ inputs.stack_prefix }}
         repo_name: ${{ github.event.repository.name }}
-        terrgrunt_command: ${{ inputs.command }}
+        terragrunt_command: ${{ inputs.command }}
       run: |
         # Run terraform
         terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
