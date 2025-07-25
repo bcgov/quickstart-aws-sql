@@ -2,7 +2,7 @@ variable "api_cpu" {
   description = "CPU units for the API service."
   type        = string
   nullable    = false
-  default     = "250"
+  default     = "256"
 }
 
 variable "api_image" {
