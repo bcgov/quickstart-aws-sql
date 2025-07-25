@@ -6,3 +6,11 @@ output "cloudfront" {
     url             = module.cloudfront_distribution.distribution_url
   }
 }
+
+output "s3_bucket" {
+  description = "S3 bucket for static assets."
+  value = {
+    arn  = module.frontend_bucket.bucket_arn
+    name = module.frontend_bucket.bucket_name
+  }
+}

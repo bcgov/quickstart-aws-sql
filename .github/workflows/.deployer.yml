@@ -33,6 +33,8 @@ on:
         value: ${{ jobs.infra.outputs.API_GW_URL }}
       S3_BUCKET_ARN:
         value: ${{ jobs.infra.outputs.S3_BUCKET_ARN }}
+      S3_BUCKET_NAME:
+        value: ${{ jobs.infra.outputs.S3_BUCKET_NAME }}
       CF_DOMAIN:
         value: ${{ jobs.infra.outputs.CF_DOMAIN }}
       CF_DISTRIBUTION_ID:
@@ -54,6 +56,7 @@ jobs:
   outputs:
     API_GW_URL: ${{ steps.tg.outputs.API_GW_URL }}
     S3_BUCKET_ARN: ${{ steps.tg.outputs.S3_BUCKET_ARN }}
+    S3_BUCKET_NAME: ${{ steps.tg.outputs.S3_BUCKET_NAME }}
     CF_DOMAIN: ${{ steps.tg.outputs.CF_DOMAIN }}
     CF_DISTRIBUTION_ID: ${{ steps.tg.outputs.CF_DISTRIBUTION_ID }}
   steps:
@@ -104,8 +107,9 @@ jobs:
         terragrunt output -json > outputs.json
         #print the output
         cat outputs.json
-        
-        echo "S3_BUCKET_ARN=$(jq -r .s3_bucket_arn.value outputs.json)" >> $GITHUB_OUTPUT
+
+        echo "S3_BUCKET_ARN=$(jq -r .frontend_bucket.value.arn outputs.json)" >> $GITHUB_OUTPUT
+        echo "S3_BUCKET_NAME=$(jq -r .frontend_bucket.value.name outputs.json)" >> $GITHUB_OUTPUT
         echo "CF_DOMAIN=$(jq -r .cloudfront.value.domain_name outputs.json)" >> $GITHUB_OUTPUT
         echo "CF_DISTRIBUTION_ID=$(jq -r .cloudfront.value.distribution_id outputs.json)" >> $GITHUB_OUTPUT
         echo "API_GW_URL=$(jq -r .apigw_url.value outputs.json)" >> $GITHUB_OUTPUT
