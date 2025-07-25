@@ -1,3 +1,13 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+      configuration_aliases = [aws.us-east-1]
+    }
+  }
+}
+
 # Import common configurations
 module "common" {
   source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.2"

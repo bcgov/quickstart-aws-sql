@@ -1,10 +1,6 @@
 terraform {
   source = "../..//infra"
 }
-providers = {
-  aws           = "aws"
-  aws.us-east-1 = "aws.us-east-1"
-}
 
 locals {
   api_image              = get_env("api_image")

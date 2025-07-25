@@ -43,6 +43,10 @@ module "api" {
   repo_name                 = var.repo_name
   target_env                = var.target_env
 
+  providers = {
+    aws.us-east-1 = aws.us-east-1
+  }
+
   depends_on = [module.database]
 }
 
@@ -57,6 +61,10 @@ module "frontend" {
   common_tags            = var.common_tags
   repo_name              = var.repo_name
   target_env             = var.target_env
+
+  providers = {
+    aws.us-east-1 = aws.us-east-1
+  }
 
   depends_on = [module.api]
 }
