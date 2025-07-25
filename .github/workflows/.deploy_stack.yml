@@ -99,6 +99,7 @@ jobs:
       command: ${{ inputs.command }}
       app_env: ${{ inputs.app_env }}
       stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
+      tag: ${{ inputs.tag }}
     secrets: inherit
   
   build-ui:
