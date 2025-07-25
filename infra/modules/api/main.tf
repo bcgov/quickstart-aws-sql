@@ -452,7 +452,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
       { name = "POSTGRES_PASSWORD", value = local.db_master_creds.password },
       { name = "POSTGRES_DATABASE", value = var.db_name },
       { name = "POSTGRES_SCHEMA", value = var.db_schema },
-      { name = "POSTGRES_POOL_SIZE", value = var.postgres_pool_size },
+      { name = "POSTGRES_POOL_SIZE", value = tostring(var.postgres_pool_size) },
       { name = "PORT", value = "3000" }
     ]
     portMappings = [{
