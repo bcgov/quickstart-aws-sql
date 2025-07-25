@@ -110,7 +110,7 @@ module "common" {
 }
 
 module "networking" {
-  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.1"
+  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=fix/networking"
   target_env = var.target_env
 }
 
