@@ -83,5 +83,8 @@ module "waf_cloudfront" {
   name                 = "${var.app_name}-waf-cloudfront"
   scope                = "CLOUDFRONT"
   tags                 = module.common.common_tags
-
+  
+  providers = {
+    aws = aws.us_east_1
+  }
 }

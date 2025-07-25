@@ -128,6 +128,10 @@ module "waf_api" {
   enable_linux_rules   = true
   enable_sqli_rules    = true
   tags                 = module.common.common_tags
+
+  providers = {
+    aws = aws.us_east_1
+  }
 }
 
 
