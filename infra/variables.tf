@@ -41,7 +41,7 @@ variable "aws_region" {
   description = "AWS region to deploy resources."
   type        = string
   nullable    = false
-  default = "ca-central-1"
+  default     = "ca-central-1"
 }
 
 variable "backup_retention_period" {
