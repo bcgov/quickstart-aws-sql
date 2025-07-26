@@ -1,6 +1,6 @@
 # Import common configurations
 module "common" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.1"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.2"
 
   target_env  = var.target_env
   app_env     = var.app_env
@@ -11,14 +11,14 @@ module "common" {
 
 # Import networking configurations
 module "networking" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.1"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.2"
 
   target_env = var.target_env
 }
 
 # API Gateway with VPC Link using the API Gateway module
 module "api_gateway" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/api-gateway?ref=v0.1.1"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/api-gateway?ref=v0.1.2"
 
   api_name           = var.app_name
   protocol_type      = "HTTP"

@@ -32,40 +32,15 @@ jobs:
   stack-prefix:
     name: Stack Prefix
     uses: ./.github/workflows/.stack-prefix.yml
-  api:
-    name: Destroy API
+  destroy:
+    name: Destroy
     needs: [stack-prefix]
     uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
-      tag: ${{ inputs.tag }}
-      app_env: ${{ inputs.app_env }}
-      working_directory: api
-      stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
-    secrets: inherit
-  db:
-    name: Destroy Database
-    needs: [stack-prefix, api]
-    uses: ./.github/workflows/.deployer.yml
-    with:
-      environment_name: ${{ inputs.environment_name }}
-      command: ${{ inputs.command }}
-      working_directory: database
       app_env: ${{ inputs.app_env }}
       stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
     secrets: inherit
-
-  cloudfront:
-    name: Destroy Cloudfront
-    needs: [stack-prefix]
-    uses: ./.github/workflows/.deployer.yml
-    with:
-      environment_name: ${{ inputs.environment_name }}
-      command: ${{ inputs.command }}
-      tag: ${{ inputs.tag }}
-      app_env: ${{ inputs.app_env }}
-      working_directory: frontend
-      stack_prefix: ${{ needs.stack-prefix.outputs.stack_prefix }}
-    secrets: inherit
+  
   

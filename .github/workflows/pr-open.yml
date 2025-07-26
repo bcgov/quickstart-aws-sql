@@ -51,17 +51,17 @@ jobs:
     with:
       tag: ${{ github.event.number || 'latest' }} 
 
-  resume-resources-dev:
-    name: Resume Resources Dev
-    if: (github.event_name == 'workflow_dispatch')
-    concurrency:
-      group: rrd-${{ github.event.number || 'latest' }}
-      cancel-in-progress: false
-    needs: [builds]
-    uses: ./.github/workflows/resume-resources.yml
-    with:
-      app_env: dev
-    secrets: inherit
+  # resume-resources-dev:
+  #   name: Resume Resources Dev
+  #   if: (github.event_name == 'workflow_dispatch')
+  #   concurrency:
+  #     group: rrd-${{ github.event.number || 'latest' }}
+  #     cancel-in-progress: false
+  #   needs: [builds]
+  #   uses: ./.github/workflows/resume-resources.yml
+  #   with:
+  #     app_env: dev
+  #   secrets: inherit
 
   deploy-to-dev:
     name: Deploy to Dev
@@ -69,7 +69,7 @@ jobs:
     concurrency:
       group: deploy-dev-${{ github.event.number || 'latest' }}
       cancel-in-progress: false
-    needs: [resume-resources-dev, plan-stack]
+    #needs: [resume-resources-dev, plan-stack]
     uses: ./.github/workflows/.deploy_stack.yml
     with:
       environment_name: prod # ::change it to:: dev , template repo only has PROD

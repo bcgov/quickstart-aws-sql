@@ -1,57 +1,16 @@
-# Import common configurations
-module "common" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.1"
+# -------------------------
+# DATA SOURCES (alphabetical)
+# -------------------------
 
-  target_env  = var.target_env
-  app_env     = var.app_env
-  app_name    = var.db_cluster_name
-  repo_name   = var.repo_name
-  common_tags = var.common_tags
-}
-
-# Import networking configurations
-module "networking" {
-  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.1"
-  target_env = var.target_env
-}
-data "aws_kms_alias" "rds_key" {
-  name = "alias/aws/rds"
-}
-data "aws_caller_identity" "current" {}
-
-resource "random_password" "db_master_password" {
-  length           = 12
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
-
-resource "aws_db_subnet_group" "db_subnet_group" {
-  description = "For Aurora cluster ${var.db_cluster_name}"
-  name        = "${var.db_cluster_name}-subnet-group"
-  subnet_ids  = module.networking.subnets.data.ids
-  tags        = module.common.common_tags
-}
 
 data "aws_rds_engine_version" "postgresql" {
   engine  = "aurora-postgresql"
   version = "17.4"
 }
 
-
-resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
-  name = var.db_cluster_name
-  tags = module.common.common_tags
-}
-
-resource "aws_secretsmanager_secret_version" "db_mastercreds_secret_version" {
-  secret_id     = aws_secretsmanager_secret.db_mastercreds_secret.id
-  secret_string = <<EOF
-   {
-    "username": "${var.db_master_username}",
-    "password": "${random_password.db_master_password.result}"
-   }
-EOF
-}
+# -------------------------
+# MODULES (alphabetical)
+# -------------------------
 module "aurora_postgresql_v2" {
   source                      = "terraform-aws-modules/rds-aurora/aws"
   version                     = "9.15.0"
@@ -70,7 +29,6 @@ module "aurora_postgresql_v2" {
   master_username             = var.db_master_username
   master_password             = random_password.db_master_password.result
   manage_master_user_password = false
-
 
   create_security_group  = false
   create_db_subnet_group = false
@@ -97,8 +55,48 @@ module "aurora_postgresql_v2" {
   enabled_cloudwatch_logs_exports = ["postgresql"]
   backup_retention_period         = var.backup_retention_period
 }
-output "ha_enabled" {
-  value = var.ha_enabled
+
+module "common" {
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.2"
+
+  target_env  = var.target_env
+  app_env     = var.app_env
+  app_name    = var.db_cluster_name
+  repo_name   = var.repo_name
+  common_tags = var.common_tags
+}
+
+module "networking" {
+  source     = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/networking?ref=v0.1.2"
+  target_env = var.target_env
 }
 
 
+# Resources (alphabetically)
+resource "aws_db_subnet_group" "db_subnet_group" {
+  description = "For Aurora cluster ${var.db_cluster_name}"
+  name        = "${var.db_cluster_name}-subnet-group"
+  subnet_ids  = module.networking.subnets.data.ids
+  tags        = module.common.common_tags
+}
+
+resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
+  name = var.db_cluster_name
+  tags = module.common.common_tags
+}
+
+resource "aws_secretsmanager_secret_version" "db_mastercreds_secret_version" {
+  secret_id     = aws_secretsmanager_secret.db_mastercreds_secret.id
+  secret_string = <<EOF
+   {
+    "username": "${var.db_master_username}",
+    "password": "${random_password.db_master_password.result}"
+   }
+EOF
+}
+
+resource "random_password" "db_master_password" {
+  length           = 12
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
