@@ -33,17 +33,11 @@ check_db_cluster() {
     local env=$2
     local cluster_id="${prefix}-aurora-${env}"
     
-    # Temporarily disable error exit for this check
-    set +e
-    local status=$(aws rds describe-db-clusters --db-cluster-identifier "${cluster_id}" --query 'DBClusters[0].Status' --output text 2>/dev/null)
-    local exit_code=$?
-    set -e
+    # Use || true to handle expected failures gracefully
+    local status
+    status=$(aws rds describe-db-clusters --db-cluster-identifier "${cluster_id}" --query 'DBClusters[0].Status' --output text 2>/dev/null || echo "not-found")
     
-    if [ $exit_code -ne 0 ]; then
-        echo "not-found"
-    else
-        echo "$status"
-    fi
+    echo "$status"
 }
 
 # Function to start DB cluster
@@ -54,24 +48,14 @@ start_db_cluster() {
     
     echo "Starting DB cluster ${cluster_id}..."
     
-    # Temporarily disable error exit for AWS commands
-    set +e
-    aws rds start-db-cluster --db-cluster-identifier "${cluster_id}" --no-cli-pager --output json
-    local start_result=$?
-    set -e
-    
-    if [ $start_result -ne 0 ]; then
+    # Start the cluster and capture result
+    if ! aws rds start-db-cluster --db-cluster-identifier "${cluster_id}" --no-cli-pager --output json; then
         echo "Failed to start DB cluster ${cluster_id}"
         return 1
     fi
     
     echo "Waiting for DB cluster to be available..."
-    set +e
-    aws rds wait db-cluster-available --db-cluster-identifier "${cluster_id}"
-    local wait_result=$?
-    set -e
-    
-    if [ $wait_result -ne 0 ]; then
+    if ! aws rds wait db-cluster-available --db-cluster-identifier "${cluster_id}"; then
         echo "Timeout or error waiting for DB cluster to become available"
         return 1
     fi
@@ -84,12 +68,11 @@ start_db_cluster() {
 check_ecs_cluster() {
     local cluster=$1
     
-    set +e
-    local status=$(aws ecs describe-clusters --clusters "${cluster}" --query 'clusters[0].status' --output text 2>/dev/null)
-    local exit_code=$?
-    set -e
+    # Use || true to handle expected failures gracefully
+    local status
+    status=$(aws ecs describe-clusters --clusters "${cluster}" --query 'clusters[0].status' --output text 2>/dev/null || echo "not-found")
     
-    if [ $exit_code -ne 0 ] || [ "$status" = "None" ] || [ -z "$status" ]; then
+    if [ "$status" = "None" ] || [ -z "$status" ]; then
         echo "not-found"
     else
         echo "$status"
@@ -101,12 +84,11 @@ check_ecs_service() {
     local cluster=$1
     local service=$2
     
-    set +e
-    local status=$(aws ecs describe-services --cluster "${cluster}" --services "${service}" --query 'services[0].status' --output text 2>/dev/null)
-    local exit_code=$?
-    set -e
+    # Use || true to handle expected failures gracefully
+    local status
+    status=$(aws ecs describe-services --cluster "${cluster}" --services "${service}" --query 'services[0].status' --output text 2>/dev/null || echo "not-found")
     
-    if [ $exit_code -ne 0 ] || [ "$status" = "None" ] || [ -z "$status" ]; then
+    if [ "$status" = "None" ] || [ -z "$status" ]; then
         echo "not-found"
     else
         echo "$status"
@@ -143,35 +125,25 @@ resume_ecs_service() {
     
     echo "Resuming ECS service ${service} on cluster ${cluster}..."
     
-    # Update scaling policy - temporarily disable error exit
-    set +e
-    aws application-autoscaling register-scalable-target \
+    # Update scaling policy - use || true to handle potential failures
+    if ! aws application-autoscaling register-scalable-target \
         --service-namespace ecs \
         --resource-id "service/${cluster}/${service}" \
         --scalable-dimension ecs:service:DesiredCount \
         --min-capacity 1 \
         --max-capacity 2 \
         --no-cli-pager \
-        --output json
-    local scaling_result=$?
-    set -e
-    
-    if [ $scaling_result -ne 0 ]; then
+        --output json; then
         echo "Warning: Failed to update scaling policy for ECS service ${service}"
     fi
     
     # Update service desired count
-    set +e
-    aws ecs update-service \
+    if ! aws ecs update-service \
         --cluster "${cluster}" \
         --service "${service}" \
         --desired-count 1 \
         --no-cli-pager \
-        --output json
-    local update_result=$?
-    set -e
-    
-    if [ $update_result -ne 0 ]; then
+        --output json; then
         echo "Failed to update ECS service ${service} desired count"
         return 1
     fi

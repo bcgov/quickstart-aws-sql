@@ -33,18 +33,12 @@ function validate_args() {
 function check_aurora_cluster() {
     local cluster_id="${STACK_PREFIX}-aurora-${ENVIRONMENT}"
     
-    # Temporarily disable error exit for this check
-    set +e
-    local status=$(aws rds describe-db-clusters --db-cluster-identifier "$cluster_id" \
-                  --query 'DBClusters[0].Status' --output text 2>/dev/null)
-    local exit_code=$?
-    set -e
+    # Use || true to handle expected failures gracefully
+    local status
+    status=$(aws rds describe-db-clusters --db-cluster-identifier "$cluster_id" \
+                  --query 'DBClusters[0].Status' --output text 2>/dev/null || echo "not-found")
     
-    if [ $exit_code -ne 0 ]; then
-        echo "not-found"
-    else
-        echo "$status"
-    fi
+    echo "$status"
 }
 
 # Pause Aurora DB cluster if available
@@ -60,13 +54,8 @@ function pause_aurora_cluster() {
     elif [ "$status" = "available" ]; then
         echo "Pausing Aurora cluster: $cluster_id"
         
-        # Temporarily disable error exit for AWS command
-        set +e
-        aws rds stop-db-cluster --db-cluster-identifier "$cluster_id" --no-cli-pager --output json
-        local stop_result=$?
-        set -e
-        
-        if [ $stop_result -ne 0 ]; then
+        # Use if/then structure for better error handling
+        if ! aws rds stop-db-cluster --db-cluster-identifier "$cluster_id" --no-cli-pager --output json; then
             echo "Failed to pause Aurora cluster: $cluster_id"
             return 1
         else
@@ -87,14 +76,12 @@ function pause_aurora_cluster() {
 function check_ecs_cluster() {
     local cluster_name="${STACK_PREFIX}-node-api-${ENVIRONMENT}"
     
-    # Temporarily disable error exit for this check
-    set +e
-    local status=$(aws ecs describe-clusters --clusters "$cluster_name" \
-                  --query 'clusters[0].status' --output text 2>/dev/null)
-    local exit_code=$?
-    set -e
+    # Use || true to handle expected failures gracefully
+    local status
+    status=$(aws ecs describe-clusters --clusters "$cluster_name" \
+                  --query 'clusters[0].status' --output text 2>/dev/null || echo "not-found")
     
-    if [ $exit_code -ne 0 ] || [ "$status" = "None" ] || [ -z "$status" ]; then
+    if [ "$status" = "None" ] || [ -z "$status" ]; then
         echo "not-found"
     else
         echo "$status"
@@ -106,14 +93,12 @@ function check_ecs_service() {
     local cluster_name="${STACK_PREFIX}-node-api-${ENVIRONMENT}"
     local service_name="${STACK_PREFIX}-node-api-${ENVIRONMENT}"
     
-    # Temporarily disable error exit for this check
-    set +e
-    local status=$(aws ecs describe-services --cluster "$cluster_name" --services "$service_name" \
-                  --query 'services[0].status' --output text 2>/dev/null)
-    local exit_code=$?
-    set -e
+    # Use || true to handle expected failures gracefully
+    local status
+    status=$(aws ecs describe-services --cluster "$cluster_name" --services "$service_name" \
+                  --query 'services[0].status' --output text 2>/dev/null || echo "not-found")
     
-    if [ $exit_code -ne 0 ] || [ "$status" = "None" ] || [ -z "$status" ]; then
+    if [ "$status" = "None" ] || [ -z "$status" ]; then
         echo "not-found"
     else
         echo "$status"
@@ -149,20 +134,15 @@ function pause_ecs_service() {
     if [ "$service_status" = "ACTIVE" ]; then
         echo "Scaling down ECS service: $service_name"
         
-        # Temporarily disable error exit for AWS command
-        set +e
-        aws application-autoscaling register-scalable-target \
+        # Use if/then structure for better error handling
+        if ! aws application-autoscaling register-scalable-target \
             --service-namespace ecs \
             --resource-id "service/$cluster_name/$service_name" \
             --scalable-dimension ecs:service:DesiredCount \
             --min-capacity 0 \
             --max-capacity 0 \
             --no-cli-pager \
-            --output json
-        local scaling_result=$?
-        set -e
-        
-        if [ $scaling_result -ne 0 ]; then
+            --output json; then
             echo "Failed to scale down ECS service: $service_name"
             return 1
         else
