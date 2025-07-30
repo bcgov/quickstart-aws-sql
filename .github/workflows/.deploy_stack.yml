@@ -132,6 +132,13 @@ jobs:
           S3_BUCKET_ARN: ${{ needs.deploy.outputs.S3_BUCKET_ARN }}
           CF_DISTRIBUTION_ID: ${{ needs.deploy.outputs.CF_DISTRIBUTION_ID }}
         run: |
+          BUCKET=$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
           npm run deploy
-          aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
+          aws s3 cp ./dist/index.html s3://$BUCKET/index.html \
+            --cache-control "no-cache, must-revalidate" \
+            --content-type "text/html"
+          aws s3 sync ./dist s3://$BUCKET \
+            --exclude "index.html" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --delete
           aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
