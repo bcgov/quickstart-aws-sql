@@ -3,7 +3,7 @@
 [![PR Validate](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-validate.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-validate.yml)
 [![CodeQL](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql)
 [![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
-[![Resume AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/resume-resources.yml)
+[![Resume AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/resume-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/resume-resources.yml)
 
 # 🚀 AWS Container Quickstart
 ### ⚡ Aurora Serverless v2 + ECS Fargate + CloudFront
