@@ -1,11 +1,11 @@
-[![Merge](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/merge.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/merge.yml)
-[![PR](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-open.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-open.yml)
-[![PR Validate](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-validate.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pr-validate.yml)
-[![CodeQL](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/github-code-scanning/codeql)
-[![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/pause-resources.yml)
-[![Resume AWS Resources](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/resume-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-containers/actions/workflows/resume-resources.yml)
+[![Merge](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/merge.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/merge.yml)
+[![PR](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/pr-open.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/pr-open.yml)
+[![PR Validate](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/pr-validate.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/pr-validate.yml)
+[![CodeQL](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/github-code-scanning/codeql)
+[![Pause AWS Resources](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/pause-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/pause-resources.yml)
+[![Resume AWS Resources](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/resume-resources.yml/badge.svg)](https://github.com/bcgov/quickstart-aws-sql/actions/workflows/resume-resources.yml)
 
-# 🚀 AWS Container Quickstart
+# 🚀 AWS SQL Quickstart
 ### ⚡ Aurora Serverless v2 + ECS Fargate + CloudFront
 
 > 🎯 **Ready-to-deploy containerized app stack for AWS!** Built by BC Government developers, for developers.
@@ -39,7 +39,7 @@ Before you start, make sure you have:
 ## 📁 Project Structure
 
 ```
-/quickstart-aws-containers
+/quickstart-aws-sql
 ├── 📄 CODE_OF_CONDUCT.md        # Project code of conduct
 ├── 📋 COMPLIANCE.yaml           # Compliance and regulatory information
 ├── 🤝 CONTRIBUTING.md           # Contribution guidelines
@@ -115,7 +115,7 @@ Before you start, make sure you have:
 1. **Clone and navigate to the project:**
    ```bash
    git clone <repo-url>
-   cd quickstart-aws-containers
+   cd quickstart-aws-sql
    ```
 
 2. **Start everything with one command:**
