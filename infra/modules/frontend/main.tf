@@ -10,7 +10,7 @@ terraform {
 
 # Import common configurations
 module "common" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.1.2"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/common?ref=v0.2.0"
 
   app_env     = var.app_env
   app_name    = var.app_name
@@ -21,7 +21,7 @@ module "common" {
 
 # Create CloudFront distribution using the CloudFront module
 module "cloudfront_distribution" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront?ref=v0.1.2"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront?ref=v0.2.0"
 
   app_name                           = var.app_name
   cache_allowed_methods              = ["GET", "HEAD"]
@@ -53,7 +53,7 @@ module "cloudfront_distribution" {
 
 # Create CloudFront logs bucket
 module "cloudfront_logs" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-cloudfront-logs?ref=v0.1.2"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-cloudfront-logs?ref=v0.2.0"
 
   bucket_name = "${var.app_name}-cf-logs"
   log_prefix  = "${var.app_name}/cloudfront-logs/"
@@ -62,7 +62,7 @@ module "cloudfront_logs" {
 
 # Create CloudFront Origin Access Identity
 module "cloudfront_oai" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront-oai?ref=v0.1.2"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/cloudfront-oai?ref=v0.2.0"
 
   comment        = "OAI for ${var.app_name} site."
   s3_bucket_arn  = module.frontend_bucket.bucket_arn
@@ -71,7 +71,7 @@ module "cloudfront_oai" {
 
 # Create the frontend S3 bucket using the secure bucket module
 module "frontend_bucket" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-secure-bucket?ref=v0.1.2"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/s3-secure-bucket?ref=v0.2.0"
 
   bucket_name                = "${var.app_name}-static-assets"
   encryption_algorithm       = "AES256"
@@ -81,7 +81,7 @@ module "frontend_bucket" {
   tags                       = module.common.common_tags
 }
 module "waf_cloudfront" {
-  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/waf?ref=v0.1.2"
+  source = "git::https://github.com/bcgov/quickstart-aws-helpers.git//terraform/modules/waf?ref=v0.2.0"
 
   description          = "CloudFront WAF Rules"
   enable_bad_inputs    = true
