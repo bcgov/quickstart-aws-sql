@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 5
     services:
       postgres:
-        image: postgis/postgis:17-3.5 # Updated to PostgreSQL 17 with PostGIS 3.5
+        image: postgis/postgis:17-3.5@sha256:e94d71743d160026c151a42fa75f4e7d10feeb265aaa7e0320e53a497fe17be5 # Updated to PostgreSQL 17 with PostGIS 3.5
         env:
           POSTGRES_PASSWORD: default
         options: >-
@@ -29,7 +29,7 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - uses: bcgov-nr/action-test-and-analyse@v1.3.0
+      - uses: bcgov-nr/action-test-and-analyse@e2ba34132662c1638dbde806064eb7004b3761c3 # v1.3.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACKEND }}
           NODE_ENV: unittest
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: bcgov/action-test-and-analyse@v1.3.0
+      - uses: bcgov/action-test-and-analyse@e2ba34132662c1638dbde806064eb7004b3761c3 # v1.3.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONTEND }}
         with:
