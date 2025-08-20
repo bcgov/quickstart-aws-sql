@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v5
       - name: Conventional Changelog Update
         if: (github.event_name != 'release')
-        uses: TriPSs/conventional-changelog-action@v6
+        uses: TriPSs/conventional-changelog-action@67139193614f5b9e8db87da1bd4240922b34d765 # v6
         id: changelog
         continue-on-error: true
         with:
@@ -115,7 +115,7 @@ jobs:
     if: (needs.vars.outputs.tag != '' && github.event_name != 'release')
     steps:
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2
         if: ${{ needs.vars.outputs.tag != ''}}
         continue-on-error: true
         env:
