@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 5
     services:
       postgres:
-        image: postgis/postgis:17-3.5@sha256:e94d71743d160026c151a42fa75f4e7d10feeb265aaa7e0320e53a497fe17be5 # Updated to PostgreSQL 17 with PostGIS 3.5
+        image: postgis/postgis:17-3.5@sha256:1f215a395437d10c9e890d350f5bf2eac288bc31268e1c354837399a9d94445b # Updated to PostgreSQL 17 with PostGIS 3.5
         env:
           POSTGRES_PASSWORD: default
         options: >-
