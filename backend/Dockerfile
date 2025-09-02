@@ -30,7 +30,7 @@ COPY --from=build /app/dist ./dist
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 3001
-HEALTHCHECK --start-period=2s --start-interval=5s --interval=30s --timeout=3s CMD node -e "require('http').get('http://localhost:3001/api', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+HEALTHCHECK --start-period=2s --start-interval=5s --interval=30s --timeout=3s CMD ["/nodejs/bin/node", "-pe", "require('http').get('http://[::1]:3001/api/health', function(res){console.log('Health check status:', res.statusCode); process.exit(res.statusCode === 200 ? 0 : 1)}).on('error', function(err){console.error('Health check error:', err.message); process.exit(1);});"]
 
 
 # Nonroot user, limit heap size to 50 MB
