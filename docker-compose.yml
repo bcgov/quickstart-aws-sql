@@ -77,7 +77,7 @@ services:
     image: ${FRONTEND_IMAGE:-frontend}
     ports: ["3000:3000"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
     working_dir: "/app"
     depends_on:
       backend:
