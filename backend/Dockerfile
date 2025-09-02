@@ -30,9 +30,9 @@ COPY --from=build /app/dist ./dist
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 3001
-HEALTHCHECK --start-period=2s --start-interval=5s --interval=30s --timeout=3s CMD curl -f http://localhost:30001/api
+HEALTHCHECK --start-period=2s --start-interval=5s --interval=30s --timeout=3s CMD node -e "require('http').get('http://localhost:3001/api', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
 
 # Nonroot user, limit heap size to 50 MB
 USER nonroot
-CMD ["--max-old-space-size=50", "/app/dist/main"]
+CMD ["--max-old-space-size=150", "/app/dist/main"]
