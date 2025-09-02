@@ -62,7 +62,7 @@ services:
       context: ./backend
     ports: ["3001:3001"]
     healthcheck:
-      test: ["CMD","node", "-e", "require('http').get('http://localhost:3001/api', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      test: ["CMD","/nodejs/bin/node", "-pe", "require('http').get('http://[::1]:3001/api/health', function(res){console.log('Health check status:', res.statusCode); process.exit(res.statusCode === 200 ? 0 : 1)}).on('error', function(err){console.error('Health check error:', err.message); process.exit(1);});"]
     working_dir: "/app"
 
   frontend:
