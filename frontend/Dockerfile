@@ -12,6 +12,7 @@ RUN apk add --no-cache \
     ca-certificates \
     curl
 
+
 # Copy static files, verify Caddyfile formatting
 COPY --from=build /app/dist /srv
 COPY Caddyfile /etc/caddy/Caddyfile
