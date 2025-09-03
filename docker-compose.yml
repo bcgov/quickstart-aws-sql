@@ -62,7 +62,12 @@ services:
       context: ./backend
     ports: ["3001:3001"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api"]
+      start_interval: 5s
+      start_period: 5s
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      test: ["CMD","/nodejs/bin/node", "-pe", "require('http').get('http://[::1]:3001/api/health', function(res){console.log('Health check status:', res.statusCode); process.exit(res.statusCode === 200 ? 0 : 1)}).on('error', function(err){console.error('Health check error:', err.message); process.exit(1);});"]
     working_dir: "/app"
 
   frontend:
@@ -77,7 +82,12 @@ services:
     image: ${FRONTEND_IMAGE:-frontend}
     ports: ["3000:3000"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      start_interval: 5s
+      start_period: 5s
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:3001/health"]
     working_dir: "/app"
     depends_on:
       backend:
