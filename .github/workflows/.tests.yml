@@ -1,14 +1,14 @@
 name: .Tests
 
 on:
- workflow_call: 
-  inputs: 
-    tag: 
+ workflow_call:
+  inputs:
+    tag:
       description: 'The tag of the containers to run tests on'
       required: true
       type: string
 
-permissions: 
+permissions:
   contents: write # This is required for actions/checkout
 jobs:
   backend-tests:
@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 5
     services:
       postgres:
-        image: postgis/postgis:17-3.5@sha256:caf65b39a37e470528f1ae5a37329af84d0caa72e2143e4c875fdd3d997152b1 # Updated to PostgreSQL 17 with PostGIS 3.5
+        image: postgis/postgis:17-3.5 # Updated to PostgreSQL 17 with PostGIS 3.4
         env:
           POSTGRES_PASSWORD: default
         options: >-
@@ -48,7 +48,7 @@ jobs:
             -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
           sonar_token: ${{ env.SONAR_TOKEN }}
           triggers: ('backend/')
-  
+
   frontend-tests:
     name: Frontend Tests
     if: (! github.event.pull_request.draft)
@@ -75,7 +75,7 @@ jobs:
           triggers: ('frontend/')
   trivy:
     name: Trivy Security Scan
-    if: (! github.event.pull_request.draft) 
+    if: (! github.event.pull_request.draft)
     runs-on: ubuntu-24.04
     permissions:
       contents: read # This is required for actions/checkout
