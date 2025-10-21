@@ -38,7 +38,7 @@ jobs:
           path: |
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         name: Setup Node
         with:
           node-version: 22
