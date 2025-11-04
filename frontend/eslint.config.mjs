@@ -11,6 +11,7 @@ export default [
       ...baseIgnores,
       "**/*.config.*",
       "**/routeTree.gen.ts",
+      "e2e/**",
     ],
   },
   {

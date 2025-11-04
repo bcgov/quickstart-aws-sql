@@ -84,8 +84,8 @@ export class UsersService {
   }
 
   async searchUsers(page: number,
-                    limit: number,
-                    sort: string, // JSON string to store sort key and sort value, ex: [{"name":"desc"},{"email":"asc"}]
+    limit: number,
+    sort: string, // JSON string to store sort key and sort value, ex: [{"name":"desc"},{"email":"asc"}]
                     filter: string // JSON array for key, operation and value, ex: [{"key": "name", "operation": "like", "value": "Jo"}]
   ): Promise<any> {
 
@@ -99,7 +99,7 @@ export class UsersService {
     try {
       sortObj = JSON.parse(sort);
       filterObj = JSON.parse(filter);
-    } catch (e) {
+    } catch {
       throw new Error("Invalid query parameters");
     }
     const users = await this.prisma.users.findMany({
