@@ -7,7 +7,6 @@ export default [
   {
     ignores: [
       ...baseIgnores,
-      "**/*.config.*",
       "**/prisma/**",
     ],
   },
@@ -23,6 +22,7 @@ export default [
 
       parserOptions: {
         project: ["./tsconfig.json"],
+        tsconfigRootDir: import.meta.dirname,
       },
     },
   },
