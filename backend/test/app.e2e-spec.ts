@@ -1,18 +1,72 @@
 import request from "supertest";
 import { Test } from "@nestjs/testing";
-import { INestApplication } from "@nestjs/common";
+import { INestApplication, Module, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { AppModule } from "../src/app.module";
+import { PrismaService } from "../src/prisma.service";
+import { PrismaModule } from "../src/prisma.module";
+
+// Mock PrismaService class that properly implements lifecycle interfaces
+class MockPrismaService implements OnModuleInit, OnModuleDestroy {
+  async $connect() {
+    // No-op for local testing
+  }
+
+  async $disconnect() {
+    // No-op for local testing
+  }
+
+  async onModuleInit() {
+    // No-op for local testing
+  }
+
+  async onModuleDestroy() {
+    // No-op for local testing
+  }
+}
+
+const mockPrismaServiceInstance = new MockPrismaService();
+
+// Mock PrismaModule that provides our mock service
+@Module({
+  providers: [
+    {
+      provide: PrismaService,
+      useValue: mockPrismaServiceInstance,
+    },
+  ],
+  exports: [PrismaService],
+})
+class MockPrismaModule {}
 
 describe("AppController (e2e)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    // This e2e test requires a database connection.
-    // In CI, the PostgreSQL service is available.
-    // Locally, ensure you have a database running or skip this test.
-    const moduleFixture = await Test.createTestingModule({
+    // Check if we're in CI (where database is available) or locally (need mock)
+    const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    
+    // Clear singleton before creating test module
+    if (!isCI) {
+      delete (PrismaService as any).instance;
+    }
+    
+    let moduleBuilder = Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    });
+
+    // Only mock PrismaService locally (when not in CI)
+    // In CI, use real PrismaService with database connection
+    if (!isCI) {
+      // Clear singleton and override provider
+      // We need to override BEFORE module compilation to prevent singleton creation
+      delete (PrismaService as any).instance;
+      
+      moduleBuilder = moduleBuilder
+        .overrideProvider(PrismaService)
+        .useValue(mockPrismaServiceInstance);
+    }
+
+    const moduleFixture = await moduleBuilder.compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();

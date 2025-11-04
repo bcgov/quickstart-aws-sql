@@ -4,8 +4,8 @@ import swc from "unplugin-swc";
 // https://vitejs.dev/config/
 export default defineConfig({
   test: {
-    include: ["**/*.spec.ts"],
-    exclude: ["**/node_modules/**", "**/*.e2e-spec.ts"],
+    include: ["**/*.e2e-spec.ts", "**/*.spec.ts"],
+    exclude: ["**/node_modules/**"],
     globals: true,
     environment: "node",
     coverage: {
