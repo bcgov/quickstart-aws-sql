@@ -5,7 +5,7 @@ import { customLogger } from './common/logger.config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import { VersioningType } from '@nestjs/common';
-import { metricsMiddleware } from "src/middleware/prom";
+import { metricsMiddleware } from 'src/middleware/prom';
 
 /**
  *
@@ -17,22 +17,22 @@ export async function bootstrap() {
     });
   app.use(helmet());
   app.enableCors();
-  app.set("trust proxy", 1);
+  app.set('trust proxy', 1);
   app.use(metricsMiddleware);
   app.enableShutdownHooks();
-  app.setGlobalPrefix("api");
+  app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,
-    prefix: "v",
+    prefix: 'v',
   });
   const config = new DocumentBuilder()
-    .setTitle("Users example")
-    .setDescription("The user API description")
-    .setVersion("1.0")
-    .addTag("users")
+    .setTitle('Users example')
+    .setDescription('The user API description')
+    .setVersion('1.0')
+    .addTag('users')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("/api/docs", app, document);
+  SwaggerModule.setup('/api/docs', app, document);
   return app;
 }

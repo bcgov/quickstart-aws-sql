@@ -44,14 +44,11 @@ Before you start, make sure you have:
 ├── 📋 COMPLIANCE.yaml           # Compliance and regulatory information
 ├── 🤝 CONTRIBUTING.md           # Contribution guidelines
 ├── 🐳 docker-compose.yml        # Local development environment definition
-├── 🔧 eslint.config.mjs         # ESLint configuration
 ├── 📖 GHA.md                    # GitHub Actions workflows documentation
 ├── 📜 LICENSE                   # Project license
-├── 📦 package.json              # Monorepo configuration and dependencies
 ├── 📖 README.md                 # Project documentation
 ├── 🔄 renovate.json             # Renovate bot configuration
 ├── 🔒 SECURITY.md               # Security policy
-├── 🔧 tsconfig.json             # TypeScript configuration
 ├── 🏗️ backend/                  # NestJS backend API code
 │   ├── 🐳 Dockerfile            # Container definition for backend service
 │   ├── 🔧 nest-cli.json         # NestJS CLI configuration

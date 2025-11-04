@@ -1,11 +1,11 @@
-import type { FC } from 'react'
-import { Footer, Header } from '@bcgov/design-system-react-components'
-import { Link } from '@tanstack/react-router'
-import { Button } from 'react-bootstrap'
+import type { FC } from 'react';
+import { Footer, Header } from '@bcgov/design-system-react-components';
+import { Link } from '@tanstack/react-router';
+import { Button } from 'react-bootstrap';
 
 type Props = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
 const Layout: FC<Props> = ({ children }) => {
   return (
@@ -23,7 +23,7 @@ const Layout: FC<Props> = ({ children }) => {
       </div>
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

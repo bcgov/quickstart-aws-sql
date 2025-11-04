@@ -35,8 +35,7 @@ jobs:
           NODE_ENV: unittest
         with:
           commands: |
-            cd .. && npm ci
-            cd backend && npm ci
+            npm ci
             npm run lint
             npm run test:cov
           dir: backend
@@ -62,8 +61,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONTEND }}
         with:
           commands: |
-            cd .. && npm ci
-            cd frontend && npm ci
+            npm ci
             npm run lint
             npm run test:cov
           dir: frontend

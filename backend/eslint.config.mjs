@@ -1,4 +1,4 @@
-import baseConfig, { baseIgnores } from "../eslint-base.config.mjs";
+import baseConfig, { baseIgnores } from "./eslint-base.config.mjs";
 import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
 
