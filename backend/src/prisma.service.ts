@@ -32,11 +32,15 @@ class PrismaService
   constructor() {
     // Skip singleton pattern when running in vitest (globals: true in vitest.config)
     // This allows tests to properly mock PrismaService
-    // But NOT in CI where we need real database connections
+    // Only enable test mode when actually running tests (not in Docker containers or production)
     const isCI =
       process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    const isProductionOrDevelopment =
+      process.env.NODE_ENV === "production" ||
+      process.env.NODE_ENV === "development";
     const isTestMode =
       !isCI &&
+      !isProductionOrDevelopment &&
       typeof globalThis !== "undefined" &&
       (typeof (globalThis as any).vi !== "undefined" ||
         typeof (globalThis as any).expect !== "undefined" ||
@@ -69,11 +73,15 @@ class PrismaService
   async onModuleInit() {
     // Skip connection in test mode (when singleton is disabled)
     // Tests will override PrismaService with a mock that doesn't need connection
-    // But NOT in CI where we need real database connections for e2e tests
+    // Always connect in Docker containers, production, development, or CI
     const isCI =
       process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    const isProductionOrDevelopment =
+      process.env.NODE_ENV === "production" ||
+      process.env.NODE_ENV === "development";
     const isTestMode =
       !isCI &&
+      !isProductionOrDevelopment &&
       typeof globalThis !== "undefined" &&
       (typeof (globalThis as any).vi !== "undefined" ||
         typeof (globalThis as any).expect !== "undefined" ||
