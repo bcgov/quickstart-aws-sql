@@ -17,7 +17,7 @@
     "make-badges": "istanbul-badges-readme --logo=vitest --exitCode=1",
     "make-badges:ci": "npm run make-badges -- --ci",
     "test": "vitest --dir src",
-    "test:cov": "prisma generate && vitest run --coverage",
+    "test:cov": "prisma generate && vitest run --coverage --dir src",
     "test:e2e": "vitest --dir test"
   },
   "dependencies": {
