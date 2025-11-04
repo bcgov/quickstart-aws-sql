@@ -35,7 +35,10 @@ jobs:
           NODE_ENV: unittest
         with:
           commands: |
-            cd ${{ github.workspace }} && npm ci && cd backend && npm run lint && npm run test:cov
+            cd .. && npm ci
+            cd backend && npm ci
+            npm run lint
+            npm run test:cov
           dir: backend
           node_version: "22"
           sonar_args: >
@@ -59,7 +62,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONTEND }}
         with:
           commands: |
-            cd ${{ github.workspace }} && npm ci && cd frontend && npm run lint && npm run test:cov
+            cd .. && npm ci
+            cd frontend && npm ci
+            npm run lint
+            npm run test:cov
           dir: frontend
           node_version: "22"
           sonar_args: >
