@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="src/app.controller.spec.ts">
+    <testCase name="AppController - root - should return &quot;Hello Backend!&quot;" duration="26" />
+  </file>
+  <file path="src/app.spec.ts">
+    <testCase name="main - should start the application" duration="1" />
+  </file>
+  <file path="src/common/logger.config.spec.ts">
+    <testCase name="CustomLogger - should be defined" duration="2" />
+    <testCase name="CustomLogger - should log a message" duration="6" />
+  </file>
+  <file path="src/middleware/req.res.logger.spec.ts">
+    <testCase name="HTTPLoggerMiddleware - should log the correct information" duration="19">
+      <error message="logger is not defined">
+        <![CDATA[ReferenceError: logger is not defined
+    at /home/runner/work/quickstart-aws-sql/quickstart-aws-sql/backend/src/middleware/req.res.logger.spec.ts:15:5
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)]]>
+      </error>
+    </testCase>
+  </file>
+  <file path="src/users/users.controller.spec.ts">
+    <testCase name="UserController - should be defined" duration="114" />
+    <testCase name="UserController - create - should call the service create method with the given dto and return the result" duration="9" />
+    <testCase name="UserController - findAll - should return an array of users" duration="3" />
+    <testCase name="UserController - findOne - should return a user object" duration="4" />
+    <testCase name="UserController - findOne - should throw error if user not found" duration="4" />
+    <testCase name="UserController - update - should update and return a user object" duration="4" />
+    <testCase name="UserController - remove - should remove a user" duration="5" />
+    <testCase name="UserController - GET /users/search - given valid query parameters_should return an array of users with pagination metadata" duration="34" />
+    <testCase name="UserController - GET /users/search - given invalid query parameters_should return a 400 status code with an error message" duration="10" />
+    <testCase name="UserController - GET /users/search - given sort and filter as invalid query parameters_should return a 400 status code with an error message" duration="13" />
+  </file>
+  <file path="src/users/users.service.spec.ts">
+    <testCase name="UserService - should be defined" duration="10" />
+    <testCase name="UserService - createOne - should successfully add a user" duration="4" />
+    <testCase name="UserService - findAll - should return an array of users" duration="3" />
+    <testCase name="UserService - findOne - should get a single user" duration="2" />
+    <testCase name="UserService - update - should call the update method" duration="2" />
+    <testCase name="UserService - remove - should return {deleted: true}" duration="1" />
+    <testCase name="UserService - remove - should return {deleted: false, message: err.message}" duration="2" />
+    <testCase name="UserService - searchUsers - should return a list of users with pagination and filtering" duration="2" />
+    <testCase name="UserService - searchUsers - given no page should return a list of users with pagination and filtering with default page 1" duration="2" />
+    <testCase name="UserService - searchUsers - given no limit should return a list of users with pagination and filtering with default limit 10" duration="2" />
+    <testCase name="UserService - searchUsers - given  limit greater than 200 should return a list of users with pagination and filtering with default limit 10" duration="2" />
+    <testCase name="UserService - searchUsers - given  invalid JSON should throw error" duration="2" />
+    <testCase name="UserService - convertFiltersToPrismaFormat - should convert input filters to prisma&apos;s filter format" duration="2" />
+  </file>
+</testExecutions>
