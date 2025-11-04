@@ -30,7 +30,16 @@ class PrismaService
   private logger = new Logger("PRISMA");
 
   constructor() {
-    if (PrismaService.instance) {
+    // Skip singleton pattern when running in vitest (globals: true in vitest.config)
+    // This allows tests to properly mock PrismaService
+    // Check for vitest globals or test environment
+    const isTestMode =
+      typeof globalThis !== "undefined" &&
+      (typeof (globalThis as any).vi !== "undefined" ||
+        typeof (globalThis as any).expect !== "undefined" ||
+        process.env.VITEST === "true");
+    
+    if (!isTestMode && PrismaService.instance) {
       console.log("Returning existing PrismaService instance");
       return PrismaService.instance;
     }
@@ -48,10 +57,26 @@ class PrismaService
         { emit: "stdout", level: "error" },
       ],
     });
-    PrismaService.instance = this;
+    // Only set singleton in non-test mode
+    if (!isTestMode) {
+      PrismaService.instance = this;
+    }
   }
 
   async onModuleInit() {
+    // Skip connection in test mode (when singleton is disabled)
+    // Tests will override PrismaService with a mock that doesn't need connection
+    const isTestMode =
+      typeof globalThis !== "undefined" &&
+      (typeof (globalThis as any).vi !== "undefined" ||
+        typeof (globalThis as any).expect !== "undefined" ||
+        process.env.VITEST === "true");
+    
+    if (isTestMode) {
+      // In test mode, don't connect - tests will provide a mock
+      return;
+    }
+    
     await this.$connect();
     this.$on<any>("query", (e: Prisma.QueryEvent) => {
       // dont print the health check queries

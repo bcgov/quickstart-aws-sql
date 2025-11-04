@@ -37,22 +37,14 @@ describe("AppController (e2e)", () => {
     const isCI =
       process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 
-    // Clear singleton before creating test module
-    if (!isCI) {
-      delete (PrismaService as any).instance;
-    }
-
     let moduleBuilder = Test.createTestingModule({
       imports: [AppModule],
     });
 
     // Only mock PrismaService locally (when not in CI)
     // In CI, use real PrismaService with database connection
+    // Note: PrismaService singleton is disabled in test mode, so override should work
     if (!isCI) {
-      // Clear singleton and override provider
-      // We need to override BEFORE module compilation to prevent singleton creation
-      delete (PrismaService as any).instance;
-
       moduleBuilder = moduleBuilder
         .overrideProvider(PrismaService)
         .useValue(mockPrismaServiceInstance);
