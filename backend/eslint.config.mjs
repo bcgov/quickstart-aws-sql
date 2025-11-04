@@ -8,6 +8,7 @@ export default [
     ignores: [
       ...baseIgnores,
       "**/prisma/**",
+      "eslint.config.mjs", // ESLint config files don't need TypeScript project
     ],
   },
   {
@@ -15,11 +16,9 @@ export default [
       globals: {
         ...globals.node,
       },
-
       parser: tsParser,
       ecmaVersion: "latest",
       sourceType: "module",
-
       parserOptions: {
         project: ["./tsconfig.json"],
         tsconfigRootDir: import.meta.dirname,
