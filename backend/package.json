@@ -18,7 +18,7 @@
     "make-badges:ci": "npm run make-badges -- --ci",
     "test": "vitest --dir src",
     "test:cov": "prisma generate && vitest run --coverage",
-    "test:e2e": "vitest --dir test"
+    "test:e2e": "vitest test/**/*.e2e-spec.ts"
   },
   "dependencies": {
     "@nestjs/cli": "^11.0.0",
