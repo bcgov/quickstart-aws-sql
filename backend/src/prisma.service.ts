@@ -38,7 +38,7 @@ class PrismaService
       (typeof (globalThis as any).vi !== "undefined" ||
         typeof (globalThis as any).expect !== "undefined" ||
         process.env.VITEST === "true");
-    
+
     if (!isTestMode && PrismaService.instance) {
       console.log("Returning existing PrismaService instance");
       return PrismaService.instance;
@@ -71,12 +71,12 @@ class PrismaService
       (typeof (globalThis as any).vi !== "undefined" ||
         typeof (globalThis as any).expect !== "undefined" ||
         process.env.VITEST === "true");
-    
+
     if (isTestMode) {
       // In test mode, don't connect - tests will provide a mock
       return;
     }
-    
+
     await this.$connect();
     this.$on<any>("query", (e: Prisma.QueryEvent) => {
       // dont print the health check queries
