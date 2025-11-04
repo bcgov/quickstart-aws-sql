@@ -86,7 +86,7 @@ export class UsersService {
   async searchUsers(page: number,
     limit: number,
     sort: string, // JSON string to store sort key and sort value, ex: [{"name":"desc"},{"email":"asc"}]
-                    filter: string // JSON array for key, operation and value, ex: [{"key": "name", "operation": "like", "value": "Jo"}]
+    filter: string // JSON array for key, operation and value, ex: [{"key": "name", "operation": "like", "value": "Jo"}]
   ): Promise<any> {
 
     page = page || 1;
