@@ -12,7 +12,6 @@ describe("HTTPLoggerMiddleware", () => {
     }).compile();
 
     middleware = module.get<HTTPLoggerMiddleware>(HTTPLoggerMiddleware);
-    logger = module.get<Logger>(Logger);
   });
   it("should log the correct information", () => {
     const request: Request = {
