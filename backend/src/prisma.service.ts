@@ -33,7 +33,8 @@ class PrismaService
     // Skip singleton pattern when running in vitest (globals: true in vitest.config)
     // This allows tests to properly mock PrismaService
     // But NOT in CI where we need real database connections
-    const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    const isCI =
+      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
     const isTestMode =
       !isCI &&
       typeof globalThis !== "undefined" &&
@@ -69,7 +70,8 @@ class PrismaService
     // Skip connection in test mode (when singleton is disabled)
     // Tests will override PrismaService with a mock that doesn't need connection
     // But NOT in CI where we need real database connections for e2e tests
-    const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    const isCI =
+      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
     const isTestMode =
       !isCI &&
       typeof globalThis !== "undefined" &&
