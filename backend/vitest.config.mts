@@ -11,6 +11,14 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text-summary", "text", "json", "html"],
+      exclude: [
+        "**/node_modules/**",
+        "**/*.config.*",
+        "**/*.spec.ts",
+        "**/*.e2e-spec.ts",
+        "**/test/**",
+        "**/dist/**",
+      ],
     },
     reporters: process.env.GITHUB_ACTIONS
       ? [["vitest-sonar-reporter", { outputFile: "test-report.xml" }]]
