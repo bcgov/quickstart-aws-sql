@@ -19,4 +19,4 @@ semi: true
 proseWrap: "always"
 
 # Format files with Unix-style line endings
-endOfLine: "auto"
+endOfLine: "lf"
