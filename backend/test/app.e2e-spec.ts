@@ -1,9 +1,12 @@
 import request from "supertest";
 import { Test } from "@nestjs/testing";
-import { INestApplication, Module, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import {
+  INestApplication,
+  OnModuleDestroy,
+  OnModuleInit,
+} from "@nestjs/common";
 import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma.service";
-import { PrismaModule } from "../src/prisma.module";
 
 // Mock PrismaService class that properly implements lifecycle interfaces
 class MockPrismaService implements OnModuleInit, OnModuleDestroy {
@@ -26,30 +29,19 @@ class MockPrismaService implements OnModuleInit, OnModuleDestroy {
 
 const mockPrismaServiceInstance = new MockPrismaService();
 
-// Mock PrismaModule that provides our mock service
-@Module({
-  providers: [
-    {
-      provide: PrismaService,
-      useValue: mockPrismaServiceInstance,
-    },
-  ],
-  exports: [PrismaService],
-})
-class MockPrismaModule {}
-
 describe("AppController (e2e)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     // Check if we're in CI (where database is available) or locally (need mock)
-    const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
-    
+    const isCI =
+      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+
     // Clear singleton before creating test module
     if (!isCI) {
       delete (PrismaService as any).instance;
     }
-    
+
     let moduleBuilder = Test.createTestingModule({
       imports: [AppModule],
     });
@@ -60,7 +52,7 @@ describe("AppController (e2e)", () => {
       // Clear singleton and override provider
       // We need to override BEFORE module compilation to prevent singleton creation
       delete (PrismaService as any).instance;
-      
+
       moduleBuilder = moduleBuilder
         .overrideProvider(PrismaService)
         .useValue(mockPrismaServiceInstance);
