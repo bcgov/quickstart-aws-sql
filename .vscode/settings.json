@@ -1,4 +1,9 @@
 {
+  // Line endings - enforce LF (Unix) for all files
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
   // Format on save
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",

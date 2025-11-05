@@ -1,8 +1,47 @@
 # Autodetect text files and forces unix eols, so Windows does not break them
 * text=auto eol=lf
 
-# Force images/fonts to be handled as binaries
+# Force images to be handled as binaries
 *.jpg binary
 *.jpeg binary
 *.gif binary
 *.png binary
+*.bmp binary
+*.ico binary
+*.webp binary
+*.avif binary
+
+# Force fonts to be handled as binaries
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+
+# Force archives and executables to be handled as binaries
+*.zip binary
+*.tar.gz binary
+*.tar binary
+*.gz binary
+*.rar binary
+*.7z binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.bin binary
+
+# Force compiled/package files to be handled as binaries
+*.jar binary
+*.war binary
+*.ear binary
+*.class binary
+
+# Force documents to be handled as binaries
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
