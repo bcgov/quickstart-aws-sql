@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
 import swc from "unplugin-swc";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -24,5 +25,5 @@ export default defineConfig({
       ? [["vitest-sonar-reporter", { outputFile: "test-report.xml" }]]
       : [],
   },
-  plugins: [swc.vite()],
+  plugins: [swc.vite(), tsconfigPaths()],
 });
