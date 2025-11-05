@@ -15,10 +15,14 @@ const DB_NAME = process.env.POSTGRES_DATABASE || "postgres";
 const DB_SCHEMA = process.env.POSTGRES_SCHEMA || "app";
 const DB_POOL_SIZE = parseInt(process.env.POSTGRES_POOL_SIZE || "5", 10);
 // SSL settings for PostgreSQL 17+ which requires SSL by default
-const SSL_MODE =
-  process.env.NODE_ENV === "local" || process.env.NODE_ENV === "unittest"
-    ? "prefer"
-    : "require"; // 'require' for aws deployments, 'prefer' for local development or ut in gha
+// Use 'prefer' for localhost/development/test environments, 'require' for AWS deployments
+const isLocalhost =
+  DB_HOST === "localhost" || DB_HOST === "127.0.0.1" || DB_HOST === "database";
+const isTestEnv =
+  process.env.NODE_ENV === "local" ||
+  process.env.NODE_ENV === "unittest" ||
+  process.env.NODE_ENV === "test";
+const SSL_MODE = isLocalhost || isTestEnv ? "prefer" : "require";
 const dataSourceURL = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_POOL_SIZE}&sslmode=${SSL_MODE}`;
 
 @Injectable({ scope: Scope.DEFAULT })
