@@ -378,3 +378,5 @@ pyrightconfig.json
 *.tfstate.backup
 # terraform lock file
 *.terraform.lock.hcl
+# test reports
+**/test-report.xml

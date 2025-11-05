@@ -1,12 +1,11 @@
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import prettier from "eslint-plugin-prettier";
-import globals from "globals";
-import tsParser from "@typescript-eslint/parser";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
+import tsParser from "@typescript-eslint/parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,15 +15,21 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 });
 
+// Shared ignore patterns
+export const baseIgnores = [
+  "**/.git/",
+  "**/.github/",
+  "**/migrations/",
+  "**/node_modules/",
+  "**/dist/",
+  "**/coverage/",
+  "**/.happo.js",
+];
+
+// Shared base configuration
 export default [
   {
-    ignores: [
-      "**/.git/",
-      "**/.github/",
-      "**/migrations/",
-      "**/node_modules/",
-      "**/.happo.js",
-    ],
+    ignores: baseIgnores,
   },
   ...compat.extends(
     "eslint:recommended",
@@ -38,21 +43,9 @@ export default [
     },
 
     languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-
       parser: tsParser,
       ecmaVersion: "latest",
       sourceType: "module",
-
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-        project: ["./tsconfig.json"],
-      },
     },
 
     rules: {
@@ -112,3 +105,4 @@ export default [
   },
   eslintPluginPrettierRecommended,
 ];
+

@@ -1,4 +1,4 @@
-import baseConfig, { baseIgnores } from "../eslint-base.config.mjs";
+import baseConfig, { baseIgnores } from "./eslint-base.config.mjs";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
@@ -10,6 +10,7 @@ export default [
     ignores: [
       ...baseIgnores,
       "**/routeTree.gen.ts",
+      "eslint-base.config.mjs", // ESLint base config files don't need TypeScript project
     ],
   },
   {
