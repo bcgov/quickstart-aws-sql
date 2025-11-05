@@ -19,6 +19,7 @@ const DB_POOL_SIZE = parseInt(process.env.POSTGRES_POOL_SIZE || "5", 10);
 const isLocalhost =
   DB_HOST === "localhost" || DB_HOST === "127.0.0.1" || DB_HOST === "database";
 const isTestEnv =
+  process.env.NODE_ENV === "development" ||
   process.env.NODE_ENV === "local" ||
   process.env.NODE_ENV === "unittest" ||
   process.env.NODE_ENV === "test";
