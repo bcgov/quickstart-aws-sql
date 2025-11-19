@@ -39,7 +39,7 @@ services:
       database:
         condition: service_healthy
   schemaspy:
-    image: schemaspy/schemaspy:6.2.4
+    image: schemaspy/schemaspy:7.0.2
     profiles: ["schemaspy"]
     container_name: schemaspy
     command: -t pgsql11 -db postgres -host database -port 5432 -u postgres -p default -schemas app
