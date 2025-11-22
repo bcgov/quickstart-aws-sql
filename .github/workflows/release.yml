@@ -26,7 +26,7 @@ jobs:
       tags: ${{ steps.release.outputs.tags }}
       clean_changelog: ${{ steps.changelog.outputs.clean_changelog || '' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Conventional Changelog Update
         if: (github.event_name != 'release')
         uses: TriPSs/conventional-changelog-action@84dadaf2c367cb52af02737cd9c7e888807219e7 # v6
