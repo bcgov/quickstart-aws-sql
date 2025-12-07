@@ -26,7 +26,10 @@ vi.mock("pg", () => {
 // Mock @prisma/adapter-pg
 vi.mock("@prisma/adapter-pg", () => ({
   PrismaPg: vi.fn(function () {
-    return {};
+    return {
+      provider: "postgres",
+      adapterName: "pg",
+    };
   }),
 }));
 
