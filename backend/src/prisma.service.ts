@@ -31,6 +31,7 @@ class PrismaService
 {
   private static instance: PrismaService;
   private logger = new Logger("PRISMA");
+  private pool: Pool;
 
   constructor() {
     if (PrismaService.instance) {
@@ -38,8 +39,13 @@ class PrismaService
       return PrismaService.instance;
     }
 
-    // Create pg connection pool
-    const pool = new Pool({ connectionString: dataSourceURL });
+    // Create pg connection pool with configuration
+    const pool = new Pool({
+      connectionString: dataSourceURL,
+      max: DB_POOL_SIZE,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
     const adapter = new PrismaPg(pool);
 
     super({
@@ -52,6 +58,7 @@ class PrismaService
         { emit: "stdout", level: "error" },
       ],
     });
+    this.pool = pool;
     PrismaService.instance = this;
   }
 
@@ -68,6 +75,7 @@ class PrismaService
 
   async onModuleDestroy() {
     await this.$disconnect();
+    await this.pool.end();
   }
 }
 
