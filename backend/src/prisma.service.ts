@@ -20,16 +20,10 @@ class PrismaService
   extends PrismaClient<Prisma.PrismaClientOptions, "query">
   implements OnModuleInit, OnModuleDestroy
 {
-  private static instance: PrismaService;
   private logger = new Logger("PRISMA");
   private pool: Pool;
 
   constructor() {
-    if (PrismaService.instance) {
-      console.log("Returning existing PrismaService instance");
-      return PrismaService.instance;
-    }
-
     // Create pg connection pool with configuration
     const pool = new Pool({
       connectionString: getConnectionString(),
@@ -50,7 +44,6 @@ class PrismaService
       ],
     });
     this.pool = pool;
-    PrismaService.instance = this;
   }
 
   async onModuleInit() {

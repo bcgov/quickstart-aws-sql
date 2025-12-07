@@ -1,6 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "./prisma.service";
-import { Pool } from "pg";
 
 // Mock the database config module
 vi.mock("src/database.config", () => ({
@@ -29,14 +28,10 @@ vi.mock("@prisma/adapter-pg", () => ({
 
 describe("PrismaService", () => {
   let service: PrismaService;
-  let poolMock: any;
 
   beforeEach(async () => {
     // Clear all mocks before each test
     vi.clearAllMocks();
-
-    // Get the mocked Pool constructor
-    poolMock = new Pool();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [PrismaService],
@@ -78,7 +73,7 @@ describe("PrismaService", () => {
 
       // Assert
       expect(disconnectSpy).toHaveBeenCalled();
-      expect(service['pool'].end).toHaveBeenCalled();
+      expect(service["pool"].end).toHaveBeenCalled();
     });
   });
 });
