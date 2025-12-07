@@ -17,7 +17,9 @@ vi.mock("pg", () => {
     end: vi.fn().mockResolvedValue(undefined),
   };
   return {
-    Pool: vi.fn(() => mockPool),
+    Pool: vi.fn(function () {
+      return mockPool;
+    }),
   };
 });
 
