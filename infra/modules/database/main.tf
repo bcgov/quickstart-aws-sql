@@ -13,7 +13,7 @@ data "aws_rds_engine_version" "postgresql" {
 # -------------------------
 module "aurora_postgresql_v2" {
   source                      = "terraform-aws-modules/rds-aurora/aws"
-  version                     = "9.16.1"
+  version                     = "10.0.0"
   allow_major_version_upgrade = true
   name                        = var.db_cluster_name
   engine                      = data.aws_rds_engine_version.postgresql.engine
@@ -27,16 +27,16 @@ module "aurora_postgresql_v2" {
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
   master_username             = var.db_master_username
-  master_password             = random_password.db_master_password.result
+  master_password_wo          = random_password.db_master_password.result
+  master_password_wo_version  = 1
   manage_master_user_password = false
 
   create_security_group  = false
   create_db_subnet_group = false
   create_monitoring_role = false
 
-  apply_immediately          = true
-  skip_final_snapshot        = true
-  auto_minor_version_upgrade = true
+  apply_immediately   = true
+  skip_final_snapshot = true
 
   deletion_protection = contains(["prod"], var.app_env) ? true : false
   serverlessv2_scaling_configuration = {
@@ -44,11 +44,19 @@ module "aurora_postgresql_v2" {
     max_capacity = var.max_capacity
   }
 
-  instance_class = "db.serverless"
+  cluster_instance_class = "db.serverless"
   instances = var.ha_enabled ? {
-    one = {}
-    two = {}
-  } : { one = {} }
+    one = {
+      auto_minor_version_upgrade = true
+    }
+    two = {
+      auto_minor_version_upgrade = true
+    }
+  } : {
+    one = {
+      auto_minor_version_upgrade = true
+    }
+  }
 
   tags = module.common.common_tags
 
