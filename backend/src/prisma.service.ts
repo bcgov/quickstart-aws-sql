@@ -16,6 +16,14 @@ const DB_PORT = process.env.POSTGRES_PORT || 5432;
 const DB_NAME = process.env.POSTGRES_DATABASE || "postgres";
 const DB_SCHEMA = process.env.POSTGRES_SCHEMA || "app";
 const DB_POOL_SIZE = parseInt(process.env.POSTGRES_POOL_SIZE || "5", 10);
+const DB_POOL_IDLE_TIMEOUT = parseInt(
+  process.env.POSTGRES_POOL_IDLE_TIMEOUT || "30000",
+  10,
+);
+const DB_POOL_CONNECTION_TIMEOUT = parseInt(
+  process.env.POSTGRES_POOL_CONNECTION_TIMEOUT || "2000",
+  10,
+);
 // SSL settings for PostgreSQL 17+ which requires SSL by default
 // Use 'prefer' for localhost or non-production environments, 'require' for production AWS deployments
 const isLocalhost =
@@ -43,8 +51,8 @@ class PrismaService
     const pool = new Pool({
       connectionString: dataSourceURL,
       max: DB_POOL_SIZE,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
+      idleTimeoutMillis: DB_POOL_IDLE_TIMEOUT,
+      connectionTimeoutMillis: DB_POOL_CONNECTION_TIMEOUT,
     });
     const adapter = new PrismaPg(pool);
 
