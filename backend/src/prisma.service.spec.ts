@@ -25,7 +25,9 @@ vi.mock("pg", () => {
 
 // Mock @prisma/adapter-pg
 vi.mock("@prisma/adapter-pg", () => ({
-  PrismaPg: vi.fn(() => ({})),
+  PrismaPg: vi.fn(function () {
+    return {};
+  }),
 }));
 
 describe("PrismaService", () => {
