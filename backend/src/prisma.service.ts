@@ -6,6 +6,8 @@ import {
   Scope,
 } from "@nestjs/common";
 import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 const DB_HOST = process.env.POSTGRES_HOST || "localhost";
 const DB_USER = process.env.POSTGRES_USER || "postgres";
@@ -35,13 +37,14 @@ class PrismaService
       console.log("Returning existing PrismaService instance");
       return PrismaService.instance;
     }
+
+    // Create pg connection pool
+    const pool = new Pool({ connectionString: dataSourceURL });
+    const adapter = new PrismaPg(pool);
+
     super({
       errorFormat: "pretty",
-      datasources: {
-        db: {
-          url: dataSourceURL,
-        },
-      },
+      adapter,
       log: [
         { emit: "event", level: "query" },
         { emit: "stdout", level: "info" },
