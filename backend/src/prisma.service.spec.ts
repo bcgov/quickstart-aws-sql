@@ -78,7 +78,7 @@ describe("PrismaService", () => {
 
       // Assert
       expect(disconnectSpy).toHaveBeenCalled();
-      expect(poolMock.end).toHaveBeenCalled();
+      expect(service['pool'].end).toHaveBeenCalled();
     });
   });
 });
