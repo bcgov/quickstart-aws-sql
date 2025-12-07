@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { MetricsController } from "./metrics.controller";
 import { Response } from "express";
-import { register } from "src/middleware/prom";
+import { register } from "./middleware/prom";
 
 describe("MetricsController", () => {
   let controller: MetricsController;

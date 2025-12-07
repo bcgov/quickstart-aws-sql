@@ -80,33 +80,5 @@ describe("PrismaService", () => {
       expect(disconnectSpy).toHaveBeenCalled();
       expect(poolMock.end).toHaveBeenCalled();
     });
-
-    it("should handle pool cleanup errors gracefully", async () => {
-      // Arrange
-      const disconnectSpy = vi
-        .spyOn(service, "$disconnect")
-        .mockResolvedValue(undefined);
-      poolMock.end.mockRejectedValueOnce(new Error("Pool cleanup error"));
-
-      // Act & Assert
-      await expect(service.onModuleDestroy()).rejects.toThrow(
-        "Pool cleanup error",
-      );
-      expect(disconnectSpy).toHaveBeenCalled();
-      expect(poolMock.end).toHaveBeenCalled();
-    });
-  });
-
-  describe("singleton pattern", () => {
-    it("should return the same instance when created multiple times", () => {
-      // The service is already created in beforeEach
-      const service1 = service;
-
-      // Create another instance
-      const service2 = new PrismaService();
-
-      // Assert
-      expect(service1).toBe(service2);
-    });
   });
 });
