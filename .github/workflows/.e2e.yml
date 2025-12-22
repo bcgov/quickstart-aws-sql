@@ -32,7 +32,7 @@ jobs:
         if:  ( inputs.frontend_url == 'http://localhost:3000' )
         run: docker compose logs
       - name: Cache Playwright Browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: playwright-cache
         with:
           path: |
